@@ -23,7 +23,7 @@
 /**************************************************************************/
 
 #include <stdio.h>
-#include <string.h> 
+#include <string.h>
 #include <alloca.h>
 
 #include <caml/mlvalues.h>
@@ -60,7 +60,7 @@ int Val_rc(int x)
 
 #define Sqlite3_stmt_val(x)  (*(stmt_wrap *)(Data_custom_val(x)))
 #define is_stmt_finalized(x) (Sqlite3_stmt_val(x).stmt == NULL)
- 
+
 static void
 raise_sqlite3_range_error (int v,int max)
 {
@@ -69,7 +69,7 @@ raise_sqlite3_range_error (int v,int max)
    info = alloc(2,0);
    Store_field(info,0,Val_int(v));
    Store_field(info,1,Val_int(max));
-   raise_with_arg(*caml_named_value("sqlite3 range error"), info);  
+   raise_with_arg(*caml_named_value("sqlite3 range error"), info);
 }
 
 static value
@@ -92,7 +92,7 @@ raise_sqlite3_error(const char *fmt, ...)
    vsnprintf(buf, sizeof buf, fmt, args);
    va_end(args);
 
-   raise_with_string(*caml_named_value("sqlite3 error"), buf); 
+   raise_with_string(*caml_named_value("sqlite3 error"), buf);
 }
 
 static void raise_sqlite3_misuse_db        (value db, const char *fmt, ...)
@@ -105,8 +105,8 @@ static void raise_sqlite3_misuse_db        (value db, const char *fmt, ...)
    va_start(args, fmt);
    vsnprintf(buf, sizeof buf, fmt, args);
    va_end(args);
-  
-   raise_sqlite3_error("%s",buf); 
+
+   raise_sqlite3_error("%s",buf);
 }
 
 
@@ -138,7 +138,7 @@ copy_string_option_array(const char** strs, int len)
    for ( i=0; i<len; i++ ) {
       if (strs[i] == NULL) {
          Store_field(result, i, Val_int(0));
-      } 
+      }
       else {
          str               = copy_string(strs[i]);
          option            = alloc_small(1, 0);
@@ -163,11 +163,11 @@ safe_copy_string_array(const char** strs, int len)
    }
 
    result = alloc(len, 0);
-  
+
    for( i=0; i<len; i++ ) {
       if (strs[i] == NULL) {
          break;
-      } 
+      }
       else {
          Store_field(result, i, copy_string(strs[i]));
       }
@@ -176,13 +176,13 @@ safe_copy_string_array(const char** strs, int len)
    if( i<len ) {
       raise_sqlite3_error ("Null element in row.");
    }
-  
+
    CAMLreturn(result);
 }
 
 static void
 caml_sqlite3_check_db(value db, char *fun)
-{        
+{
    if (!is_db_open(db))
       raise_sqlite3_misuse_db(db,
                               "Sqlite3.%s called with closed database", fun);
@@ -192,7 +192,7 @@ caml_sqlite3_check_db(value db, char *fun)
 CAMLprim value
 caml_sqlite3_close(value db)
 {
-   CAMLparam1(db);  
+   CAMLparam1(db);
    caml_sqlite3_check_db(db,"close");
    sqlite3_close(Sqlite3_val(db).db);
    Sqlite3_val(db).db = NULL;
@@ -223,7 +223,7 @@ static struct custom_operations caml_sqlite3_ops = {
 };
 
 
-CAMLprim value 
+CAMLprim value
 caml_sqlite3_open(value filename)
 {
    CAMLparam1(filename);
@@ -313,7 +313,7 @@ caml_sqlite3_exec(value db,value sql_,value cb)
    CAMLparam3(db,sql_,cb);
    CAMLlocal1(errmsg_v);
    caml_sqlite3_check_db(db,"exec");
-   
+
    struct callback_with_xcp cbx;
    size_t len = string_length(sql_);
    char *sql = memcpy(alloca(len+1),String_val(sql_),len);
@@ -332,9 +332,9 @@ caml_sqlite3_exec(value db,value sql_,value cb)
 
    const char *msg = sqlite3_errmsg(Sqlite3_val(db).db);
    if(rc && strcmp(msg,"not an error")) {
-      raise_sqlite3_error("%s",msg); 
+      raise_sqlite3_error("%s",msg);
    }
-   
+
    CAMLreturn(Val_rc(rc));
 }
 
@@ -343,17 +343,17 @@ raise_sqlite3_misuse_stmt (const char *fmt, ...)
 {
    char buf[1024];
    va_list args;
-   
+
    va_start(args, fmt);
    vsnprintf(buf, sizeof buf, fmt, args);
    va_end(args);
-   
+
    raise_with_string(*caml_named_value("sqlite3 error"), buf);
 }
 
 static void
 caml_sqlite3_check_stmt(value stmt, char *fun)
-{        
+{
    if (is_stmt_finalized(stmt)) {
       raise_sqlite3_misuse_stmt("Sqlite3.%s called with finalized stmt", fun);
    }
@@ -395,7 +395,7 @@ caml_sqlite3_stmt_finalize(value stmt_)
       raise_sqlite3_misuse_stmt("Sqlite3.finalize "
                                 "called with finalized stmt");
    }
-  
+
    ret_code = sqlite3_finalize(stmt);
    stmt_p->stmt=NULL;
    CAMLreturn(Val_rc(ret_code));
@@ -410,7 +410,7 @@ caml_sqlite3_stmt_reset(value stmt_)
       raise_sqlite3_misuse_stmt("Sqlite3.reset "
                                 "called with finalized stmt");
    }
-   
+
    CAMLreturn(Val_rc(sqlite3_reset(stmt)));
 }
 
@@ -454,7 +454,7 @@ prepare_allocated(value stmt,
       }
 #endif
    }
-   
+
    CAMLreturn(stmt);
 }
 
@@ -500,7 +500,7 @@ caml_sqlite3_recompile(value stmt_)
    prepare_allocated(stmt_,stmt_p);
    CAMLreturn(Val_unit);
 }
-      
+
 CAMLprim value
 caml_sqlite3_bind_parameter_name(value stmt_,value index)
 {
@@ -535,7 +535,7 @@ caml_sqlite3_bind_parameter_index(value stmt_,value parmname)
       raise_sqlite3_misuse_stmt("Sqlite3.bind_parameter_index "
                                 "called with finalized stmt");
    }
-   
+
    CAMLreturn(Val_int(sqlite3_bind_parameter_index(stmt,
                                                    String_val(parmname))));
 }
@@ -602,7 +602,7 @@ caml_sqlite3_clear_bindings(value stmt_)
    if(!stmt) {
       raise_sqlite3_misuse_stmt("Sqlite3.clear_bindings "
                                 "called with finalized stmt");
-   } 
+   }
    CAMLreturn(Val_rc(sqlite3_clear_bindings(stmt)));
 }
 #endif
@@ -616,14 +616,14 @@ caml_sqlite3_transfer_bindings(value stmt1_,value stmt2_)
    if(!stmt1) {
       raise_sqlite3_misuse_stmt("Sqlite3.transfer_bindings "
                                 "called with finalized source stmt");
-   } 
+   }
 
    sqlite3_stmt *stmt2 = Sqlite3_stmt_val(stmt2_).stmt;
 
    if(!stmt2) {
       raise_sqlite3_misuse_stmt("Sqlite3.transfer_bindings "
                                 "called with finalized target stmt");
-   } 
+   }
 
    CAMLreturn(Val_rc(sqlite3_transfer_bindings(stmt1,stmt2)));
 }
@@ -666,7 +666,7 @@ caml_sqlite3_prepare_tail(value stmt_)
    } else {
       result = Val_int(0);
    }
-   
+
    CAMLreturn(result);
 }
 
@@ -741,7 +741,7 @@ caml_sqlite3_column(value stmt_,value index)
    int i = Int_val(index);
    range_check(i,sqlite3_data_count(stmt));
    int len;
-   
+
    switch(sqlite3_column_type(stmt,i)) {
       /* WARNING : we need the tmp variable to make GC happy! */
    case SQLITE_INTEGER:
