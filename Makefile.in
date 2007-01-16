@@ -51,10 +51,10 @@ sqlite3top: sqlite3.cma
 	ocamlfind ocamlmktop -o sqlite3top sqlite3.cma
 
 sqlite3.cma: sqlite3.cmo sqlite3_stubs.o
-	ocamlmklib -o sqlite3 sqlite3.cmo sqlite3_stubs.o $(LDFLAGS) $(LIBS) $(MKLIBFLAGS)
+	ocamlmklib -o sqlite3_stubs sqlite3.cmo sqlite3_stubs.o $(LDFLAGS) $(LIBS) $(MKLIBFLAGS)
 
 sqlite3.cmxa: sqlite3.cmx sqlite3_stubs.o
-	ocamlmklib -o sqlite3 sqlite3.cmx sqlite3_stubs.o $(LDFLAGS) $(LIBS) $(MKLIBFLAGS)
+	ocamlmklib -o sqlite3_stubs sqlite3.cmx sqlite3_stubs.o $(LDFLAGS) $(LIBS) $(MKLIBFLAGS)
 
 sqlite3.cmo: sqlite3.cmi sqlite3.ml
 
