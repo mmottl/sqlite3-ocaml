@@ -1,6 +1,8 @@
 (**************************************************************************)
+(*  Copyright (c) 2007 Jane Street Capital, LLC                           *)
+(*                     Author: Markus Mottl <markus.mottl@gmail.com>      *)
+(*                                                                        *)
 (*  Copyright (c) 2003 Christian Szegedy <csdontspam871@metamatix.org>    *)
-(*  Copyright (c) 2007 Markus Mottl <markus.mottl@gmail.com>              *)
 (*                                                                        *)
 (*  Permission is hereby granted, free of charge, to any person           *)
 (*  obtaining a copy of this software and associated documentation files  *)
@@ -33,8 +35,12 @@ type db
 type stmt
 
 module Rc = struct
+  type unknown
+
+  external int_of_unknown : unknown -> int = "%identity"
+
   type t =
-    | OK 
+    | OK
     | ERROR
     | INTERNAL
     | PERM
@@ -63,7 +69,7 @@ module Rc = struct
     | NOTADB
     | ROW
     | DONE
-    | UNKNOWN of int32
+    | UNKNOWN of unknown
 
   let to_string = function
     | OK -> "OK"
@@ -95,7 +101,7 @@ module Rc = struct
     | NOTADB -> "NOTADB"
     | ROW -> "ROW"
     | DONE -> "DONE"
-    | UNKNOWN n -> sprintf "UNKNOWN %ld" n
+    | UNKNOWN n -> sprintf "UNKNOWN %d" (int_of_unknown n)
 end
 
 module Data = struct
@@ -116,7 +122,9 @@ module Data = struct
     | BLOB b -> sprintf "BLOB <%d>" (String.length b)
 end
 
-type header = string array
+type header = string
+type headers = header array
+type row = string option array
 
 external db_open : string -> db = "caml_sqlite3_open"
 external db_close : db -> bool = "caml_sqlite3_close"
@@ -125,8 +133,9 @@ external errcode : db -> Rc.t = "caml_sqlite3_errcode"
 external errmsg : db -> string = "caml_sqlite3_errmsg"
 external last_insert_rowid : db -> int64 = "caml_sqlite3_last_insert_rowid"
 
-external exec : db -> string -> (string option array -> header -> unit) -> Rc.t = "caml_sqlite3_exec"
-(* external exec_ignore : db -> string -> (unit -> unit) -> Rc.t = "caml_sqlite3_exec_ignore" *)
+external exec :
+  db -> string -> (string option array -> headers -> unit) -> Rc.t
+  = "caml_sqlite3_exec"
 
 external prepare : db -> string -> stmt = "caml_sqlite3_prepare"
 external prepare_tail : stmt -> stmt option = "caml_sqlite3_prepare_tail"
@@ -140,14 +149,25 @@ external expired : stmt -> bool = "caml_sqlite3_expired"
 external data_count : stmt -> int = "caml_sqlite3_data_count"
 external column : stmt -> int -> Data.t = "caml_sqlite3_column"
 external column_name : stmt -> int -> string = "caml_sqlite3_column_name"
-external column_decltype : stmt -> int -> string = "caml_sqlite3_column_decltype"
+
+external column_decltype :
+  stmt -> int -> string = "caml_sqlite3_column_decltype"
 
 external bind : stmt -> int -> Data.t -> Rc.t = "caml_sqlite3_bind"
-external bind_parameter_count : stmt -> int = "caml_sqlite3_bind_parameter_count"
-external bind_parameter_name : stmt -> int -> string option="caml_sqlite3_bind_parameter_name"
-external bind_parameter_index : stmt -> string -> int = "caml_sqlite3_bind_parameter_index"
-external transfer_bindings : stmt -> stmt -> Rc.t = "caml_sqlite3_transfer_bindings"
 
+external bind_parameter_count :
+  stmt -> int = "caml_sqlite3_bind_parameter_count"
+
+external bind_parameter_name :
+  stmt -> int -> string option = "caml_sqlite3_bind_parameter_name"
+
+external bind_parameter_index :
+  stmt -> string -> int = "caml_sqlite3_bind_parameter_index"
+
+external transfer_bindings :
+  stmt -> stmt -> Rc.t = "caml_sqlite3_transfer_bindings"
+
+(* TODO: these give linking errors in the C-code *)
 (* external sleep   : int -> unit  = "caml_sqlite3_sleep" *)
 (* clear_bindings   : stmt -> Rc.t   = "caml_sqlite3_clear_bindings" *)
 
@@ -155,15 +175,16 @@ let row_data stmt = Array.init (data_count stmt) (column stmt)
 let row_names stmt = Array.init (data_count stmt) (column_name stmt)
 let row_decltypes stmt = Array.init (data_count stmt) (column_decltype stmt)
 
-let exec_sql f db sql =
-  let x = ref (Some (prepare db sql) ) in
-  while
-    ( match !x with
-    | Some s ->
-        while step s = Rc.ROW do f s done;
-        x := prepare_tail s;
-        true
-    | None -> false ) do () done
+let exec_sql db sql f =
+  let rec loop stmt =
+    if step stmt = Rc.ROW then (
+      f stmt;
+      match prepare_tail stmt with
+      | Some stmt -> loop stmt
+      | None -> ())
+    else ()
+  in
+  loop (prepare db sql)
 
 
 (* Initialisation *)

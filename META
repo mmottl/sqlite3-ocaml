@@ -1,6 +1,0 @@
-name="Sqlite3"
-version="0.3.5"
-description="Ocaml bindings to Sqlite 3._._"
-requires=""
-archive(byte) = "sqlite3.cma"
-archive(native) = "sqlite3.cmxa"

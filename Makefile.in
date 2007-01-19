@@ -5,7 +5,7 @@ exec_prefix=@exec_prefix@
 bindir=@bindir@
 
 CC=@CC@
-CFLAGS=@CPPFLAGS@ @CFLAGS@ 
+CFLAGS=@CPPFLAGS@ @CFLAGS@
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
 
@@ -32,7 +32,7 @@ distclean: clean
 	rm -rf autom4te.* config.* configure META Makefile doc
 
 # install rebuilds sqlite3top to point to the findlib-managed dll and not the
-# one in . 
+# one in .
 install: sqlite3.cma sqlite3.cmxa sqlite3top
 	ocamlfind install sqlite3 META sqlite3.cmi sqlite3.mli sqlite3.cma *.cmxa *.a *.cmx *.so
 	ocamlfind ocamlmktop -o sqlite3top -package "sqlite3" sqlite3.cma
@@ -51,19 +51,19 @@ sqlite3top: sqlite3.cma
 	ocamlfind ocamlmktop -o sqlite3top sqlite3.cma
 
 sqlite3.cma: sqlite3.cmo sqlite3_stubs.o
-	ocamlmklib -o sqlite3_stubs sqlite3.cmo sqlite3_stubs.o $(LDFLAGS) $(LIBS) $(MKLIBFLAGS)
+	ocamlmklib -o sqlite3 -oc sqlite3_stubs sqlite3.cmo sqlite3_stubs.o $(LDFLAGS) $(LIBS) $(MKLIBFLAGS)
 
-sqlite3.cmxa: sqlite3.cmx sqlite3_stubs.o
-	ocamlmklib -o sqlite3_stubs sqlite3.cmx sqlite3_stubs.o $(LDFLAGS) $(LIBS) $(MKLIBFLAGS)
+sqlite3.cmxa: sqlite3.cmx sqlite3.o sqlite3_stubs.o
+	ocamlmklib -o sqlite3 -oc sqlite3_stubs sqlite3.cmx sqlite3_stubs.o $(LDFLAGS) $(LIBS) $(MKLIBFLAGS)
 
 sqlite3.cmo: sqlite3.cmi sqlite3.ml
 
-.SUFFIXES:	.ml .mli .cmo .cmi .cmx 
+.SUFFIXES: .ml .mli .cmo .cmi .cmx
 
 .mli.cmi:
 	ocamlc -c $<
 .ml.cmo:
 	ocamlc $(OCFLAGS) -c $<
-.ml.cmx:	
+.ml.cmx:
 	ocamlc $(OCFLAGS) -c $*.mli
 	ocamlopt $(OCFLAGS) -c $<

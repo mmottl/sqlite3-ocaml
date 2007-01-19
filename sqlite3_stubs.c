@@ -1,8 +1,8 @@
 /**************************************************************************/
-/*  Copyright (c) 2005 Christian Szegedy <csdontspam871@metamatix.org>    */
-/*                                                                        */
-/*  Copyright (c) 2007 Jane Street Capital, LLC                           */
+/*  Copyright (c) 2007 Jane Street Holding, LLC                           */
 /*                     Author: Markus Mottl <markus.mottl@gmail.com>      */
+/*                                                                        */
+/*  Copyright (c) 2005 Christian Szegedy <csdontspam871@metamatix.org>    */
 /*                                                                        */
 /*  Permission is hereby granted, free of charge, to any person           */
 /*  obtaining a copy of this software and associated documentation files  */
@@ -175,17 +175,13 @@ CAMLprim value caml_sqlite3_init(value v_unit)
 
 static inline int Val_rc(int rc)
 {
-  CAMLparam0();
   if (rc >= 0) {
-    if (rc <= 26) CAMLreturn(Val_int(rc));
-    if (rc >= 100 || rc <= 101) CAMLreturn(Val_int(rc - 73));
-  }
-  {
-    CAMLlocal1(v_rc);
-    v_rc = caml_copy_int32(rc);
+    if (rc <= 26) return Val_int(rc);
+    if (rc >= 100 || rc <= 101) return Val_int(rc - 73);
+  } else {
     value v_res = caml_alloc_small(1, 0);
-    Field(v_res, 0) = v_rc;
-    CAMLreturn(v_rc);
+    Field(v_res, 0) = Val_int(rc);
+    return v_res;
   }
 }
 
@@ -498,7 +494,9 @@ CAMLprim value caml_sqlite3_bind_parameter_index(value v_stmt, value v_parm_name
 {
   stmt_wrap *stmtw = safe_get_stmtw("bind_parameter_index", v_stmt);
   char *parm_name = String_val(v_parm_name);
-  return Val_int(sqlite3_bind_parameter_index(stmtw->stmt, parm_name));
+  int index = sqlite3_bind_parameter_index(stmtw->stmt, parm_name);
+  if (!index) caml_raise_not_found();
+  else return Val_int(index);
 }
 
 CAMLprim value caml_sqlite3_bind_parameter_count(value v_stmt)
@@ -640,6 +638,6 @@ CAMLprim value caml_sqlite3_sleep(value v_duration)
 
 CAMLprim value caml_sqlite3_expired(value v_stmt)
 {
-  sqlite3_stmt *stmt = safe_get_stmtw("column", v_stmt)->stmt;
+  sqlite3_stmt *stmt = safe_get_stmtw("expired", v_stmt)->stmt;
   return sqlite3_expired(stmt) ? Val_true : Val_false;
 }

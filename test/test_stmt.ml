@@ -2,7 +2,7 @@ open Sqlite3
 
 let stepbystep s =
   while step s = Rc.ROW do
-    for i = 0 to data_count s -1 do
+    for i = 0 to data_count s - 1 do
       Printf.printf "%s column[%d] %s = %s\n%!"
         (column_decltype s i) i
         (column_name s i)
@@ -47,8 +47,7 @@ let () =
     let sql = Printf.sprintf "SELECT * FROM tbl0; SELECT * FROM tbl1;" in
     let stmt = prepare db sql in
     ignore (finalize stmt);
-    try
-      ignore (prepare_tail stmt)
+    try ignore (prepare_tail stmt)
     with xcp -> ()
   done;
 
