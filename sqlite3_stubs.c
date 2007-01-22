@@ -1,8 +1,8 @@
 /**************************************************************************/
+/*  Copyright (c) 2005 Christian Szegedy <csdontspam871@metamatix.org>    */
+/*                                                                        */
 /*  Copyright (c) 2007 Jane Street Holding, LLC                           */
 /*                     Author: Markus Mottl <markus.mottl@gmail.com>      */
-/*                                                                        */
-/*  Copyright (c) 2005 Christian Szegedy <csdontspam871@metamatix.org>    */
 /*                                                                        */
 /*  Permission is hereby granted, free of charge, to any person           */
 /*  obtaining a copy of this software and associated documentation files  */
