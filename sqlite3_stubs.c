@@ -572,8 +572,13 @@ CAMLprim value caml_sqlite3_column_decltype(value v_stmt, value v_index)
 
 CAMLprim value caml_sqlite3_step(value v_stmt)
 {
+  CAMLparam1(v_stmt);
   sqlite3_stmt *stmt = safe_get_stmtw("step", v_stmt)->stmt;
-  return Val_rc(sqlite3_step(stmt));
+  int rc;
+  caml_enter_blocking_section();
+    rc = sqlite3_step(stmt);
+  caml_leave_blocking_section();
+  CAMLreturn(Val_rc(rc));
 }
 
 CAMLprim value caml_sqlite3_data_count(value v_stmt)

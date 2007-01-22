@@ -1,0 +1,13 @@
+*.cma
+*.cmi
+*.cmxa
+*.cmo
+*.cmx
+config.log
+config.status
+config.cache
+doc
+sqlite3top
+META
+Makefile
+autom4te.cache
