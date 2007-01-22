@@ -29,7 +29,7 @@ clean:
 	rm -f *.o *.cmo *.cmx *.cmi *.so *.cma *.cmxa *.a sqlite3top
 
 distclean: clean
-	rm -rf autom4te.* config.* configure META Makefile doc
+	rm -rf autom4te.* config.* META Makefile doc
 
 # install rebuilds sqlite3top to point to the findlib-managed dll and not the
 # one in .
