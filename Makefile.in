@@ -5,7 +5,7 @@ exec_prefix=@exec_prefix@
 bindir=@bindir@
 
 CC=@CC@
-CFLAGS=@CPPFLAGS@ @CFLAGS@
+CFLAGS=@CPPFLAGS@ @CFLAGS@ -fPIC
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
 
