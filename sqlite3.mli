@@ -242,7 +242,7 @@ external finalize : stmt -> Rc.t = "caml_sqlite3_stmt_finalize"
 *)
 
 external reset : stmt -> Rc.t = "caml_sqlite3_stmt_reset"
-(** [reset stmt] resets the statement [stmt], i.e. restarts the query,
+(** [reset stmt] resets the statement [stmt], e.g. to restart the query,
     perhaps with different bindings.
 
     @return the return code of this operation.
