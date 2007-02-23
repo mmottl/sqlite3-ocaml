@@ -152,6 +152,8 @@ external db_open : string -> db = "caml_sqlite3_open"
 
 external db_close : db -> bool = "caml_sqlite3_close"
 (** [db_close db] closes database [db] and invalidates the handle.
+    @return [false] if database was busy (database not closed in this
+    case!), [true] otherwise.
 
     @raise SqliteError if an invalid database handle is passed.
 *)

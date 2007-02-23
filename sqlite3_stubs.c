@@ -285,7 +285,7 @@ CAMLprim value caml_sqlite3_close(value v_db)
   db_wrap *dbw = &Sqlite3_val(v_db);
   check_db(dbw, "close");
   int ret = sqlite3_close(dbw->db);
-  int not_busy = ret != SQLITE_OK;
+  int not_busy = ret != SQLITE_BUSY;
   if (not_busy) dbw->db = NULL;
   return Val_bool(not_busy);
 }

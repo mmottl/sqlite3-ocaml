@@ -1,3 +1,5 @@
+2007-02-23: Fixed a bug in the "db_close"-function.  Improved documentation.
+
 2007-02-19: Added check for out of memory after malloc.
 
 2007-01-31: Fixed build problem on x86_64: added -fPIC flag to compilation
