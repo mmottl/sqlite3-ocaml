@@ -35,7 +35,8 @@ exception InternalError of string
 
 exception Error of string
 (** [Error reason] is raised when some SQL operation is called on a
-    nonexistent handle and the functions does not return a return code.
+    nonexistent handle and the functions does not return a return code,
+    or if there is no error code corresponding to this error.
     Functions returning return codes communicate errors by returning
     the specific error code. *)
 
@@ -78,6 +79,9 @@ type headers = header array
 
 type row = string option array
 (** Type of row data (with potential NULL-values) *)
+
+type row_not_null = string array
+(** Type of row data (without NULL-values) *)
 
 
 (** {2 Return codes} *)
@@ -180,17 +184,65 @@ external last_insert_rowid : db -> int64 = "caml_sqlite3_last_insert_rowid"
 *)
 
 external exec :
-  db -> string -> (row -> headers -> unit) -> Rc.t = "caml_sqlite3_exec"
-(** [exec db sql callback] performs SQL-operation [sql] on database [db].
+  db -> ?cb : (row -> headers -> unit) -> string -> Rc.t = "caml_sqlite3_exec"
+(** [exec db ?cb sql] performs SQL-operation [sql] on database [db].
     If the operation contains query statements, then the callback function
-    will be called for each matching row.  The first parameter of the
-    callback is the contents of the row, the second paramater are the
+    [cb] will be called for each matching row.  The first parameter of
+    the callback is the contents of the row, the second paramater are the
     headers of the columns associated with the row.  Exceptions raised
     within the callback will abort the execution and escape {!exec}.
 
     @return the return code of the operation.
 
+    @param cb default = no callback
+
     @raise SqliteError if an invalid database handle is passed.
+*)
+
+external exec_no_headers :
+  db -> cb : (row -> unit) -> string -> Rc.t = "caml_sqlite3_exec_no_headers"
+(** [exec_no_headers db ?cb sql] performs SQL-operation [sql] on database
+    [db].  If the operation contains query statements, then the callback
+    function [cb] will be called for each matching row.  The parameter
+    of the callback is the contents of the row.  Exceptions raised within
+    the callback will abort the execution and escape {!exec_no_headers}.
+
+    @return the return code of the operation.
+
+    @raise SqliteError if an invalid database handle is passed.
+*)
+
+external exec_not_null :
+  db -> cb : (row_not_null -> headers -> unit) -> string
+  -> Rc.t = "caml_sqlite3_exec_not_null"
+(** [exec_not_null db ~cb sql] performs SQL-operation [sql] on database
+    [db].  If the operation contains query statements, then the callback
+    function [cb] will be called for each matching row.  The first
+    parameter of the callback is the contents of the row, which must
+    not contain NULL-values, the second paramater are the headers of
+    the columns associated with the row.  Exceptions raised within the
+    callback will abort the execution and escape {!exec_not_null}.
+
+    @return the return code of the operation.
+
+    @raise SqliteError if an invalid database handle is passed.
+    @raise SqliteError if a row contains NULL.
+*)
+
+external exec_not_null_no_headers :
+  db -> cb : (row_not_null -> unit) -> string
+  -> Rc.t = "caml_sqlite3_exec_not_null_no_headers"
+(** [exec_not_null_no_headers db ~cb sql] performs SQL-operation [sql]
+    on database [db].  If the operation contains query statements, then
+    the callback function [cb] will be called for each matching row.
+    The parameter of the callback is the contents of the row, which must
+    not contain NULL-values.  Exceptions raised within the callback will
+    abort the execution and escape {!exec_not_null_no_headers}.
+
+    @return the return code of the operation.
+
+    @raise SqliteError if an invalid database handle is passed.
+    @raise SqliteError if a row contains NULL.
 *)
 
 

@@ -11,7 +11,7 @@ let () =
         sprintf "CREATE TABLE tbl%d (a varchar(1), b INTEGER, c FLOAT)" i
       in
       printf "%d %s\n%!" i sql;
-      match exec db sql (fun _ _ -> print_endline "???") with
+      match exec db sql ~cb:(fun _ _ -> print_endline "???") with
       | Rc.OK -> ()
       | _ -> assert false
     with xcp -> print_endline (Printexc.to_string xcp)
@@ -20,7 +20,7 @@ let () =
     let sql = sprintf "SYNTACTICALLY INCORRECT SQL STATEMENT" in
     printf "%d %s\n%!" i sql;
     try
-      match exec db sql (fun _ _ -> print_endline "???") with
+      match exec db sql ~cb:(fun _ _ -> print_endline "???") with
       | Rc.ERROR -> printf "Identified error: %s\n" (errmsg db)
       | _ -> assert false
     with xcp -> print_endline (Printexc.to_string xcp)
@@ -29,7 +29,7 @@ let () =
     let sql = sprintf "INSERT INTO tbl%d VALUES ('a', 3, 3.14)" i in
     printf "%d %s\n%!" i sql;
     try
-      match exec db sql (fun _ _ -> print_endline "???") with
+      match exec db sql ~cb:(fun _ _ -> print_endline "???") with
       | Rc.OK -> ()
       | _ -> assert false
     with xcp -> print_endline (Printexc.to_string xcp)
@@ -38,7 +38,9 @@ let () =
   for i = 0 to 3 do
     try
       print_endline "TESTING!";
-      match exec db sql (fun _ _ -> print_endline "FOUND!"; raise Dummy) with
+      match
+        exec db sql ~cb:(fun _ _ -> print_endline "FOUND!"; raise Dummy)
+      with
       | Rc.OK -> print_endline "OK"
       | _ -> assert false
     with xcp -> print_endline (Printexc.to_string xcp)

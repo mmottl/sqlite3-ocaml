@@ -1,3 +1,11 @@
+2007-02-27: Small API-change: the callback for exec is now an optional
+            argument.
+
+            Added three more "exec"-functions, which do or do not take
+            headers or handle NULL-values.
+
+            Improved quality of C-code (removed warnings).
+
 2007-02-23: Fixed a bug in the "db_close"-function.  Improved documentation.
 
 2007-02-19: Added check for out of memory after malloc.

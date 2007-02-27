@@ -125,6 +125,7 @@ end
 type header = string
 type headers = header array
 type row = string option array
+type row_not_null = string array
 
 external db_open : string -> db = "caml_sqlite3_open"
 external db_close : db -> bool = "caml_sqlite3_close"
@@ -134,8 +135,20 @@ external errmsg : db -> string = "caml_sqlite3_errmsg"
 external last_insert_rowid : db -> int64 = "caml_sqlite3_last_insert_rowid"
 
 external exec :
-  db -> string -> (string option array -> headers -> unit) -> Rc.t
+  db -> ?cb : (string option array -> headers -> unit) -> string -> Rc.t
   = "caml_sqlite3_exec"
+
+external exec_no_headers :
+  db -> cb : (string option array -> unit) -> string -> Rc.t
+  = "caml_sqlite3_exec_no_headers"
+
+external exec_not_null :
+  db -> cb : (string array -> headers -> unit) -> string -> Rc.t
+  = "caml_sqlite3_exec_not_null"
+
+external exec_not_null_no_headers :
+  db -> cb : (string array -> unit) -> string -> Rc.t
+  = "caml_sqlite3_exec_not_null_no_headers"
 
 external prepare : db -> string -> stmt = "caml_sqlite3_prepare"
 external prepare_tail : stmt -> stmt option = "caml_sqlite3_prepare_tail"

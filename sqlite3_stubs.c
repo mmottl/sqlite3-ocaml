@@ -35,6 +35,7 @@
 #include <caml/alloc.h>
 #include <caml/callback.h>
 #include <caml/custom.h>
+#include <caml/signals.h>
 
 #include <sqlite3.h>
 
@@ -83,6 +84,8 @@ static inline value raise_with_two_args(value v_tag, value v_arg1, value v_arg2)
   CAMLnoreturn;
 }
 
+static inline void raise_sqlite3_InternalError(char *msg) Noreturn;
+
 static inline void raise_sqlite3_InternalError(char *msg)
 {
   raise_with_string(*caml_sqlite3_InternalError, msg);
@@ -93,6 +96,8 @@ static inline void range_check(int v, int max)
   if (v < 0 || v >= max)
     raise_with_two_args(*caml_sqlite3_RangeError, Val_int(v), Val_int(max));
 }
+
+static inline void raise_sqlite3_Error(const char *fmt, ...) Noreturn;
 
 static inline void raise_sqlite3_Error(const char *fmt, ...)
 {
@@ -122,7 +127,6 @@ static inline void raise_sqlite3_misuse_db(db_wrap *dbw, const char *fmt, ...)
 
 static inline void raise_sqlite3_current(sqlite3 *db, char *loc)
 {
-  char buf[4096];
   const char *what = sqlite3_errmsg(db);
   if (!what) what = "<No error>";
   raise_sqlite3_Error("Sqlite.%s: %s", loc, what);
@@ -214,7 +218,7 @@ static value copy_string_option_array(const char** strs, int len)
   }
 }
 
-static value safe_copy_string_array(const char** strs, int len)
+static value copy_not_null_string_array(const char** strs, int len)
 {
   if (!len) return Atom(0);
   else {
@@ -226,12 +230,22 @@ static value safe_copy_string_array(const char** strs, int len)
 
     for(i = 0; i < len; ++i) {
       const char *str = strs[i];
-      if (str == NULL) raise_sqlite3_Error("Null element in row");
+      if (str == NULL) {
+        v_res = (value) NULL;
+        break;
+      }
       else Store_field(v_res, i, caml_copy_string(str));
     }
 
     CAMLreturn(v_res);
   }
+}
+
+static value safe_copy_string_array(const char** strs, int len)
+{
+  value v_res = copy_not_null_string_array(strs, len);
+  if (v_res == (value) NULL) raise_sqlite3_Error("Null element in row");
+  return v_res;
 }
 
 
@@ -257,12 +271,12 @@ CAMLprim value caml_sqlite3_open(value v_file)
 
   if (sqlite3_open(String_val(v_file), &db)) {
     const char *msg;
+    char buf[1024];
     if (db) {
       msg = sqlite3_errmsg(db);
       sqlite3_close(db);
     }
     else msg = "<unknown_error>";
-    char buf[1024];
     snprintf(buf, sizeof(buf) - 1, "error opening database: %s", msg);
     raise_sqlite3_Error(buf);
   } else if (db == NULL)
@@ -281,11 +295,11 @@ CAMLprim value caml_sqlite3_open(value v_file)
 
 CAMLprim value caml_sqlite3_close(value v_db)
 {
-  int rc;
+  int ret, not_busy;
   db_wrap *dbw = &Sqlite3_val(v_db);
   check_db(dbw, "close");
-  int ret = sqlite3_close(dbw->db);
-  int not_busy = ret != SQLITE_BUSY;
+  ret = sqlite3_close(dbw->db);
+  not_busy = ret != SQLITE_BUSY;
   if (not_busy) dbw->db = NULL;
   return Val_bool(not_busy);
 }
@@ -313,7 +327,7 @@ CAMLprim value caml_sqlite3_last_insert_rowid (value v_db)
 {
   db_wrap *dbw = &Sqlite3_val(v_db);
   check_db(dbw, "last_insert_rowid");
-  caml_copy_int64(sqlite3_last_insert_rowid(dbw->db));
+  return caml_copy_int64(sqlite3_last_insert_rowid(dbw->db));
 }
 
 
@@ -349,18 +363,78 @@ static int exec_callback(void *cbx_, int num_columns, char **row, char **header)
   return 0;
 }
 
-CAMLprim value caml_sqlite3_exec(value v_db, value v_sql, value v_cb)
+CAMLprim value caml_sqlite3_exec(value v_db, value v_maybe_cb, value v_sql)
 {
-  CAMLparam2(v_db, v_cb);
-  CAMLlocal1(errmsg_v);
+  CAMLparam1(v_db);
+  CAMLlocal1(v_cb);
   struct callback_with_exn cbx;
   db_wrap *dbw = &Sqlite3_val(v_db);
+  size_t len;
+  char *sql;
+  int rc;
+  sqlite3_callback cb = NULL;
 
   check_db(dbw, "exec");
 
-  size_t len = caml_string_length(v_sql);
-  char *sql = memcpy(alloca(len + 1), String_val(v_sql), len);
+  len = caml_string_length(v_sql);
+  sql = memcpy(alloca(len + 1), String_val(v_sql), len);
+
+  sql[len] = '\0';
+
+  cbx.cbp = &v_cb;
+  cbx.exn = Val_unit;
+
+  if (v_maybe_cb != v_None) {
+    v_cb = Field(v_maybe_cb, 0);
+    cb = exec_callback;
+  }
+
+  caml_enter_blocking_section();
+
+  rc = sqlite3_exec(dbw->db, sql, cb, (void *) &cbx, NULL);
+
+  if (rc == SQLITE_ABORT) caml_raise(cbx.exn);
+  else {
+    caml_leave_blocking_section();
+    CAMLreturn(Val_rc(rc));
+  }
+}
+
+static int exec_callback_no_headers(
+  void *cbx_, int num_columns, char **row, char **header)
+{
+  struct callback_with_exn *cbx = cbx_;
+  value v_row, v_ret;
+
+  caml_leave_blocking_section();
+
+    v_row = copy_string_option_array((const char **) row, num_columns);
+
+    v_ret = callback_exn(*cbx->cbp, v_row);
+
+    if (Is_exception_result(v_ret)) {
+      cbx->exn = Extract_exception(v_ret);
+      return 1;
+    }
+
+  caml_enter_blocking_section();
+
+  return 0;
+}
+
+CAMLprim value caml_sqlite3_exec_no_headers(value v_db, value v_cb, value v_sql)
+{
+  CAMLparam2(v_db, v_cb);
+  struct callback_with_exn cbx;
+  db_wrap *dbw = &Sqlite3_val(v_db);
+  size_t len;
+  char *sql;
   int rc;
+
+  check_db(dbw, "exec");
+
+  len = caml_string_length(v_sql);
+  sql = memcpy(alloca(len + 1), String_val(v_sql), len);
 
   sql[len] = '\0';
 
@@ -369,11 +443,131 @@ CAMLprim value caml_sqlite3_exec(value v_db, value v_sql, value v_cb)
 
   caml_enter_blocking_section();
 
-  rc = sqlite3_exec(dbw->db, sql, exec_callback, (void *) &cbx, NULL);
+  rc =
+    sqlite3_exec(dbw->db, sql, exec_callback_no_headers, (void *) &cbx, NULL);
 
-  if (cbx.exn != Val_unit) caml_raise(cbx.exn);
+  if (rc == SQLITE_ABORT) caml_raise(cbx.exn);
   else {
-    const char *msg = sqlite3_errmsg(dbw->db);
+    caml_leave_blocking_section();
+    CAMLreturn(Val_rc(rc));
+  }
+}
+
+static int exec_not_null_callback(
+  void *cbx_, int num_columns, char **row, char **header)
+{
+  struct callback_with_exn *cbx = cbx_;
+  value v_row, v_header, v_ret;
+
+  caml_leave_blocking_section();
+
+    v_row = copy_not_null_string_array((const char **) row, num_columns);
+
+    if (v_row == (value) NULL) return 1;
+
+    Begin_roots1(v_row);
+      v_header = safe_copy_string_array((const char **) header, num_columns);
+    End_roots();
+
+    v_ret = callback2_exn(*cbx->cbp, v_row, v_header);
+
+    if (Is_exception_result(v_ret)) {
+      cbx->exn = Extract_exception(v_ret);
+      return 1;
+    }
+
+  caml_enter_blocking_section();
+
+  return 0;
+}
+
+CAMLprim value caml_sqlite3_exec_not_null(
+  value v_db, value v_cb, value v_sql)
+{
+  CAMLparam2(v_db, v_cb);
+  struct callback_with_exn cbx;
+  db_wrap *dbw = &Sqlite3_val(v_db);
+  size_t len;
+  char *sql;
+  int rc;
+
+  check_db(dbw, "exec_not_null");
+
+  len = caml_string_length(v_sql);
+  sql = memcpy(alloca(len + 1), String_val(v_sql), len);
+
+  sql[len] = '\0';
+
+  cbx.cbp = &v_cb;
+  cbx.exn = Val_unit;
+
+  caml_enter_blocking_section();
+
+  rc = sqlite3_exec(dbw->db, sql, exec_not_null_callback, (void *) &cbx, NULL);
+
+  if (rc == SQLITE_ABORT) {
+    if (cbx.exn != Val_unit) caml_raise(cbx.exn);
+    else raise_sqlite3_Error("Null element in row");
+  } else {
+    caml_leave_blocking_section();
+    CAMLreturn(Val_rc(rc));
+  }
+}
+
+static int exec_not_null_no_headers_callback(
+  void *cbx_, int num_columns, char **row, char **header)
+{
+  struct callback_with_exn *cbx = cbx_;
+  value v_row, v_ret;
+
+  caml_leave_blocking_section();
+
+    v_row = copy_not_null_string_array((const char **) row, num_columns);
+
+    if (v_row == (value) NULL) return 1;
+
+    v_ret = callback_exn(*cbx->cbp, v_row);
+
+    if (Is_exception_result(v_ret)) {
+      cbx->exn = Extract_exception(v_ret);
+      return 1;
+    }
+
+  caml_enter_blocking_section();
+
+  return 0;
+}
+
+CAMLprim value caml_sqlite3_exec_not_null_no_headers(
+  value v_db, value v_cb, value v_sql)
+{
+  CAMLparam2(v_db, v_cb);
+  struct callback_with_exn cbx;
+  db_wrap *dbw = &Sqlite3_val(v_db);
+  size_t len;
+  char *sql;
+  int rc;
+
+  check_db(dbw, "exec_not_null_no_headers");
+
+  len = caml_string_length(v_sql);
+  sql = memcpy(alloca(len + 1), String_val(v_sql), len);
+
+  sql[len] = '\0';
+
+  cbx.cbp = &v_cb;
+  cbx.exn = Val_unit;
+
+  caml_enter_blocking_section();
+
+  rc =
+    sqlite3_exec(
+      dbw->db, sql, exec_not_null_no_headers_callback, (void *) &cbx, NULL);
+
+  if (rc == SQLITE_ABORT) {
+    if (cbx.exn != Val_unit) caml_raise(cbx.exn);
+    else raise_sqlite3_Error("Null element in row");
+  } else {
     caml_leave_blocking_section();
     CAMLreturn(Val_rc(rc));
   }
@@ -463,11 +657,12 @@ CAMLprim value caml_sqlite3_recompile(value v_stmt)
   CAMLparam1(v_stmt);
   stmt_wrap *stmtw = &Sqlite3_stmtw_val(v_stmt);
   sqlite3_stmt *stmt = stmtw->stmt;
+  int rc;
   if (stmt) {
     sqlite3_finalize(stmt);
     stmtw->stmt = NULL;
   }
-  int rc =
+  rc =
     sqlite3_prepare(stmtw->db_wrap->db, stmtw->sql, stmtw->sql_len,
                     &(stmtw->stmt),
                     (const char **) &(stmtw->tail));
@@ -483,8 +678,9 @@ CAMLprim value caml_sqlite3_bind_parameter_name(value v_stmt, value v_index)
   stmt_wrap *stmtw = safe_get_stmtw("bind_parameter_name", v_stmt);
   sqlite3_stmt *stmt = stmtw->stmt;
   int i = Int_val(v_index);
+  const char *str;
   range_check(i - 1, sqlite3_bind_parameter_count(stmt));
-  const char *str = sqlite3_bind_parameter_name(stmt, i);
+  str = sqlite3_bind_parameter_name(stmt, i);
   if (str) {
     CAMLlocal1(v_tmp);
     value v_res;
@@ -599,9 +795,8 @@ CAMLprim value caml_sqlite3_column(value v_stmt, value v_index)
   CAMLlocal1(v_tmp);
   value v_res;
   sqlite3_stmt *stmt = safe_get_stmtw("column", v_stmt)->stmt;
-  int i = Int_val(v_index);
+  int len, i = Int_val(v_index);
   range_check(i, sqlite3_data_count(stmt));
-  int len;
   switch (sqlite3_column_type(stmt, i)) {
     case SQLITE_INTEGER :
       v_tmp = caml_copy_int64(sqlite3_column_int64(stmt, i));
