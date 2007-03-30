@@ -640,9 +640,10 @@ CAMLprim value caml_sqlite3_prepare(value v_db, value v_sql)
 CAMLprim value caml_sqlite3_prepare_tail(value v_stmt)
 {
   CAMLparam1(v_stmt);
+  CAMLlocal1(v_tmp);
   stmt_wrap *stmtw = &Sqlite3_stmtw_val(v_stmt);
   if (stmtw->sql && stmtw->tail && *(stmtw->tail)) {
-    value v_tmp =
+    v_tmp =
       prepare_it(stmtw->db_wrap, stmtw->tail,
                  stmtw->sql_len - (stmtw->tail - stmtw->sql));
     value v_res = caml_alloc_small(1, 0);

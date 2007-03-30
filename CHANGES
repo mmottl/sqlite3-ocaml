@@ -1,3 +1,5 @@
+2007-03-30: Fixed a GC-bug.
+
 2007-03-19: Fixed an installation problem on Cygwin.
 
             Thanks to James Cheney <james.cheney@gmail.com> for the hint!
