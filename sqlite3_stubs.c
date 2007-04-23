@@ -410,7 +410,7 @@ static int exec_callback_no_headers(
 
     v_row = copy_string_option_array((const char **) row, num_columns);
 
-    v_ret = callback_exn(*cbx->cbp, v_row);
+    v_ret = caml_callback_exn(*cbx->cbp, v_row);
 
     if (Is_exception_result(v_ret)) {
       cbx->exn = Extract_exception(v_ret);
@@ -526,7 +526,7 @@ static int exec_not_null_no_headers_callback(
 
     if (v_row == (value) NULL) return 1;
 
-    v_ret = callback_exn(*cbx->cbp, v_row);
+    v_ret = caml_callback_exn(*cbx->cbp, v_row);
 
     if (Is_exception_result(v_ret)) {
       cbx->exn = Extract_exception(v_ret);
