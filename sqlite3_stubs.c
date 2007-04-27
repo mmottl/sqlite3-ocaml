@@ -610,23 +610,18 @@ static value prepare_it(db_wrap *dbw, const char *sql, int sql_len)
     caml_alloc_final(1 + sizeof(stmt_wrap), &finalize_stmt_gc, 1, 100);
   stmt_wrap *stmtw = &Sqlite3_stmtw_val(v_stmt);
   stmtw->stmt = NULL;
-
-  if (! (stmtw->sql = malloc(sql_len + 1)))
-    raise_sqlite3_Error(
-      "SQL query string allocation failed for %d characters", sql_len + 1);
-  else {
-    stmtw->sql = memcpy(stmtw->sql, sql, sql_len);
-    stmtw->sql[sql_len] = '\0';
-    stmtw->sql_len = sql_len;
-    stmtw->tail = NULL;
-    stmtw->db_wrap = dbw;
-    dbw->ref_count++;
-    rc = sqlite3_prepare(dbw->db, sql, sql_len,
-                         &(stmtw->stmt), (const char **) &(stmtw->tail));
-    if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, "prepare");
-    else if (!stmtw->stmt) raise_sqlite3_Error("No code compiled from %s", sql);
-    return v_stmt;
-  }
+  stmtw->sql = caml_stat_alloc(sql_len + 1);
+  stmtw->sql = memcpy(stmtw->sql, sql, sql_len);
+  stmtw->sql[sql_len] = '\0';
+  stmtw->sql_len = sql_len;
+  stmtw->tail = NULL;
+  stmtw->db_wrap = dbw;
+  dbw->ref_count++;
+  rc = sqlite3_prepare(dbw->db, sql, sql_len,
+                       &(stmtw->stmt), (const char **) &(stmtw->tail));
+  if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, "prepare");
+  else if (!stmtw->stmt) raise_sqlite3_Error("No code compiled from %s", sql);
+  return v_stmt;
 }
 
 CAMLprim value caml_sqlite3_prepare(value v_db, value v_sql)
