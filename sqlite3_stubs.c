@@ -150,7 +150,7 @@ static inline void raise_sqlite3_misuse_stmt(const char *fmt, ...)
   caml_raise_with_string(*caml_sqlite3_Error, buf);
 }
 
-static void check_stmt(stmt_wrap *stw, char *loc)
+static inline void check_stmt(stmt_wrap *stw, char *loc)
 {
   if (stw->stmt == NULL)
     raise_sqlite3_misuse_stmt("Sqlite3.%s called with finalized stmt", loc);
@@ -192,7 +192,7 @@ static inline int Val_rc(int rc)
 
 /* Copying rows */
 
-static value copy_string_option_array(const char** strs, int len)
+static inline value copy_string_option_array(const char** strs, int len)
 {
   if (!len) return Atom(0);
   else {
@@ -218,7 +218,7 @@ static value copy_string_option_array(const char** strs, int len)
   }
 }
 
-static value copy_not_null_string_array(const char** strs, int len)
+static inline value copy_not_null_string_array(const char** strs, int len)
 {
   if (!len) return Atom(0);
   else {
@@ -241,7 +241,7 @@ static value copy_not_null_string_array(const char** strs, int len)
   }
 }
 
-static value safe_copy_string_array(const char** strs, int len)
+static inline value safe_copy_string_array(const char** strs, int len)
 {
   value v_res = copy_not_null_string_array(strs, len);
   if (v_res == (value) NULL) raise_sqlite3_Error("Null element in row");
@@ -259,7 +259,7 @@ static inline void ref_count_finalize_dbw(db_wrap *dbw)
   }
 }
 
-static void dbw_finalize_gc(value v_dbw)
+static inline void dbw_finalize_gc(value v_dbw)
 {
   db_wrap *dbw = &Sqlite3_val(v_dbw);
   if (dbw->db) ref_count_finalize_dbw(dbw);
@@ -338,7 +338,8 @@ struct callback_with_exn {
   value exn;
 };
 
-static int exec_callback(void *cbx_, int num_columns, char **row, char **header)
+static inline int exec_callback(
+  void *cbx_, int num_columns, char **row, char **header)
 {
   struct callback_with_exn *cbx = cbx_;
   value v_row, v_header, v_ret;
@@ -400,7 +401,7 @@ CAMLprim value caml_sqlite3_exec(value v_db, value v_maybe_cb, value v_sql)
   }
 }
 
-static int exec_callback_no_headers(
+static inline int exec_callback_no_headers(
   void *cbx_, int num_columns, char **row, char **header)
 {
   struct callback_with_exn *cbx = cbx_;
@@ -453,7 +454,7 @@ CAMLprim value caml_sqlite3_exec_no_headers(value v_db, value v_cb, value v_sql)
   }
 }
 
-static int exec_not_null_callback(
+static inline int exec_not_null_callback(
   void *cbx_, int num_columns, char **row, char **header)
 {
   struct callback_with_exn *cbx = cbx_;
@@ -514,7 +515,7 @@ CAMLprim value caml_sqlite3_exec_not_null(
   }
 }
 
-static int exec_not_null_no_headers_callback(
+static inline int exec_not_null_no_headers_callback(
   void *cbx_, int num_columns, char **row, char **header)
 {
   struct callback_with_exn *cbx = cbx_;
@@ -603,7 +604,7 @@ CAMLprim value caml_sqlite3_stmt_reset(value v_stmt)
   return Val_rc(sqlite3_reset(stmtw->stmt));
 }
 
-static value prepare_it(db_wrap *dbw, const char *sql, int sql_len)
+static inline value prepare_it(db_wrap *dbw, const char *sql, int sql_len)
 {
   int rc;
   value v_stmt =
@@ -611,7 +612,7 @@ static value prepare_it(db_wrap *dbw, const char *sql, int sql_len)
   stmt_wrap *stmtw = &Sqlite3_stmtw_val(v_stmt);
   stmtw->stmt = NULL;
   stmtw->sql = caml_stat_alloc(sql_len + 1);
-  stmtw->sql = memcpy(stmtw->sql, sql, sql_len);
+  memcpy(stmtw->sql, sql, sql_len);
   stmtw->sql[sql_len] = '\0';
   stmtw->sql_len = sql_len;
   stmtw->tail = NULL;
@@ -620,7 +621,7 @@ static value prepare_it(db_wrap *dbw, const char *sql, int sql_len)
   rc = sqlite3_prepare(dbw->db, sql, sql_len,
                        &(stmtw->stmt), (const char **) &(stmtw->tail));
   if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, "prepare");
-  else if (!stmtw->stmt) raise_sqlite3_Error("No code compiled from %s", sql);
+  if (!stmtw->stmt) raise_sqlite3_Error("No code compiled from %s", sql);
   return v_stmt;
 }
 
