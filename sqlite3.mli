@@ -269,9 +269,9 @@ external prepare_tail : stmt -> stmt option = "caml_sqlite3_prepare_tail"
 external recompile : stmt -> unit = "caml_sqlite3_recompile"
 (** [recompile stmt] recompiles the SQL-statement associated with [stmt]
     to bytecode.  The statement may be only partially compiled.  In this
-    case {!prepare_tail} can be called on the returned statement to
-    compile the remaining part of the SQL-statement.  Call this function
-    if the statement expires due to some schema change.
+    case {!prepare_tail} can be called on the statement to compile the
+    remaining part of the SQL-statement.  Call this function if the
+    statement expires due to some schema change.
 
     @raise SqliteError if the statement could not be recompiled.
 *)

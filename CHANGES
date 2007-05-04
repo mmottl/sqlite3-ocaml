@@ -1,3 +1,5 @@
+2007-05-04: Fixed several GC-bugs, and improved thread interaction.
+
 2007-04-23: callback_exn -> caml_callback_exn.
 
 2007-03-30: Fixed a GC-bug.

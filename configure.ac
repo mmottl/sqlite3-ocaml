@@ -1,4 +1,4 @@
-AC_INIT(ocaml-sqlite, 0.16.0, markus.mottl@gmail.com)
+AC_INIT(ocaml-sqlite, 0.17.0, markus.mottl@gmail.com)
 AC_CONFIG_SRCDIR(sqlite3.mli)
 
 AC_CHECKING(for ocaml compiler and tools)

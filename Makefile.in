@@ -5,7 +5,7 @@ exec_prefix=@exec_prefix@
 bindir=@bindir@
 
 CC=@CC@
-CFLAGS=@CPPFLAGS@ @CFLAGS@ -fPIC
+CFLAGS=@CPPFLAGS@ @CFLAGS@ -fPIC -Wall -pedantic -Werror -Wno-long-long
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
 
@@ -62,9 +62,9 @@ sqlite3.cmo: sqlite3.cmi sqlite3.ml
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
 
 .mli.cmi:
-	ocamlc -c $<
+	ocamlc -w A -warn-error A -c $<
 .ml.cmo:
-	ocamlc $(OCFLAGS) -c $<
+	ocamlc -w A -warn-error A $(OCFLAGS) -c $<
 .ml.cmx:
-	ocamlc $(OCFLAGS) -c $*.mli
-	ocamlopt $(OCFLAGS) -c $<
+	ocamlc -w A -warn-error A $(OCFLAGS) -c $*.mli
+	ocamlopt -w A -warn-error A -inline 20 $(OCFLAGS) -c $<
