@@ -176,7 +176,7 @@ CAMLprim value caml_sqlite3_init(value v_unit)
 
 /* Conversion from return values */
 
-static inline int Val_rc(int rc)
+static inline value Val_rc(int rc)
 {
   if (rc >= 0) {
     if (rc <= 26) return Val_int(rc);
