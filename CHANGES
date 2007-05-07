@@ -1,3 +1,12 @@
+2007-05-07: Further GC-bug fixes.  There was a design bug in the library
+            that was causing all these GC issues (C-structs allocated
+            in the OCaml-heap).  This obviously seemed safe (and more
+            efficient) to the initial author, but after extensive checking
+            it became apparent that this just does not work if C-structs
+            reference each other, because the GC might move these memory
+            regions.  It seems safer to allocate C-structs with "malloc",
+            and use an indirection to access them.
+
 2007-05-04: Fixed several GC-bugs, and improved thread interaction.
 
 2007-04-23: callback_exn -> caml_callback_exn.
