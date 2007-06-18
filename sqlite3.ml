@@ -188,17 +188,6 @@ let row_data stmt = Array.init (data_count stmt) (column stmt)
 let row_names stmt = Array.init (data_count stmt) (column_name stmt)
 let row_decltypes stmt = Array.init (data_count stmt) (column_decltype stmt)
 
-let exec_sql db sql f =
-  let rec loop stmt =
-    if step stmt = Rc.ROW then (
-      f stmt;
-      match prepare_tail stmt with
-      | Some stmt -> loop stmt
-      | None -> ())
-    else ()
-  in
-  loop (prepare db sql)
-
 
 (* Function registration *)
 

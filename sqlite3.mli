@@ -409,15 +409,6 @@ external transfer_bindings :
 
 (** {2 Stepwise query convenience functions} *)
 
-val exec_sql : db -> string -> (stmt -> unit) -> unit
-(** [exec_sql db sql f] performs the query [sql] on database [db] in
-    a stepwise manner calling [f] with the statement associated with
-    [sql] whenever a row is found.
-
-    @raise SqliteError if an invalid database handle is passed.
-    @raise SqliteError if the compiled statement should become invalid.
-*)
-
 val row_data : stmt -> Data.t array
 (** [row_data stmt] @return all data values in the row returned by the
     last query step performed with statement [stmt].

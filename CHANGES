@@ -1,12 +1,19 @@
-2007-06-17: Added support for user-defined scalar functions.
-
-            Thanks to Enrico Tassi <gareuselesinge@virgilio.it> for
-            the patch!
+2007-06-17: Added support for user-defined scalar functions.  Thanks to
+            Enrico Tassi <gareuselesinge@virgilio.it> for the patch!
 
             Switched to sqlite3_prepare_v2 internally to avoid the older,
-            deprecated sqlite3_prepare-function.
+            deprecated sqlite3_prepare-function.  Thanks to Gabriel
+            Kerneis <gabriel@kerneis.info> for the hint!
 
-            Thanks to Gabriel Kerneis <gabriel@kerneis.info> for the hint!
+            Removed exec_sql-function, which was buggy in the last
+            release anyway (thanks to Paul Stodghill <ps27@cornell.edu>
+            for pointing this out!).  Its interface hides too much
+            important information from the user (e.g. BUSY-steps, etc.).
+            It did not seem possible to design a function that made
+            it as simple as exec_sql to run an SQL-statement without
+            inviting the user to write buggy/incomplete code, or that
+            wouldn't make the interface almost as complicated as just
+            writing the correct code that handles all cases by oneself.
 
 2007-05-07: Further GC-bug fixes.  There was a design bug in the library
             that was causing all these GC issues (C-structs allocated
