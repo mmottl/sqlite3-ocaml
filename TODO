@@ -6,7 +6,7 @@
 
 3) TODO: Add the following wrappers:
 
-  a) SQL Function support
+  a) Better SQL Function support (aggregating ones)
   b) Collation support
   c) Authorization support
   d) Trace/profile support

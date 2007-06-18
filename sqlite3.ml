@@ -200,6 +200,25 @@ let exec_sql db sql f =
   loop (prepare db sql)
 
 
+(* Function registration *)
+
+external create_function :
+  db -> string -> int -> (Data.t array -> Data.t) -> unit =
+  "caml_sqlite3_create_function"
+
+let create_funN db name f = create_function db name (-1) f
+let create_fun0 db name f = create_function db name 0 (fun _ -> f ())
+let create_fun1 db name f = create_function db name 1 (fun args -> f args.(0))
+
+let create_fun2 db name f =
+  create_function db name 2 (fun args -> f args.(0) args.(1))
+
+let create_fun3 db name f =
+  create_function db name 3 (fun args -> f args.(0) args.(1) args.(2))
+
+external delete_function : db -> string -> unit = "caml_sqlite3_delete_function"
+
+
 (* Initialisation *)
 
 external init : unit -> unit = "caml_sqlite3_init"

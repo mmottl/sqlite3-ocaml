@@ -432,3 +432,48 @@ val row_decltypes : stmt -> string array
 
     @raise SqliteError if the statement is invalid.
 *)
+
+
+(** {2 User-defined functions} *)
+
+val create_funN : db -> string -> (Data.t array -> Data.t) -> unit
+(** [create_funN db name f] registers function [f] under name [name]
+    with database handle [db].  The function has arity [N].
+
+    @raise SqliteError if an invalid database handle is passed.
+*)
+
+val create_fun0 : db -> string -> (unit -> Data.t) -> unit
+(** [create_funN db name f] registers function [f] under name [name]
+    with database handle [db].  The function has arity [0].
+
+    @raise SqliteError if an invalid database handle is passed.
+*)
+
+val create_fun1 : db -> string -> (Data.t -> Data.t) -> unit
+(** [create_funN db name f] registers function [f] under name [name]
+    with database handle [db].  The function has arity [1].
+
+    @raise SqliteError if an invalid database handle is passed.
+*)
+
+val create_fun2 : db -> string -> (Data.t -> Data.t -> Data.t) -> unit
+(** [create_funN db name f] registers function [f] under name [name]
+    with database handle [db].  The function has arity [2].
+
+    @raise SqliteError if an invalid database handle is passed.
+*)
+
+val create_fun3 : db -> string -> (Data.t -> Data.t -> Data.t-> Data.t) -> unit
+(** [create_funN db name f] registers function [f] under name [name]
+    with database handle [db].  The function has arity [3].
+
+    @raise SqliteError if an invalid database handle is passed.
+*)
+
+external delete_function : db -> string -> unit = "caml_sqlite3_delete_function"
+(** [delete_function db name] delete function with name [name] from
+    database handle [db].
+
+    @raise SqliteError if an invalid database handle is passed.
+*)

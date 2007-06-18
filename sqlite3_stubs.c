@@ -45,10 +45,16 @@ static const value v_None = Val_int(0);
 
 /* Type definitions */
 
+typedef struct user_function {
+  value v_fun;
+  struct user_function *next;
+} user_function;
+
 typedef struct db_wrap {
   sqlite3 *db;
   int rc;
   int ref_count;
+  struct user_function *user_functions;
 } db_wrap;
 
 typedef struct stmt_wrap {
@@ -253,6 +259,12 @@ static inline value safe_copy_string_array(const char** strs, int len)
 static inline void ref_count_finalize_dbw(db_wrap *dbw)
 {
   if (--dbw->ref_count == 0) {
+    struct user_function *link;
+    for (link = dbw->user_functions; link != NULL; link = link->next) {
+      caml_remove_global_root(&link->v_fun);
+      free(link);
+    }
+    dbw->user_functions = NULL;
     sqlite3_close(dbw->db);
     free(dbw);
   }
@@ -298,6 +310,7 @@ CAMLprim value caml_sqlite3_open(value v_file)
     dbw->db = db;
     dbw->rc = SQLITE_OK;
     dbw->ref_count = 1;
+    dbw->user_functions = NULL;
     Sqlite3_val(v_res) = dbw;
     return v_res;
   }
@@ -846,4 +859,154 @@ CAMLprim value caml_sqlite3_expired(value v_stmt)
 {
   sqlite3_stmt *stmt = safe_get_stmtw("expired", v_stmt)->stmt;
   return sqlite3_expired(stmt) ? Val_true : Val_false;
+}
+
+
+/* User-defined functions */
+
+static inline value caml_sqlite3_wrap_values(int argc, sqlite3_value **args)
+{
+  if (argc <= 0 || args == NULL) return Atom(0);
+  else {
+    int i, len;
+    CAMLparam0();
+    CAMLlocal2(v_arr, v_tmp);
+    value v_res;
+    v_arr = caml_alloc(argc, 0);
+    for (i = 0; i < argc; ++i) {
+      sqlite3_value *arg = args[i];
+      switch (sqlite3_value_type(arg)) {
+        case SQLITE_INTEGER :
+          v_tmp = caml_copy_int64(sqlite3_value_int64(arg));
+          v_res = caml_alloc_small(1, 0);
+          Field(v_res, 0) = v_tmp;
+          break;
+        case SQLITE_FLOAT :
+          v_tmp = caml_copy_double(sqlite3_value_double(arg));
+          v_res = caml_alloc_small(1, 1);
+          Field(v_res, 0) = v_tmp;
+          break;
+        case SQLITE3_TEXT :
+          len = sqlite3_value_bytes(arg);
+          v_tmp = caml_alloc_string(len);
+          memcpy(String_val(v_tmp), (char *) sqlite3_value_text(arg), len);
+          v_res = caml_alloc_small(1, 2);
+          Field(v_res, 0) = v_tmp;
+          break;
+        case SQLITE_BLOB :
+          len = sqlite3_value_bytes(arg);
+          v_tmp = caml_alloc_string(len);
+          memcpy(String_val(v_tmp), (char *) sqlite3_value_blob(arg), len);
+          v_res = caml_alloc_small(1, 3);
+          Field(v_res, 0) = v_tmp;
+          break;
+        case SQLITE_NULL :
+          v_res = Val_int(1);
+          break;
+        default:
+          v_res = v_None;
+      }
+      Store_field(v_arr, i, v_res);
+    }
+    CAMLreturn(v_arr);
+  }
+}
+
+static inline void caml_sqlite3_set_result(sqlite3_context *ctx, value v_res)
+{
+  if (Is_exception_result(v_res))
+    sqlite3_result_error(ctx, "OCaml callback raised an exception", -1);
+  else if (Is_long(v_res)) sqlite3_result_null(ctx);
+  else {
+    value v = Field(v_res, 0);
+    switch (Tag_val(v_res)) {
+      case 0 : sqlite3_result_int64(ctx, Int64_val(v)); break;
+      case 1 : sqlite3_result_double(ctx, Double_val(v)); break;
+      case 2 :
+        sqlite3_result_text(
+          ctx, String_val(v), caml_string_length(v), SQLITE_TRANSIENT);
+        break;
+      case 3 :
+        sqlite3_result_blob(
+          ctx, String_val(v), caml_string_length(v), SQLITE_TRANSIENT);
+        break;
+      default :
+        sqlite3_result_error(ctx, "unknown value returned by callback", -1);
+    }
+  }
+}
+
+static inline void
+caml_sqlite3_user_function(sqlite3_context *ctx, int argc, sqlite3_value **argv)
+{
+  struct user_function *data = sqlite3_user_data(ctx);
+  value args = caml_sqlite3_wrap_values(argc, argv);
+  value res = caml_callback_exn(Field(data->v_fun, 1), args);
+  caml_sqlite3_set_result(ctx, res);
+}
+
+static inline void unregister_user_function(
+  struct db_wrap *db_data, value v_name)
+{
+  struct user_function *prev = NULL, *link = db_data->user_functions;
+  char *name = String_val(v_name);
+
+  while (link != NULL) {
+    if (strcmp(String_val(Field(link->v_fun, 0)), name) == 0) {
+      if (prev == NULL) db_data->user_functions = link->next;
+      else prev->next = link->next;
+      caml_remove_global_root(&link->v_fun);
+      free(link);
+      break;
+    }
+    prev = link;
+    link = link->next;
+  }
+}
+
+static inline struct user_function *
+register_user_function(struct db_wrap *db_data, value v_name, value v_fun)
+{
+  /* Assume parameters are already protected */
+  struct user_function *link;
+  value cell = caml_alloc_small(2, 0);
+  Field(cell, 0) = v_name;
+  Field(cell, 1) = v_fun;
+  link = caml_stat_alloc(sizeof *link);
+  link->v_fun = cell;
+  link->next = db_data->user_functions;
+  caml_register_global_root(&link->v_fun);
+  db_data->user_functions = link;
+  return link;
+}
+
+CAMLprim value caml_sqlite3_create_function(
+  value v_db, value v_name, value v_n_args, value v_fun)
+{
+  CAMLparam3(v_db, v_name, v_fun);
+  struct user_function *param;
+  int rc;
+  db_wrap *dbw = Sqlite3_val(v_db);
+  check_db(dbw, "create_function");
+  param = register_user_function(dbw, v_name, v_fun);
+  rc = sqlite3_create_function(dbw->db, String_val(v_name),
+                               Int_val(v_n_args), SQLITE_UTF8, param,
+                               caml_sqlite3_user_function, NULL, NULL);
+  if (rc != SQLITE_OK) {
+    unregister_user_function(dbw, v_name);
+    raise_sqlite3_current(dbw->db, "create_function");
+  }
+  CAMLreturn(Val_unit);
+}
+
+CAMLprim value caml_sqlite3_delete_function(value v_db, value v_name)
+{
+  int rc;
+  db_wrap *dbw = Sqlite3_val(v_db);
+  check_db(dbw, "delete_function");
+  rc = sqlite3_create_function(dbw->db, String_val(v_name),
+                               0, SQLITE_UTF8, NULL, NULL, NULL, NULL);
+  if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, "delete_function");
+  unregister_user_function(dbw, v_name);
+  return Val_unit;
 }

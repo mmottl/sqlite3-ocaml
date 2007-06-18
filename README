@@ -9,6 +9,8 @@ SQLite3 bindings for Objective Caml
                      USA
                      Author: Markus Mottl <markus.mottl@gmail.com>
 
+  Copyright (c) 2007 Enrico Tassi <gareuselesinge@virgilio.it>
+
 DESCRIPTION:
 
   * SQLite 3 database library wrapper for OCaml.
@@ -56,6 +58,7 @@ INSTALLATION:
     ocamlfind ocamlopt -package sqlite3 -linkpkg test_db.ml
     ocamlfind ocamlopt -package sqlite3 -linkpkg test_exec.ml
     ocamlfind ocamlopt -package sqlite3 -linkpkg test_stmt.ml
+    ocamlfind ocamlopt -package sqlite3 -linkpkg test_fun.ml
 
 LICENSE:
 
@@ -63,6 +66,8 @@ LICENSE:
   details.
 
 CREDITS:
+
+  Enrico Tassi contributed support for user-defined scalar functions.
 
   Markus Mottl rewrote Christian's bindings for Jane Street Holding to
   clean up a few things and to make it perform better in multi-threaded
