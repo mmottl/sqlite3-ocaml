@@ -3,6 +3,11 @@
             Thanks to Enrico Tassi <gareuselesinge@virgilio.it> for
             the patch!
 
+            Switched to sqlite3_prepare_v2 internally to avoid the older,
+            deprecated sqlite3_prepare-function.
+
+            Thanks to Gabriel Kerneis <gabriel@kerneis.info> for the hint!
+
 2007-05-07: Further GC-bug fixes.  There was a design bug in the library
             that was causing all these GC issues (C-structs allocated
             in the OCaml-heap).  This obviously seemed safe (and more

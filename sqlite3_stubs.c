@@ -625,8 +625,8 @@ static inline void prepare_it(
   memcpy(stmtw->sql, sql, sql_len);
   stmtw->sql[sql_len] = '\0';
   stmtw->sql_len = sql_len;
-  rc = sqlite3_prepare(dbw->db, stmtw->sql, sql_len,
-                       &(stmtw->stmt), (const char **) &(stmtw->tail));
+  rc = sqlite3_prepare_v2(dbw->db, stmtw->sql, sql_len,
+                          &(stmtw->stmt), (const char **) &(stmtw->tail));
   if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, loc);
   if (!stmtw->stmt) raise_sqlite3_Error("No code compiled from %s", sql);
 }
@@ -674,9 +674,9 @@ CAMLprim value caml_sqlite3_recompile(value v_stmt)
     stmtw->stmt = NULL;
   }
   rc =
-    sqlite3_prepare(stmtw->db_wrap->db, stmtw->sql, stmtw->sql_len,
-                    &(stmtw->stmt),
-                    (const char **) &(stmtw->tail));
+    sqlite3_prepare_v2(stmtw->db_wrap->db, stmtw->sql, stmtw->sql_len,
+                       &(stmtw->stmt),
+                       (const char **) &(stmtw->tail));
   if (rc != SQLITE_OK) raise_sqlite3_current(stmtw->db_wrap->db, "recompile");
   else if (!stmtw->stmt)
     raise_sqlite3_Error("No code recompiled from %s", stmtw->sql);

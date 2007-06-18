@@ -254,6 +254,9 @@ external prepare : db -> string -> stmt = "caml_sqlite3_prepare"
     In this case {!prepare_tail} can be called on the returned statement
     to compile the remaining part of the SQL-statement.
 
+    NOTE: this really uses the C-function [sqlite3_prepare_v2],
+    i.e. avoids the older, deprecated [sqlite3_prepare]-function.
+
     @raise SqliteError if an invalid database handle is passed.
     @raise SqliteError if the statement could not be prepared.
 *)
@@ -262,6 +265,9 @@ external prepare_tail : stmt -> stmt option = "caml_sqlite3_prepare_tail"
 (** [prepare_tail stmt] compile the remaining part of the SQL-statement
     [stmt] to bytecode.  @return [None] if there was no remaining part,
     or [Some remaining_part] otherwise.
+
+    NOTE: this really uses the C-function [sqlite3_prepare_v2],
+    i.e. avoids the older, deprecated [sqlite3_prepare]-function.
 
     @raise SqliteError if the statement could not be prepared.
 *)
