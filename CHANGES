@@ -1,3 +1,8 @@
+2007-08-20: Fixed a GC-bug related to user-defined SQL-functions.
+
+            Thanks to Enrico Tassi <gareuselesinge@virgilio.it> for the
+            test case to replicate this problem!
+
 2007-06-17: Added support for user-defined scalar functions.  Thanks to
             Enrico Tassi <gareuselesinge@virgilio.it> for the patch!
 

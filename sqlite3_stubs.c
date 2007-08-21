@@ -940,9 +940,12 @@ static inline void
 caml_sqlite3_user_function(sqlite3_context *ctx, int argc, sqlite3_value **argv)
 {
   struct user_function *data = sqlite3_user_data(ctx);
-  value args = caml_sqlite3_wrap_values(argc, argv);
-  value res = caml_callback_exn(Field(data->v_fun, 1), args);
-  caml_sqlite3_set_result(ctx, res);
+  value v_args, v_res;
+  caml_leave_blocking_section();
+    v_args = caml_sqlite3_wrap_values(argc, argv);
+    v_res = caml_callback_exn(Field(data->v_fun, 1), v_args);
+    caml_sqlite3_set_result(ctx, v_res);
+  caml_enter_blocking_section();
 }
 
 static inline void unregister_user_function(
