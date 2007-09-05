@@ -344,7 +344,7 @@ CAMLprim value caml_sqlite3_errmsg(value v_db)
   return caml_copy_string(sqlite3_errmsg(dbw->db));
 }
 
-CAMLprim value caml_sqlite3_last_insert_rowid (value v_db)
+CAMLprim value caml_sqlite3_last_insert_rowid(value v_db)
 {
   db_wrap *dbw = Sqlite3_val(v_db);
   check_db(dbw, "last_insert_rowid");
