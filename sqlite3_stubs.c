@@ -728,19 +728,19 @@ CAMLprim value caml_sqlite3_bind(value v_stmt, value v_index, value v_data)
       default : return Val_rc(SQLITE_ERROR);
     }
   } else {
-    value field = Field(v_data, 0);
+    value v_field = Field(v_data, 0);
     switch (Tag_val(v_data)) {
-      case 0 : return Val_rc(sqlite3_bind_int64(stmt, i, Int64_val(field)));
-      case 1 : return Val_rc(sqlite3_bind_double(stmt, i, Double_val(field)));
+      case 0 : return Val_rc(sqlite3_bind_int64(stmt, i, Int64_val(v_field)));
+      case 1 : return Val_rc(sqlite3_bind_double(stmt, i, Double_val(v_field)));
       case 2 :
         return Val_rc(sqlite3_bind_text(stmt, i,
-                                        String_val(field),
-                                        caml_string_length(field),
+                                        String_val(v_field),
+                                        caml_string_length(v_field),
                                         SQLITE_TRANSIENT));
       case 3 :
         return Val_rc(sqlite3_bind_blob(stmt, i,
-                                        String_val(field),
-                                        caml_string_length(field),
+                                        String_val(v_field),
+                                        caml_string_length(v_field),
                                         SQLITE_TRANSIENT));
     }
   }
