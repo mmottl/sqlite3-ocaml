@@ -184,14 +184,14 @@ CAMLprim value caml_sqlite3_init(value v_unit)
 
 static inline value Val_rc(int rc)
 {
+  value v_res;
   if (rc >= 0) {
     if (rc <= 26) return Val_int(rc);
-    if (rc >= 100 || rc <= 101) return Val_int(rc - 73);
-  } else {
-    value v_res = caml_alloc_small(1, 0);
-    Field(v_res, 0) = Val_int(rc);
-    return v_res;
+    if (rc == 100 || rc == 101) return Val_int(rc - 73);
   }
+  v_res = caml_alloc_small(1, 0);
+  Field(v_res, 0) = Val_int(rc);
+  return v_res;
 }
 
 

@@ -1,3 +1,5 @@
+2007-09-04: Fixed a minor bug converting status codes.
+
 2007-08-20: Fixed a GC-bug related to user-defined SQL-functions.
 
             Thanks to Enrico Tassi <gareuselesinge@virgilio.it> for the
