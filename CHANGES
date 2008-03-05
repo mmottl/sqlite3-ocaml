@@ -1,3 +1,6 @@
+2008-03-05: Added a patch to improve Windows support.  Thanks to Alain
+            Frisch <alain@frisch.fr> for the patch!
+
 2007-09-04: Fixed a minor bug converting status codes.
 
 2007-08-20: Fixed a GC-bug related to user-defined SQL-functions.

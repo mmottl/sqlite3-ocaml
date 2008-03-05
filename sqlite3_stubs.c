@@ -38,6 +38,13 @@
 
 #include <sqlite3.h>
 
+#ifndef __GNU__C
+#define inline
+#endif
+#ifdef _WIN32
+#define snprintf _snprintf
+#endif
+
 /* Utility definitions */
 
 static const value v_None = Val_int(0);
@@ -78,7 +85,7 @@ static value *caml_sqlite3_InternalError = NULL;
 static value *caml_sqlite3_Error = NULL;
 static value *caml_sqlite3_RangeError = NULL;
 
-static inline value raise_with_two_args(value v_tag, value v_arg1, value v_arg2)
+static inline void raise_with_two_args(value v_tag, value v_arg1, value v_arg2)
 {
   CAMLparam3(v_tag, v_arg1, v_arg2);
   value v_exc = caml_alloc_small(3, 0);
@@ -93,7 +100,7 @@ static inline void raise_sqlite3_InternalError(char *msg) Noreturn;
 
 static inline void raise_sqlite3_InternalError(char *msg)
 {
-  raise_with_string(*caml_sqlite3_InternalError, msg);
+  caml_raise_with_string(*caml_sqlite3_InternalError, msg);
 }
 
 static inline void range_check(int v, int max)
@@ -302,7 +309,8 @@ CAMLprim value caml_sqlite3_open(value v_file)
   } else if (db == NULL)
     raise_sqlite3_InternalError(
       "open returned neither a database nor an error");
-  else {
+  /* "open" succeded */
+  {
     db_wrap *dbw;
     value v_res = caml_alloc_final(2, dbw_finalize_gc, 1, 100);
     Sqlite3_val(v_res) = NULL;
@@ -373,7 +381,7 @@ static inline int exec_callback(
       v_header = safe_copy_string_array((const char **) header, num_columns);
     End_roots();
 
-    v_ret = callback2_exn(*cbx->cbp, v_row, v_header);
+    v_ret = caml_callback2_exn(*cbx->cbp, v_row, v_header);
 
     if (Is_exception_result(v_ret)) {
       *cbx->exn = Extract_exception(v_ret);
@@ -481,7 +489,7 @@ static inline int exec_not_null_callback(
       v_header = safe_copy_string_array((const char **) header, num_columns);
     End_roots();
 
-    v_ret = callback2_exn(*cbx->cbp, v_row, v_header);
+    v_ret = caml_callback2_exn(*cbx->cbp, v_row, v_header);
 
     if (Is_exception_result(v_ret)) {
       *cbx->exn = Extract_exception(v_ret);
@@ -708,7 +716,7 @@ CAMLprim value caml_sqlite3_bind_parameter_index(value v_stmt, value v_name)
   char *parm_name = String_val(v_name);
   int index = sqlite3_bind_parameter_index(stmt, parm_name);
   if (!index) caml_raise_not_found();
-  else return Val_int(index);
+  return Val_int(index);
 }
 
 CAMLprim value caml_sqlite3_bind_parameter_count(value v_stmt)

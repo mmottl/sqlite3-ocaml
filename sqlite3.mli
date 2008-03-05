@@ -469,7 +469,7 @@ val create_fun3 : db -> string -> (Data.t -> Data.t -> Data.t-> Data.t) -> unit
 *)
 
 external delete_function : db -> string -> unit = "caml_sqlite3_delete_function"
-(** [delete_function db name] delete function with name [name] from
+(** [delete_function db name] deletes function with name [name] from
     database handle [db].
 
     @raise SqliteError if an invalid database handle is passed.
