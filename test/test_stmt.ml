@@ -48,7 +48,7 @@ let () =
     let stmt = prepare db sql in
     ignore (finalize stmt);
     try ignore (prepare_tail stmt)
-    with xcp -> ()
+    with _xcp -> ()
   done;
 
   let sql = Printf.sprintf "SELECT * FROM tbl0; SELECT * FROM tbl0;" in

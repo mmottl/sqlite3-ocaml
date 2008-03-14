@@ -38,11 +38,12 @@
 
 #include <sqlite3.h>
 
-#ifndef __GNU__C
-#define inline
-#endif
-#ifdef _WIN32
-#define snprintf _snprintf
+#if __GNUC__ >= 3
+# define inline inline __attribute__ ((always_inline))
+# define __unused __attribute__ ((unused))
+#else
+# define __unused
+# define inline
 #endif
 
 /* Utility definitions */
@@ -109,9 +110,9 @@ static inline void range_check(int v, int max)
     raise_with_two_args(*caml_sqlite3_RangeError, Val_int(v), Val_int(max));
 }
 
-static inline void raise_sqlite3_Error(const char *fmt, ...) Noreturn;
+static void raise_sqlite3_Error(const char *fmt, ...) Noreturn;
 
-static inline void raise_sqlite3_Error(const char *fmt, ...)
+static void raise_sqlite3_Error(const char *fmt, ...)
 {
   char buf[1024];
   va_list args;
@@ -123,7 +124,7 @@ static inline void raise_sqlite3_Error(const char *fmt, ...)
   caml_raise_with_string(*caml_sqlite3_Error, buf);
 }
 
-static inline void raise_sqlite3_misuse_db(db_wrap *dbw, const char *fmt, ...)
+static void raise_sqlite3_misuse_db(db_wrap *dbw, const char *fmt, ...)
 {
   char buf[1024];
   va_list args;
@@ -150,7 +151,7 @@ static inline void check_db(db_wrap *dbw, char *loc)
     raise_sqlite3_misuse_db(dbw, "Sqlite3.%s called with closed database", loc);
 }
 
-static inline void raise_sqlite3_misuse_stmt(const char *fmt, ...)
+static void raise_sqlite3_misuse_stmt(const char *fmt, ...)
 {
   char buf[1024];
   va_list args;
@@ -178,7 +179,7 @@ static inline stmt_wrap * safe_get_stmtw(char *loc, value v_stmt)
 
 /* Initialisation */
 
-CAMLprim value caml_sqlite3_init(value v_unit)
+CAMLprim value caml_sqlite3_init(value __unused v_unit)
 {
   caml_sqlite3_InternalError = caml_named_value("Sqlite3.InternalError");
   caml_sqlite3_Error = caml_named_value("Sqlite3.Error");
@@ -426,7 +427,7 @@ CAMLprim value caml_sqlite3_exec(value v_db, value v_maybe_cb, value v_sql)
 }
 
 static inline int exec_callback_no_headers(
-  void *cbx_, int num_columns, char **row, char **header)
+  void *cbx_, int num_columns, char **row, char __unused **header)
 {
   struct callback_with_exn *cbx = cbx_;
   value v_row, v_ret;
@@ -531,7 +532,7 @@ CAMLprim value caml_sqlite3_exec_not_null(value v_db, value v_cb, value v_sql)
 }
 
 static inline int exec_not_null_no_headers_callback(
-  void *cbx_, int num_columns, char **row, char **header)
+  void *cbx_, int num_columns, char **row, char __unused **header)
 {
   struct callback_with_exn *cbx = cbx_;
   value v_row, v_ret;
