@@ -1,3 +1,8 @@
+2008-03-27: Fixed a build problem on FreeBSD.
+
+            Thanks to Jaap Boender <Jaap.Boender@pps.jussieu.fr> for
+            the patch!
+
 2008-03-14: Synced with Jane Street tree.
 
 2008-03-05: Added a patch to improve Windows support.  Thanks to Alain
