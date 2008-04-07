@@ -40,7 +40,7 @@
 
 #if __GNUC__ >= 3
 # define inline inline __attribute__ ((always_inline))
-# if !defined(__FreeBSD__)
+# if !defined(__FreeBSD__) && !__APPLE__
 # define __unused __attribute__ ((unused))
 # endif
 #else

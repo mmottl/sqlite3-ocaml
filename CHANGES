@@ -1,3 +1,5 @@
+2008-04-04: Fixed a build problem on Mac OS X.
+
 2008-03-27: Fixed a build problem on FreeBSD.
 
             Thanks to Jaap Boender <Jaap.Boender@pps.jussieu.fr> for
