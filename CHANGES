@@ -1,3 +1,5 @@
+2008-04-18: Improved backwards compatibility to older versions of SQLite.
+
 2008-04-04: Fixed a build problem on Mac OS X.
 
 2008-03-27: Fixed a build problem on FreeBSD.

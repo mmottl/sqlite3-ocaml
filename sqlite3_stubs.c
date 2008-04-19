@@ -48,6 +48,12 @@
 # define inline
 #endif
 
+#if SQLITE_VERSION_NUMBER >= 3003009
+# define my_sqlite3_prepare sqlite3_prepare_v2
+#else
+# define my_sqlite3_prepare sqlite3_prepare
+#endif
+
 /* Utility definitions */
 
 static const value v_None = Val_int(0);
@@ -636,7 +642,7 @@ static inline void prepare_it(
   memcpy(stmtw->sql, sql, sql_len);
   stmtw->sql[sql_len] = '\0';
   stmtw->sql_len = sql_len;
-  rc = sqlite3_prepare_v2(dbw->db, stmtw->sql, sql_len,
+  rc = my_sqlite3_prepare(dbw->db, stmtw->sql, sql_len,
                           &(stmtw->stmt), (const char **) &(stmtw->tail));
   if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, loc);
   if (!stmtw->stmt) raise_sqlite3_Error("No code compiled from %s", sql);
@@ -685,7 +691,7 @@ CAMLprim value caml_sqlite3_recompile(value v_stmt)
     stmtw->stmt = NULL;
   }
   rc =
-    sqlite3_prepare_v2(stmtw->db_wrap->db, stmtw->sql, stmtw->sql_len,
+    my_sqlite3_prepare(stmtw->db_wrap->db, stmtw->sql, stmtw->sql_len,
                        &(stmtw->stmt),
                        (const char **) &(stmtw->tail));
   if (rc != SQLITE_OK) raise_sqlite3_current(stmtw->db_wrap->db, "recompile");
