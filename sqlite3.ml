@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*  Copyright (c) 2003 Christian Szegedy <csdontspam871@metamatix.org>    *)
 (*                                                                        *)
-(*  Copyright (c) 2007 Jane Street Capital, LLC                           *)
+(*  Copyright (c) 2007 Jane Street Holding, LLC                           *)
 (*                     Author: Markus Mottl <markus.mottl@gmail.com>      *)
 (*                                                                        *)
 (*  Permission is hereby granted, free of charge, to any person           *)
