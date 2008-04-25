@@ -1,4 +1,4 @@
-.SUBDIRS: test
+Subdirs()
 
 OCAML_LIBRARIES =
 OCAMLPACKS =
