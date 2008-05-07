@@ -144,7 +144,13 @@ module Data : sig
     | BLOB of string
 
   val to_string : t -> string
-  (** [to_string tp] converts column type [tp] to a string. *)
+  (** [to_string data] converts [data] to a string (including the type
+      of the column). *)
+
+  val to_string_value : t -> string
+  (** [to_string_value data] converts [data] to a string (without
+      prefixing the type).  Both [NONE] and [NULL] are converted to the
+      empty string. *)
 end
 
 
