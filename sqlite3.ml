@@ -114,18 +114,18 @@ module Data = struct
     | BLOB of string
 
   let to_string = function
+    | NONE | NULL -> ""
+    | INT i -> Int64.to_string i
+    | FLOAT f -> string_of_float f
+    | TEXT t | BLOB t -> t
+
+  let to_string_debug = function
     | NONE -> "NONE"
     | NULL -> "NULL"
     | INT i -> sprintf "INT <%Ld>" i
     | FLOAT f -> sprintf "FLOAT <%f>" f
     | TEXT t -> sprintf "TEXT <%S>" t
     | BLOB b -> sprintf "BLOB <%d>" (String.length b)
-
-  let to_string_value = function
-    | NONE | NULL -> ""
-    | INT i -> Int64.to_string i
-    | FLOAT f -> string_of_float f
-    | TEXT t | BLOB t -> t
 end
 
 type header = string

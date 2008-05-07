@@ -1,6 +1,8 @@
-2008-05-07: Added Data.to_string_value for converting fields to strings
-            without prefixing their type.  Thanks to Stefano Zacchiroli
-            <zack@debian.org> for the suggestion.
+2008-05-07: Renamed Data.to_string to Data.to_string_debug for converting
+            fields to strings with their data constructor.  Replaced the
+            previous function with one that behaves more like users
+            would expect.  Thanks to Stefano Zacchiroli <zack@debian.org>
+            for the suggestion.
 
 2008-04-18: Improved backwards compatibility to older versions of SQLite.
 
