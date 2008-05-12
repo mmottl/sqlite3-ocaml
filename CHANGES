@@ -1,3 +1,9 @@
+2008-05-11: Added function column_count, used it internally in place of
+            data_count, and improved documentation of associated
+            functions.
+
+            Thanks to James Cheney <james.cheney@gmail.com> for the patch!
+
 2008-05-07: Renamed Data.to_string to Data.to_string_debug for converting
             fields to strings with their data constructor.  Replaced the
             previous function with one that behaves more like users

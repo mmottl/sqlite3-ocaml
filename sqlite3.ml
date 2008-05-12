@@ -166,6 +166,7 @@ external finalize : stmt -> Rc.t = "caml_sqlite3_stmt_finalize"
 external expired : stmt -> bool = "caml_sqlite3_expired"
 
 external data_count : stmt -> int = "caml_sqlite3_data_count"
+external column_count : stmt -> int = "caml_sqlite3_column_count"
 external column : stmt -> int -> Data.t = "caml_sqlite3_column"
 external column_name : stmt -> int -> string = "caml_sqlite3_column_name"
 

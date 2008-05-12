@@ -333,6 +333,13 @@ external data_count : stmt -> int = "caml_sqlite3_data_count"
     @raise SqliteError if the statement is invalid.
 *)
 
+external column_count : stmt -> int = "caml_sqlite3_column_count"
+(** [column_count stmt] @return the number of columns that would be
+    returned by executing statement [stmt].
+
+    @raise SqliteError if the statement is invalid.
+*)
+
 external column : stmt -> int -> Data.t = "caml_sqlite3_column"
 (** [column stmt n] @return the data in column [n] of the
     result of the last step of statement [stmt].
@@ -342,8 +349,8 @@ external column : stmt -> int -> Data.t = "caml_sqlite3_column"
 *)
 
 external column_name : stmt -> int -> header = "caml_sqlite3_column_name"
-(** [column_name stmt n] @return the header of column [n] of the result
-    of the last step of statement [stmt].
+(** [column_name stmt n] @return the header of column [n] in the
+    result set of statement [stmt].
 
     @raise RangeError if [n] is out of range.
     @raise SqliteError if the statement is invalid.
@@ -352,7 +359,7 @@ external column_name : stmt -> int -> header = "caml_sqlite3_column_name"
 external column_decltype :
   stmt -> int -> string = "caml_sqlite3_column_decltype"
 (** [column_decltype stmt n] @return the declared type of the specified
-    column of the result of the last step of statement [stmt].
+    column in the result set of statement [stmt].
 
     @raise RangeError if [n] is out of range.
     @raise SqliteError if the statement is invalid.

@@ -787,7 +787,7 @@ CAMLprim value caml_sqlite3_column_name(value v_stmt, value v_index)
   CAMLparam1(v_stmt);
   sqlite3_stmt *stmt = safe_get_stmtw("column_name", v_stmt)->stmt;
   int i = Int_val(v_index);
-  range_check(i, sqlite3_data_count(stmt));
+  range_check(i, sqlite3_column_count(stmt));
   CAMLreturn(caml_copy_string(sqlite3_column_name(stmt, i)));
 }
 
@@ -796,7 +796,7 @@ CAMLprim value caml_sqlite3_column_decltype(value v_stmt, value v_index)
   CAMLparam1(v_stmt);
   sqlite3_stmt *stmt = safe_get_stmtw("column_decltype", v_stmt)->stmt;
   int i = Int_val(v_index);
-  range_check(i, sqlite3_data_count(stmt));
+  range_check(i, sqlite3_column_count(stmt));
   CAMLreturn(caml_copy_string(sqlite3_column_decltype(stmt, i)));
 }
 
@@ -817,6 +817,12 @@ CAMLprim value caml_sqlite3_data_count(value v_stmt)
   return Val_int(sqlite3_data_count(stmt));
 }
 
+CAMLprim value caml_sqlite3_column_count(value v_stmt)
+{
+  sqlite3_stmt *stmt = safe_get_stmtw("column_count", v_stmt)->stmt;
+  return Val_int(sqlite3_column_count(stmt));
+}
+
 CAMLprim value caml_sqlite3_column(value v_stmt, value v_index)
 {
   CAMLparam1(v_stmt);
@@ -824,7 +830,7 @@ CAMLprim value caml_sqlite3_column(value v_stmt, value v_index)
   value v_res;
   sqlite3_stmt *stmt = safe_get_stmtw("column", v_stmt)->stmt;
   int len, i = Int_val(v_index);
-  range_check(i, sqlite3_data_count(stmt));
+  range_check(i, sqlite3_column_count(stmt));
   switch (sqlite3_column_type(stmt, i)) {
     case SQLITE_INTEGER :
       v_tmp = caml_copy_int64(sqlite3_column_int64(stmt, i));
