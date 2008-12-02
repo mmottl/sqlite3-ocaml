@@ -168,6 +168,14 @@ external db_close : db -> bool = "caml_sqlite3_close"
     @raise SqliteError if an invalid database handle is passed.
 *)
 
+#if HAS_ENABLE_LOAD_EXTENSION
+external enable_load_extension :
+  db -> bool -> bool = "caml_sqlite3_enable_load_extension" "noalloc"
+(** [enable_load_extension db onoff] enable/disable the sqlite3 load
+    extension.  @return [false] if the operation fails, [true]
+    otherwise. *)
+#endif
+
 external errcode : db -> Rc.t = "caml_sqlite3_errcode"
 (** [errcode db] @return the error code of the last operation on database
     [db].

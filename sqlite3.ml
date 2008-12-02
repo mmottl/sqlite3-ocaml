@@ -187,6 +187,11 @@ external bind_parameter_index :
 external transfer_bindings :
   stmt -> stmt -> Rc.t = "caml_sqlite3_transfer_bindings"
 
+#if HAS_ENABLE_LOAD_EXTENSION
+external enable_load_extension :
+  db -> bool -> bool = "caml_sqlite3_enable_load_extension" "noalloc"
+#endif
+
 (* TODO: these give linking errors in the C-code *)
 (* external sleep   : int -> unit  = "caml_sqlite3_sleep" *)
 (* clear_bindings   : stmt -> Rc.t   = "caml_sqlite3_clear_bindings" *)

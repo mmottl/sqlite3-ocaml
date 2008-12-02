@@ -1,11 +1,18 @@
-OCFLAGS=-pp camlp4o
-
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 bindir=@bindir@
 
+HAS_ENABLE_LOAD_EXTENSION=@HAS_ENABLE_LOAD_EXTENSION@
+ifeq ($(HAS_ENABLE_LOAD_EXTENSION), true)
+  HAS_ENABLE_LOAD_EXTENSION= -DHAS_ENABLE_LOAD_EXTENSION
+  OCFLAGS=-pp "cpp -DHAS_ENABLE_LOAD_EXTENSION"
+else
+  HAS_ENABLE_LOAD_EXTENSION=
+  OCFLAGS=-pp cpp
+endif
+
 CC=@CC@
-CFLAGS=@CPPFLAGS@ @CFLAGS@ -fPIC -Wall -pedantic -Werror -Wno-long-long
+CFLAGS=@CPPFLAGS@ @CFLAGS@ $(HAS_ENABLE_LOAD_EXTENSION) -fPIC -Wall -pedantic -Werror -Wno-long-long
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
 
@@ -19,7 +26,7 @@ all: bytecode opt docs
 
 docs:
 	if [ ! -d doc ]; then mkdir doc; fi
-	ocamldoc -html -d doc sqlite3.mli
+	ocamldoc $(OCFLAGS) -html -d doc sqlite3.mli
 
 bytecode: sqlite3.cma sqlite3top
 
@@ -62,7 +69,7 @@ sqlite3.cmo: sqlite3.cmi sqlite3.ml
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
 
 .mli.cmi:
-	ocamlc -w A -warn-error A -c $<
+	ocamlc -w A -warn-error A $(OCFLAGS) -c $<
 .ml.cmo:
 	ocamlc -w A -warn-error A $(OCFLAGS) -c $<
 .ml.cmx:

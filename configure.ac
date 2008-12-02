@@ -32,8 +32,11 @@ AC_CHECKING(for Sqlite header files)
 AC_CHECK_HEADER(sqlite3.h,,
   AC_ERROR([SQLite is required.  See the --with-sqlite3 configure option.]))
 
+AC_CHECK_LIB(sqlite3, sqlite3_load_extension,[HAS_ENABLE_LOAD_EXTENSION=true])
+
 AC_CHECKING(for OCaml header files)
 CAMLLOC=`$ocamlc -where`
 CPPFLAGS="$CPPFLAGS -I$CAMLLOC"
+AC_SUBST(HAS_ENABLE_LOAD_EXTENSION)
 AC_OUTPUT(Makefile)
 AC_OUTPUT(META)
