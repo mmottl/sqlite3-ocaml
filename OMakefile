@@ -8,7 +8,7 @@ OCAML_LIB_FLAGS += -cclib -lsqlite3
 LIB_CNAMES = sqlite3_stubs
 LIB_MLNAMES = sqlite3
 
-OCamlPreprocess(cpp -pp, sqlite3)
+OCamlPreprocess(cpp, sqlite3)
 
 OCamlMakeLib(sqlite3)
 InstantiateOCamlEnv()

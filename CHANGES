@@ -1,3 +1,8 @@
+2009-01-05:  Switched to generational global root registration of
+             callbacks for better performance.
+
+             Requires OCaml 3.11 or higher!!!
+
 2008-12-02: Added function enable_load_extension if it is available.
 
             Thanks to Pietro Abate <Pietro.Abate@pps.jussieu.fr> for

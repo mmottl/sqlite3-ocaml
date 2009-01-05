@@ -277,7 +277,7 @@ static inline void ref_count_finalize_dbw(db_wrap *dbw)
   if (--dbw->ref_count == 0) {
     struct user_function *link;
     for (link = dbw->user_functions; link != NULL; link = link->next) {
-      caml_remove_global_root(&link->v_fun);
+      caml_remove_generational_global_root(&link->v_fun);
       free(link);
     }
     dbw->user_functions = NULL;
@@ -990,7 +990,7 @@ static inline void unregister_user_function(
     if (strcmp(String_val(Field(link->v_fun, 0)), name) == 0) {
       if (prev == NULL) db_data->user_functions = link->next;
       else prev->next = link->next;
-      caml_remove_global_root(&link->v_fun);
+      caml_remove_generational_global_root(&link->v_fun);
       free(link);
       break;
     }
@@ -1010,7 +1010,7 @@ register_user_function(struct db_wrap *db_data, value v_name, value v_fun)
   link = caml_stat_alloc(sizeof *link);
   link->v_fun = cell;
   link->next = db_data->user_functions;
-  caml_register_global_root(&link->v_fun);
+  caml_register_generational_global_root(&link->v_fun);
   db_data->user_functions = link;
   return link;
 }
