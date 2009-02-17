@@ -1,7 +1,13 @@
-2009-01-05:  Switched to generational global root registration of
-             callbacks for better performance.
+2009-02-21: Added new function:
 
-             Requires OCaml 3.11 or higher!!!
+              * busy_timeout
+
+            Thanks to Paolo Donadeo <p.donadeo@gmail.com> for the patch!
+
+2009-01-05: Switched to generational global root registration of
+            callbacks for better performance.
+
+            Requires OCaml 3.11 or higher!!!
 
 2008-12-02: Added function enable_load_extension if it is available.
 

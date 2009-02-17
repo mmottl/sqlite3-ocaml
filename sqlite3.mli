@@ -495,3 +495,12 @@ external delete_function : db -> string -> unit = "caml_sqlite3_delete_function"
 
     @raise SqliteError if an invalid database handle is passed.
 *)
+
+val busy_timeout : db -> int -> unit
+(** [busy_timeout db ms] sets a busy handler that sleeps for a
+    specified amount of time when a table is locked.  The handler will
+    sleep multiple times until at least [ms] milliseconds of sleeping
+    have accumulated.
+
+    @raise SqliteError if an invalid database handle is passed.
+*)

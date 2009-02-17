@@ -1045,3 +1045,13 @@ CAMLprim value caml_sqlite3_delete_function(value v_db, value v_name)
   unregister_user_function(dbw, v_name);
   return Val_unit;
 }
+
+CAMLprim value caml_sqlite3_busy_timeout(value v_db, value v_ms)
+{
+  int rc;
+  db_wrap *dbw = Sqlite3_val(v_db);
+  check_db(dbw, "busy_timeout");
+  rc = sqlite3_busy_timeout(dbw->db, Int_val(v_ms));
+  if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, "busy_timeout");
+  return Val_unit;
+}
