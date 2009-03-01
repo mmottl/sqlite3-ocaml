@@ -1,3 +1,8 @@
+2009-03-01: Added support for user-defined aggregate functions.
+
+            Thanks to Anil Madhavapeddy <anil@recoil.org> for the initial
+            version of the patch!
+
 2009-02-21: Added new function:
 
               * busy_timeout

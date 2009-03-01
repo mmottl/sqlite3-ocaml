@@ -221,6 +221,31 @@ let create_fun3 db name f =
 
 external delete_function : db -> string -> unit = "caml_sqlite3_delete_function"
 
+module Aggregate = struct
+  external create_function :
+    db -> string -> int ->
+    'a -> ('a -> Data.t array -> 'a) -> ('a -> Data.t) -> unit =
+    "caml_sqlite3_create_aggregate_function_bc"
+    "caml_sqlite3_create_aggregate_function_nc"
+
+  let create_funN db name ~init ~step ~final =
+    create_function db name (-1) init step final
+
+  let create_fun0 db name ~init ~step ~final =
+    create_function db name 0 init (fun acc _ -> step acc) final
+
+  let create_fun1 db name ~init ~step ~final =
+    create_function db name 1 init (fun acc args -> step acc args.(0)) final
+
+  let create_fun2 db name ~init ~step ~final =
+    create_function db name 2 init
+      (fun acc args -> step acc args.(0) args.(1)) final
+
+  let create_fun3 db name ~init ~step ~final =
+    create_function db name 3 init
+      (fun acc args -> step acc args.(0) args.(1) args.(2)) final
+end
+
 
 (* Initialisation *)
 
