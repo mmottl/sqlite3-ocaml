@@ -1113,7 +1113,8 @@ CAMLprim value caml_sqlite3_create_aggregate_function_nc(
   CAMLreturn(Val_unit);
 }
 
-CAMLprim value caml_sqlite3_create_aggregate_function_bc(value *argv, int argn)
+CAMLprim value caml_sqlite3_create_aggregate_function_bc(
+  value *argv, int __unused argn)
 {
   return
     caml_sqlite3_create_aggregate_function_nc(

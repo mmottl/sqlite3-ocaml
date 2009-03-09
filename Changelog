@@ -1,3 +1,5 @@
+2009-03-09: Fixed potential build problem.
+
 2009-03-01: Added support for user-defined aggregate functions.
 
             Thanks to Anil Madhavapeddy <anil@recoil.org> for the initial
