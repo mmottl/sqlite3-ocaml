@@ -22,7 +22,7 @@ DESCRIPTION:
 
 REQUIREMENTS:
 
-  * OCaml 3.09 or above (older versions are not checked but might work)
+  * OCaml 3.11 or above
 
   * ocamlfind
 
