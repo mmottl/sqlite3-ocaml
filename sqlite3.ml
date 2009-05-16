@@ -171,7 +171,7 @@ external column : stmt -> int -> Data.t = "caml_sqlite3_column"
 external column_name : stmt -> int -> string = "caml_sqlite3_column_name"
 
 external column_decltype :
-  stmt -> int -> string = "caml_sqlite3_column_decltype"
+  stmt -> int -> string option = "caml_sqlite3_column_decltype"
 
 external bind : stmt -> int -> Data.t -> Rc.t = "caml_sqlite3_bind"
 

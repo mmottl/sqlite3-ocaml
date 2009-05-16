@@ -56,7 +56,18 @@
 
 /* Utility definitions */
 
-static const value v_None = Val_int(0);
+static const value Val_None = Val_int(0);
+
+static inline value Val_Some(value v_arg)
+{
+  CAMLparam1(v_arg);
+  value v_res = caml_alloc_small(1, 0);
+  Field(v_res, 0) = v_arg;
+  CAMLreturn(v_res);
+}
+
+static inline value Val_string_option(const char *str)
+{ return (str == NULL) ? Val_None : Val_Some(caml_copy_string(str)); }
 
 
 /* Type definitions */
@@ -225,7 +236,7 @@ static inline value copy_string_option_array(const char** strs, int len)
 
     for (i = 0; i < len; ++i) {
       const char *str = strs[i];
-      if (str == NULL) Field(v_res, i) = v_None;
+      if (str == NULL) Field(v_res, i) = Val_None;
       else {
         value v_opt;
         v_str = caml_copy_string(str);
@@ -400,6 +411,7 @@ static inline int exec_callback(
 
     if (Is_exception_result(v_ret)) {
       *cbx->exn = Extract_exception(v_ret);
+      caml_enter_blocking_section();
       return 1;
     }
 
@@ -425,7 +437,7 @@ CAMLprim value caml_sqlite3_exec(value v_db, value v_maybe_cb, value v_sql)
   cbx.cbp = &v_cb;
   cbx.exn = &v_exn;
 
-  if (v_maybe_cb != v_None) {
+  if (v_maybe_cb != Val_None) {
     v_cb = Field(v_maybe_cb, 0);
     cb = exec_callback;
   }
@@ -453,6 +465,7 @@ static inline int exec_callback_no_headers(
 
     if (Is_exception_result(v_ret)) {
       *cbx->exn = Extract_exception(v_ret);
+      caml_enter_blocking_section();
       return 1;
     }
 
@@ -508,6 +521,7 @@ static inline int exec_not_null_callback(
 
     if (Is_exception_result(v_ret)) {
       *cbx->exn = Extract_exception(v_ret);
+      caml_enter_blocking_section();
       return 1;
     }
 
@@ -559,6 +573,7 @@ static inline int exec_not_null_no_headers_callback(
 
     if (Is_exception_result(v_ret)) {
       *cbx->exn = Extract_exception(v_ret);
+      caml_enter_blocking_section();
       return 1;
     }
 
@@ -672,18 +687,13 @@ CAMLprim value caml_sqlite3_prepare_tail(value v_stmt)
   char *loc = "prepare_tail";
   stmt_wrap *stmtw = Sqlite3_stmtw_val(v_stmt);
   if (stmtw->sql && stmtw->tail && *(stmtw->tail)) {
-    CAMLlocal1(v_new_stmt);
-    value v_res;
     db_wrap *dbw = stmtw->db_wrap;
-    int tail_len;
-    v_new_stmt = alloc_stmt(dbw);
-    tail_len = stmtw->sql_len - (stmtw->tail - stmtw->sql);
+    value v_new_stmt = alloc_stmt(dbw);
+    int tail_len = stmtw->sql_len - (stmtw->tail - stmtw->sql);
     prepare_it(dbw, v_new_stmt, stmtw->tail, tail_len, loc);
-    v_res = caml_alloc_small(1, 0);
-    Field(v_res, 0) = v_new_stmt;
-    CAMLreturn(v_res);
+    CAMLreturn(Val_Some(v_new_stmt));
   }
-  else CAMLreturn(v_None);
+  else CAMLreturn(Val_None);
 }
 
 CAMLprim value caml_sqlite3_recompile(value v_stmt)
@@ -711,18 +721,8 @@ CAMLprim value caml_sqlite3_bind_parameter_name(value v_stmt, value v_index)
   CAMLparam1(v_stmt);
   sqlite3_stmt *stmt = safe_get_stmtw("bind_parameter_name", v_stmt)->stmt;
   int i = Int_val(v_index);
-  const char *str;
   range_check(i - 1, sqlite3_bind_parameter_count(stmt));
-  str = sqlite3_bind_parameter_name(stmt, i);
-  if (str) {
-    CAMLlocal1(v_tmp);
-    value v_res;
-    v_tmp = caml_copy_string(str);
-    v_res = caml_alloc_small(1,0);
-    Field(v_res, 0) = v_tmp;
-    CAMLreturn(v_res);
-  }
-  else CAMLreturn(v_None);
+  CAMLreturn(Val_string_option(sqlite3_bind_parameter_name(stmt, i)));
 }
 
 CAMLprim value caml_sqlite3_bind_parameter_index(value v_stmt, value v_name)
@@ -803,7 +803,7 @@ CAMLprim value caml_sqlite3_column_decltype(value v_stmt, value v_index)
   sqlite3_stmt *stmt = safe_get_stmtw("column_decltype", v_stmt)->stmt;
   int i = Int_val(v_index);
   range_check(i, sqlite3_column_count(stmt));
-  CAMLreturn(caml_copy_string(sqlite3_column_decltype(stmt, i)));
+  CAMLreturn(Val_string_option(sqlite3_column_decltype(stmt, i)));
 }
 
 CAMLprim value caml_sqlite3_step(value v_stmt)
@@ -866,7 +866,7 @@ CAMLprim value caml_sqlite3_column(value v_stmt, value v_index)
       v_res = Val_int(1);
       break;
     default:
-      v_res = v_None;
+      v_res = Val_None;
   }
   CAMLreturn(v_res);
 }
@@ -933,7 +933,7 @@ static inline value caml_sqlite3_wrap_values(int argc, sqlite3_value **args)
           v_res = Val_int(1);
           break;
         default:
-          v_res = v_None;
+          v_res = Val_None;
       }
       Store_field(v_arr, i, v_res);
     }

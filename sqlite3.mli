@@ -365,7 +365,7 @@ external column_name : stmt -> int -> header = "caml_sqlite3_column_name"
 *)
 
 external column_decltype :
-  stmt -> int -> string = "caml_sqlite3_column_decltype"
+  stmt -> int -> string option = "caml_sqlite3_column_decltype"
 (** [column_decltype stmt n] @return the declared type of the specified
     column in the result set of statement [stmt].
 
@@ -444,7 +444,7 @@ val row_names : stmt -> headers
     @raise SqliteError if the statement is invalid.
 *)
 
-val row_decltypes : stmt -> string array
+val row_decltypes : stmt -> string option array
 (** [row_decltypes stmt] @return all column type declarations of the
     row returned by the last query step performed with statement [stmt].
 
