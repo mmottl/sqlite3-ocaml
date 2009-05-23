@@ -1,5 +1,10 @@
 open Sqlite3
 
+let column_decltype s i =
+  match column_decltype s i with
+  | None -> "<NONE>"
+  | Some str -> str
+
 let stepbystep s =
   while step s = Rc.ROW do
     for i = 0 to data_count s - 1 do

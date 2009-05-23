@@ -1,3 +1,5 @@
+2009-05-23: Fixed example to be consistent with new API.
+
 2009-05-16: Fixed mishandling of OCaml-runtime lock when callbacks
 	    raise exceptions, and correctly handle NULL-pointer
 	    results when getting column type declarations.
