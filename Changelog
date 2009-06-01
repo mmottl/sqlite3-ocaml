@@ -1,11 +1,11 @@
 2009-05-23: Fixed example to be consistent with new API.
 
 2009-05-16: Fixed mishandling of OCaml-runtime lock when callbacks
-	    raise exceptions, and correctly handle NULL-pointer
-	    results when getting column type declarations.
+            raise exceptions, and correctly handle NULL-pointer
+            results when getting column type declarations.
 
-	    Thanks to Bruno Daniel <bruno.daniel@gmx.net> for this
-	    patch!
+            Thanks to Bruno Daniel <bruno.daniel@gmx.net> for this
+            patch!
 
             Changed API to expose optional results.
 
