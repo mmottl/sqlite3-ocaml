@@ -318,14 +318,12 @@ CAMLprim value caml_sqlite3_open(value v_file)
 
   if (res) {
     const char *msg;
-    char buf[1024];
     if (db) {
       msg = sqlite3_errmsg(db);
       sqlite3_close(db);
     }
     else msg = "<unknown_error>";
-    snprintf(buf, sizeof(buf) - 1, "error opening database: %s", msg);
-    raise_sqlite3_Error(buf);
+    raise_sqlite3_Error("error opening database: %s", msg);
   } else if (db == NULL)
     raise_sqlite3_InternalError(
       "open returned neither a database nor an error");
