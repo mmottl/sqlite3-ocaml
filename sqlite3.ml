@@ -189,10 +189,8 @@ external transfer_bindings :
 
 external busy_timeout : db -> int -> unit = "caml_sqlite3_busy_timeout"
 
-#if HAS_ENABLE_LOAD_EXTENSION
 external enable_load_extension :
   db -> bool -> bool = "caml_sqlite3_enable_load_extension" "noalloc"
-#endif
 
 (* TODO: these give linking errors in the C-code *)
 (* external sleep   : int -> unit  = "caml_sqlite3_sleep" *)

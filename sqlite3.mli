@@ -168,13 +168,11 @@ external db_close : db -> bool = "caml_sqlite3_close"
     @raise SqliteError if an invalid database handle is passed.
 *)
 
-#if HAS_ENABLE_LOAD_EXTENSION
 external enable_load_extension :
   db -> bool -> bool = "caml_sqlite3_enable_load_extension" "noalloc"
 (** [enable_load_extension db onoff] enable/disable the sqlite3 load
     extension.  @return [false] if the operation fails, [true]
     otherwise. *)
-#endif
 
 external errcode : db -> Rc.t = "caml_sqlite3_errcode"
 (** [errcode db] @return the error code of the last operation on database
@@ -538,6 +536,18 @@ module Aggregate : sig
   (** [create_fun2 db name ~init ~step ~final] registers the step and
       finalizer functions under name [name] with database handle [db].
       This function has arity [2].
+
+      @raise SqliteError if an invalid database handle is passed.
+  *)
+
+  val create_fun3 :
+    db -> string ->
+    init : 'a ->
+    step : ('a -> Data.t -> Data.t -> Data.t -> 'a) ->
+    final : ('a -> Data.t) -> unit
+  (** [create_fun3 db name ~init ~step ~final] registers the step and
+      finalizer functions under name [name] with database handle [db].
+      This function has arity [3].
 
       @raise SqliteError if an invalid database handle is passed.
   *)
