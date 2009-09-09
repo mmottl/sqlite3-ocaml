@@ -1142,3 +1142,11 @@ CAMLprim value caml_sqlite3_busy_timeout(value v_db, value v_ms)
   if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, "busy_timeout");
   return Val_unit;
 }
+
+CAMLprim value caml_sqlite3_changes(value v_db)
+{
+  db_wrap *dbw = Sqlite3_val(v_db);
+  check_db(dbw, "changes");
+  return Val_int(sqlite3_changes(dbw->db));
+}
+

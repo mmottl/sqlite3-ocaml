@@ -156,6 +156,8 @@ external exec_not_null_no_headers :
   db -> cb : (string array -> unit) -> string -> Rc.t
   = "caml_sqlite3_exec_not_null_no_headers"
 
+external changes : db -> int = "caml_sqlite3_changes"
+
 external prepare : db -> string -> stmt = "caml_sqlite3_prepare"
 external prepare_tail : stmt -> stmt option = "caml_sqlite3_prepare_tail"
 external recompile : stmt -> unit = "caml_sqlite3_recompile"

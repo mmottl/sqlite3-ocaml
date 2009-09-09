@@ -30,7 +30,7 @@ let () =
     printf "%d %s\n%!" i sql;
     try
       match exec db sql ~cb:(fun _ _ -> print_endline "???") with
-      | Rc.OK -> ()
+      | Rc.OK -> printf "Inserted %d rows\n%!" (changes db)
       | _ -> assert false
     with xcp -> print_endline (Printexc.to_string xcp)
   done;

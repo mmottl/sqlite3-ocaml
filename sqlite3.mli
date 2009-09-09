@@ -257,6 +257,12 @@ external exec_not_null_no_headers :
     @raise SqliteError if a row contains NULL.
 *)
 
+external changes : db -> int = "caml_sqlite3_changes"
+(** [changes db] @return the number of rows that were changed
+    or inserted or deleted by the most recently completed SQL statement
+    on database [db].
+*)
+
 
 (** {2 Fine grained query operations} *)
 
