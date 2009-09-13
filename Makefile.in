@@ -22,7 +22,7 @@ MKLIBFLAGS=-linkall
 
 INSTALL=@INSTALL@
 
-all: bytecode opt docs
+all: bytecode opt docs test
 
 docs:
 	if [ ! -d doc ]; then mkdir doc; fi
@@ -31,6 +31,9 @@ docs:
 bytecode: sqlite3.cma sqlite3top
 
 opt: sqlite3.cmxa
+
+test:	bytecode opt
+	@cd test && $(MAKE) all
 
 clean:
 	rm -f *.o *.cmo *.cmx *.cmi *.so *.cma *.cmxa *.a sqlite3top
