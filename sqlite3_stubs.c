@@ -781,13 +781,6 @@ CAMLprim value caml_sqlite3_clear_bindings(value v_stmt)
 }
 #endif
 
-CAMLprim value caml_sqlite3_transfer_bindings(value v_stmt1, value v_stmt2)
-{
-  stmt_wrap *stmtw1 = safe_get_stmtw("transfer_bindings/1", v_stmt1);
-  stmt_wrap *stmtw2 = safe_get_stmtw("transfer_bindings/2", v_stmt2);
-  return Val_rc(sqlite3_transfer_bindings(stmtw1->stmt, stmtw2->stmt));
-}
-
 CAMLprim value caml_sqlite3_column_name(value v_stmt, value v_index)
 {
   CAMLparam1(v_stmt);
@@ -877,18 +870,13 @@ CAMLprim value caml_sqlite3_column(value v_stmt, value v_index)
 #if 0
 CAMLprim value caml_sqlite3_sleep(value v_duration)
 {
+  int res;
   caml_enter_blocking_section();
-    sqlite3_sleep(Int_val(v_duration));
+    res = sqlite3_sleep(Int_val(v_duration));
   caml_leave_blocking_section();
-  return Val_unit;
+  return (Int_val(res));
 }
 #endif
-
-CAMLprim value caml_sqlite3_expired(value v_stmt)
-{
-  sqlite3_stmt *stmt = safe_get_stmtw("expired", v_stmt)->stmt;
-  return sqlite3_expired(stmt) ? Val_true : Val_false;
-}
 
 
 /* User-defined functions */

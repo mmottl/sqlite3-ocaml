@@ -328,13 +328,6 @@ external reset : stmt -> Rc.t = "caml_sqlite3_stmt_reset"
     @raise SqliteError if the statement could not be reset.
 *)
 
-external expired : stmt -> bool = "caml_sqlite3_expired"
-(** [expired stmt] @return [true] if the statement [stmt] has expired.
-    In this case it may need to be recompiled.
-
-    @raise SqliteError if the statement is invalid.
-*)
-
 
 (** {2 Data query} *)
 
@@ -418,18 +411,9 @@ external bind_parameter_index :
     @raise SqliteError if the statement is invalid.
 *)
 
-external transfer_bindings :
-  stmt -> stmt -> Rc.t = "caml_sqlite3_transfer_bindings"
-(** [transfer_bindings stmt1 stmt2] transfer the bindings of statement
-    [stmt1] to [stmt2].
-
-    @return the return code of this operation.
-
-    @raise SqliteError if any of the two statements is invalid.
-*)
-
-(* TODO: does not link *)
-(* external sleep : int -> unit = "caml_sqlite3_sleep" *)
+(* TODO: these give linking errors on some platforms *)
+(* external sleep : int -> int = "caml_sqlite3_sleep" *)
+(* external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings" *)
 
 
 (** {2 Stepwise query convenience functions} *)

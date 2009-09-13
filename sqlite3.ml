@@ -165,7 +165,6 @@ external recompile : stmt -> unit = "caml_sqlite3_recompile"
 external step : stmt -> Rc.t = "caml_sqlite3_step"
 external reset : stmt -> Rc.t = "caml_sqlite3_stmt_reset"
 external finalize : stmt -> Rc.t = "caml_sqlite3_stmt_finalize"
-external expired : stmt -> bool = "caml_sqlite3_expired"
 
 external data_count : stmt -> int = "caml_sqlite3_data_count"
 external column_count : stmt -> int = "caml_sqlite3_column_count"
@@ -186,17 +185,14 @@ external bind_parameter_name :
 external bind_parameter_index :
   stmt -> string -> int = "caml_sqlite3_bind_parameter_index"
 
-external transfer_bindings :
-  stmt -> stmt -> Rc.t = "caml_sqlite3_transfer_bindings"
-
 external busy_timeout : db -> int -> unit = "caml_sqlite3_busy_timeout"
 
 external enable_load_extension :
   db -> bool -> bool = "caml_sqlite3_enable_load_extension" "noalloc"
 
-(* TODO: these give linking errors in the C-code *)
-(* external sleep   : int -> unit  = "caml_sqlite3_sleep" *)
-(* clear_bindings   : stmt -> Rc.t   = "caml_sqlite3_clear_bindings" *)
+(* TODO: these give linking errors on some platforms *)
+(* external sleep : int -> int = "caml_sqlite3_sleep" *)
+(* external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings" *)
 
 let row_data stmt = Array.init (data_count stmt) (column stmt)
 let row_names stmt = Array.init (data_count stmt) (column_name stmt)
