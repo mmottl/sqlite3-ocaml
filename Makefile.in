@@ -36,6 +36,7 @@ test:	bytecode opt
 	@cd test && $(MAKE) all
 
 clean:
+	@cd test && $(MAKE) clean
 	rm -f *.o *.cmo *.cmx *.cmi *.so *.cma *.cmxa *.a sqlite3top
 
 distclean: clean
