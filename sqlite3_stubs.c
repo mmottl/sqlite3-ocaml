@@ -353,17 +353,22 @@ CAMLprim value caml_sqlite3_close(value v_db)
   return Val_bool(not_busy);
 }
 
+#if HAS_ENABLE_LOAD_EXTENSION
 CAMLprim value caml_sqlite3_enable_load_extension(value v_db, value v_onoff)
 {
-#if HAS_ENABLE_LOAD_EXTENSION
   int ret;
   db_wrap *dbw = Sqlite3_val(v_db);
   ret = sqlite3_enable_load_extension(dbw->db, Bool_val(v_onoff));
   return Val_bool(ret);
-#else
-  caml_failwith("enable_load_extension: unsupported");
-#endif
 }
+#else
+CAMLprim value caml_sqlite3_enable_load_extension(
+  value __unused v_db, value __unused v_onoff)
+{
+  caml_failwith("enable_load_extension: unsupported");
+}
+#endif
+
 
 /* Informational functions */
 
