@@ -1,3 +1,7 @@
+2009-12-15: Fixed segfault related to exceptions raised from C.
+
+            Thanks to <garethdanielsmith@googlemail.com> for the bug report!
+
 2009-09-14: Fixed build problem.
 
 2009-09-13: Removed deprecated functions and improved build process.

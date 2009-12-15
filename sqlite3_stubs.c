@@ -558,7 +558,7 @@ CAMLprim value caml_sqlite3_exec_not_null(value v_db, value v_cb, value v_sql)
   caml_leave_blocking_section();
 
   if (rc == SQLITE_ABORT) {
-    if (*cbx.exn != Val_unit) caml_raise(*cbx.exn);
+    if (*cbx.exn != 0) caml_raise(*cbx.exn);
     else raise_sqlite3_Error("Null element in row");
   }
   CAMLreturn(Val_rc(rc));
@@ -612,7 +612,7 @@ CAMLprim value caml_sqlite3_exec_not_null_no_headers(
   caml_leave_blocking_section();
 
   if (rc == SQLITE_ABORT) {
-    if (*cbx.exn != Val_unit) caml_raise(*cbx.exn);
+    if (*cbx.exn != 0) caml_raise(*cbx.exn);
     else raise_sqlite3_Error("Null element in row");
   }
   CAMLreturn(Val_rc(rc));
