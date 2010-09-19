@@ -934,16 +934,15 @@ static inline value caml_sqlite3_wrap_values(int argc, sqlite3_value **args)
   }
 }
 
-static inline void check_exception_result(sqlite3_context *ctx, value v_res)
+static inline void exception_result(sqlite3_context *ctx)
 {
-  if (Is_exception_result(v_res))
-    sqlite3_result_error(ctx, "OCaml callback raised an exception", -1);
+  sqlite3_result_error(ctx, "OCaml callback raised an exception", -1);
 }
 
 static inline void set_sqlite3_result(sqlite3_context *ctx, value v_res)
 {
-  check_exception_result(ctx, v_res);
-  if (Is_long(v_res)) sqlite3_result_null(ctx);
+  if (Is_exception_result(v_res)) exception_result(ctx);
+  else if (Is_long(v_res)) sqlite3_result_null(ctx);
   else {
     value v = Field(v_res, 0);
     switch (Tag_val(v_res)) {
@@ -994,13 +993,12 @@ static inline void caml_sqlite3_user_function_step(
     }
     v_args = caml_sqlite3_wrap_values(argc, argv);
     v_res = caml_callback2_exn(Field(data->v_fun, 2), agg_ctx->v_acc, v_args);
-    check_exception_result(ctx, v_res);
-    agg_ctx->v_acc = v_res;
+    if (Is_exception_result(v_res)) exception_result(ctx);
+    else agg_ctx->v_acc = v_res;
   caml_enter_blocking_section();
 }
 
-static inline void
-caml_sqlite3_user_function_final(sqlite3_context *ctx)
+static inline void caml_sqlite3_user_function_final(sqlite3_context *ctx)
 {
   user_function *data = sqlite3_user_data(ctx);
   agg_ctx *agg_ctx = sqlite3_aggregate_context(ctx, sizeof(agg_ctx));

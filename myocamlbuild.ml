@@ -33,6 +33,6 @@ dispatch begin function
      if static then flag ["link"; "ocaml"; "byte"] (A"-custom");
      dep  ["link"; "ocaml";"library"] [stubs];
      ()
- 
+
 | _ -> ()
 end
