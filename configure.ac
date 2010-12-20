@@ -1,4 +1,4 @@
-AC_INIT(ocaml-sqlite, 1.5.8, markus.mottl@gmail.com)
+AC_INIT(ocaml-sqlite, 1.5.9, markus.mottl@gmail.com)
 AC_CONFIG_SRCDIR(sqlite3.mli)
 
 AC_CHECKING(for ocaml compiler and tools)
@@ -26,7 +26,7 @@ AC_ARG_WITH(
 AC_CHECKING(for sqlite3 library)
 AC_CHECK_LIB(
   sqlite3, sqlite3_open,,
-  AC_ERROR([SQLite is required.  See the --with-sqlite3 configure option.]))
+  AC_ERROR([SQLite is required.  See the --with-sqlite3 configure option.]), -ldl)
 
 AC_CHECKING(for Sqlite header files)
 AC_CHECK_HEADER(sqlite3.h,,
