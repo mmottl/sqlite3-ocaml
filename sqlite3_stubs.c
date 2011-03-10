@@ -54,6 +54,14 @@
 # define my_sqlite3_prepare sqlite3_prepare
 #endif
 
+#if SQLITE_VERSION_NUMBER >= 3005000
+# define SQLITE_HAS_OPEN_V2
+#endif
+
+#if SQLITE_VERSION_NUMBER >= 3006018
+# define SQLITE_HAS_OPEN_CACHE_PARAMS
+#endif
+
 /* Utility definitions */
 
 static const value Val_None = Val_int(0);
@@ -303,16 +311,72 @@ static inline void dbw_finalize_gc(value v_dbw)
   if (dbw->db) ref_count_finalize_dbw(dbw);
 }
 
-CAMLprim value caml_sqlite3_open(value v_file)
+#ifdef SQLITE_HAS_OPEN_V2
+static inline int get_open_flags(value v_mode, value v_mutex, value v_cache)
+{
+  int flags;
+  switch (Int_val(v_mode)) {
+    case 0 : flags = (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE); break;
+    case 1 : flags = SQLITE_OPEN_READWRITE; break;
+    default : flags = SQLITE_OPEN_READONLY; break;
+  }
+  switch (Int_val(v_mutex)) {
+    case 0 : break;
+    case 1 : flags |= SQLITE_OPEN_NOMUTEX; break;
+    default : flags |= SQLITE_OPEN_FULLMUTEX; break;
+  }
+  switch (Int_val(v_cache)) {
+    case 0 : break;
+#ifdef SQLITE_HAS_OPEN_CACHE_PARAMS
+    case 1 : flags |= SQLITE_OPEN_SHAREDCACHE; break;
+    default : flags |= SQLITE_OPEN_PRIVATECACHE; break;
+#else
+    default :
+      caml_failwith(
+        "SQLite3 version < 3.6.18 does not support cache parameters for open");
+#endif
+  }
+  return flags;
+}
+#endif
+
+CAMLprim value caml_sqlite3_open(
+  value v_mode, value v_mutex, value v_cache, value v_vfs_opt, value v_file)
 {
   sqlite3 *db;
   int res;
-  int len = caml_string_length(v_file) + 1;
-  char *file = caml_stat_alloc(len);
-  memcpy(file, String_val(v_file), len);
+#ifdef SQLITE_HAS_OPEN_V2
+  int flags = get_open_flags(v_mode, v_mutex, v_cache);
+  char *vfs;
+#endif
+  int file_len = caml_string_length(v_file) + 1;
+  char *file;
+
+#ifdef SQLITE_HAS_OPEN_V2
+  if (v_vfs_opt == Val_None) vfs = NULL;
+  else {
+    value v_vfs = Field(v_vfs_opt, 0);
+    int vfs_len = caml_string_length(v_vfs) + 1;
+    vfs = caml_stat_alloc(vfs_len);
+    memcpy(vfs, String_val(v_vfs), vfs_len);
+  }
+#else
+  if (Int_val(v_mode) || Int_val(v_mutex) || Int_val(v_cache))
+    caml_failwith("SQlite3 version < 3.5 does not support open flags");
+  if (v_vfs_opt != Val_None)
+    caml_failwith("SQLite3 version < 3.5 does not support VFS modules");
+#endif
+
+  file = caml_stat_alloc(file_len);
+  memcpy(file, String_val(v_file), file_len);
 
   caml_enter_blocking_section();
+#ifdef SQLITE_HAS_OPEN_V2
+    res = sqlite3_open_v2(file, &db, flags, vfs);
+    free(vfs);
+#else
     res = sqlite3_open(file, &db);
+#endif
     free(file);
   caml_leave_blocking_section();
 

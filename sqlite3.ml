@@ -133,7 +133,38 @@ type headers = header array
 type row = string option array
 type row_not_null = string array
 
-external db_open : string -> db = "caml_sqlite3_open"
+module Mode = struct
+  type t = Read_write_create | Read_write | Read_only
+
+  let lift = function
+    | None -> Read_write_create
+    | Some `READONLY -> Read_only
+    | Some `NO_CREATE -> Read_write
+end
+
+module Mut = struct
+  type t = NOTHING | NO | FULL
+
+  let lift = function None -> NOTHING | Some `NO -> NO | Some `FULL -> FULL
+end
+
+module Cache = struct
+  type t = NOTHING | SHARED | PRIVATE
+
+  let lift =
+    function None -> NOTHING | Some `SHARED -> SHARED | Some `PRIVATE -> PRIVATE
+end
+
+external db_open :
+  mode : Mode.t -> mutex : Mut.t -> cache : Cache.t ->
+  ?vfs : string -> string -> db = "caml_sqlite3_open"
+
+let db_open ?mode ?mutex ?cache ?vfs name =
+  let mode = Mode.lift mode in
+  let mutex = Mut.lift mutex in
+  let cache = Cache.lift cache in
+  db_open ~mode ~mutex ~cache ?vfs name
+
 external db_close : db -> bool = "caml_sqlite3_close"
 
 external errcode : db -> Rc.t = "caml_sqlite3_errcode"
