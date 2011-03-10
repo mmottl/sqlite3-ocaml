@@ -1,3 +1,7 @@
+2011-03-10: Added sqlite3_open_v2 functionality.
+
+            Thanks to Mike Lin <mlin@mit.edu> for the initial patch!
+
 2010-12-20: Fixed linking problem with loadable module support.
 
             Thanks to Adrien Nader <camaradetux@gmail.com> for the patch!
