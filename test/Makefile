@@ -8,7 +8,7 @@ bytecode: $(TESTS:%.ml=%.bc)
 opt: $(TESTS:%.ml=%.exe)
 
 %.bc: %.ml
-	ocamlc -w Ae -warn-error Ae -I .. str.cma sqlite3.cma $< -o $@
+	ocamlc -w Ae -warn-error Ae -I .. -dllpath .. str.cma sqlite3.cma $< -o $@
 
 %.exe: %.ml
 	ocamlopt -w Ae -warn-error Ae -I .. str.cmxa sqlite3.cmxa $< -o $@
