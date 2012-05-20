@@ -1,3 +1,8 @@
+2012-05-19: Fixed cpp warnings and removed superfluous check for dynamic
+            linking library.  The latter improves portability to FreeBSD.
+
+            Thanks to Stéphane Legrand <stephleg@free.fr> for the bug report!
+
 2011-03-10: Added sqlite3_open_v2 functionality.
 
             Thanks to Mike Lin <mlin@mit.edu> for the initial patch!
