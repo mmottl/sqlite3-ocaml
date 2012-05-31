@@ -35,7 +35,7 @@ let () =
     with xcp -> print_endline (Printexc.to_string xcp)
   done;
   let sql = sprintf "SELECT * FROM tbl0" in
-  for i = 0 to 3 do
+  for _i = 0 to 3 do
     try
       print_endline "TESTING!";
       match

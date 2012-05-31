@@ -1,4 +1,3 @@
-open Printf
 open Sqlite3
 
 let () =
