@@ -5,11 +5,13 @@ bindir=@bindir@
 HAS_ENABLE_LOAD_EXTENSION=@HAS_ENABLE_LOAD_EXTENSION@
 ifeq ($(HAS_ENABLE_LOAD_EXTENSION), true)
   HAS_ENABLE_LOAD_EXTENSION= -DHAS_ENABLE_LOAD_EXTENSION
-  OCFLAGS=-pp "cpp -traditional-cpp -DHAS_ENABLE_LOAD_EXTENSION"
+  OCDOCFLAGS=-pp "cpp -traditional-cpp -DHAS_ENABLE_LOAD_EXTENSION"
 else
   HAS_ENABLE_LOAD_EXTENSION=
-  OCFLAGS=-pp "cpp -traditional-cpp"
+  OCDOCFLAGS=-pp "cpp -traditional-cpp"
 endif
+
+OCFLAGS = $(OCDOCFLAGS) -w Aer -strict-sequence
 
 CC=@CC@
 CFLAGS=@CPPFLAGS@ @CFLAGS@ $(HAS_ENABLE_LOAD_EXTENSION) -fPIC -Wall -pedantic -Werror -Wno-long-long
@@ -26,7 +28,7 @@ all: bytecode opt docs test
 
 docs:
 	if [ ! -d doc ]; then mkdir doc; fi
-	ocamldoc $(OCFLAGS) -html -d doc sqlite3.mli
+	ocamldoc $(OCDOCFLAGS) -html -d doc sqlite3.mli
 
 bytecode: sqlite3.cma sqlite3top
 
@@ -73,9 +75,9 @@ sqlite3.cmo: sqlite3.cmi sqlite3.ml
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
 
 .mli.cmi:
-	ocamlc -w A -warn-error A $(OCFLAGS) -c $<
+	ocamlc $(OCFLAGS) -c $<
 .ml.cmo:
-	ocamlc -w A -warn-error A $(OCFLAGS) -c $<
+	ocamlc $(OCFLAGS) -c $<
 .ml.cmx:
-	ocamlc -w A -warn-error A $(OCFLAGS) -c $*.mli
-	ocamlopt -w A -warn-error A -inline 20 $(OCFLAGS) -c $<
+	ocamlc $(OCFLAGS) -c $*.mli
+	ocamlopt -inline 20 $(OCFLAGS) -c $<
