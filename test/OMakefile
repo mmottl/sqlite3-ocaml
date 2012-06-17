@@ -1,6 +1,0 @@
-OCAML_LIBRARIES = sqlite3
-OCAMLPACKS = str
-
-OCamlMakeProjDefaults(test_db.exe test_exec.exe test_fun.exe test_stmt.exe)
-
-InstantiateOCamlEnv()
