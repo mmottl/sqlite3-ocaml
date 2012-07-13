@@ -48,6 +48,10 @@
 # define inline
 #endif
 
+#if SQLITE_VERSION_NUMBER >= 3003007
+# define SQLITE_HAS_ENABLE_LOAD_EXTENSION
+#endif
+
 #if SQLITE_VERSION_NUMBER >= 3003009
 # define my_sqlite3_prepare sqlite3_prepare_v2
 #else
@@ -417,7 +421,7 @@ CAMLprim value caml_sqlite3_close(value v_db)
   return Val_bool(not_busy);
 }
 
-#if HAS_ENABLE_LOAD_EXTENSION
+#ifdef SQLITE_HAS_ENABLE_LOAD_EXTENSION
 CAMLprim value caml_sqlite3_enable_load_extension(value v_db, value v_onoff)
 {
   int ret;

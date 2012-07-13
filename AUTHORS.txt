@@ -1,0 +1,10 @@
+(* OASIS_START *)
+(* DO NOT EDIT (digest: 0648f925adedbb4c0bdc6c4093b3ea31) *)
+Authors of sqlite3-ocaml
+Markus Mottl <markus.mottl@gmail.com>
+Christian Szegedy <csdontspam@metamatix.com>
+
+Current maintainers of sqlite3-ocaml
+Markus Mottl <markus.mottl@gmail.com>
+Christian Szegedy <csdontspam@metamatix.com>
+(* OASIS_STOP *)

@@ -1,0 +1,122 @@
+OASISFormat:      0.3
+Name:             sqlite3-ocaml
+Version:          1.6.4
+Synopsis:         sqlite3-ocaml - bindings to the SQLite3 library
+Description:      sqlite3-ocaml offers library functions for accessing SQLite3 database
+Authors:          Markus Mottl <markus.mottl@gmail.com>,
+                  Christian Szegedy <csdontspam@metamatix.com>
+Copyrights:       (C) 2007-2010 Jane Street Holding LLC <opensource@janestreet.com>,
+                  (C) 2010-2012 Markus Mottl <markus.mottl@gmail.com>,
+                  (C) 2005-2012 Christian Szegedy <csdontspam@metamatix.com>
+Maintainers:      Markus Mottl <markus.mottl@gmail.com>,
+                  Christian Szegedy <csdontspam@metamatix.com>
+LicenseFile:      COPYING.txt
+License:          LGPL-2.1+ with OCaml linking exception
+OCamlVersion:     >= 3.12
+FindlibVersion:   >= 1.3.2
+Homepage:         https://bitbucket.org/mmottl/sqlite3-ocaml
+#Categories:
+#FilesAB:
+
+Plugins:          META (0.3), StdFiles (0.3), DevFiles (0.3)
+XStdFilesREADME:  false
+
+BuildTools:       ocamldoc, ocamlbuild
+
+Flag strict
+  Description:    Strict compile-time checks
+  Default:        true
+
+Library sqlite3
+  Path:           lib
+  FindlibName:    sqlite3
+  Modules:        Sqlite3
+  CSources:       sqlite3_stubs.c
+  CCOpt:          -g -O2 -fPIC -DPIC
+  if flag(strict) && ccomp_type(cc)
+    CCOpt+:       -Wall -pedantic -Wextra -Wunused -Wno-long-long
+  CCLib:          -lsqlite3
+
+
+# Tests
+
+Executable test_agg
+  Path:           test
+  MainIs:         test_agg.ml
+  Build$:         flag(tests)
+  Install:        false
+  BuildDepends:   sqlite3
+  CompiledObject: best
+
+Test test_agg
+  Run$:               flag(tests)
+  Command:            $test_agg
+  WorkingDirectory:   test
+
+Executable test_db
+  Path:           test
+  MainIs:         test_db.ml
+  Build$:         flag(tests)
+  Install:        false
+  BuildDepends:   sqlite3
+  CompiledObject: best
+
+Test test_db
+  Run$:               flag(tests)
+  Command:            $test_db
+  WorkingDirectory:   test
+
+Executable test_exec
+  Path:           test
+  MainIs:         test_exec.ml
+  Build$:         flag(tests)
+  Install:        false
+  BuildDepends:   sqlite3
+  CompiledObject: best
+
+Test test_exec
+  Run$:               flag(tests)
+  Command:            $test_exec
+  WorkingDirectory:   test
+
+Executable test_fun
+  Path:           test
+  MainIs:         test_fun.ml
+  Build$:         flag(tests)
+  Install:        false
+  BuildDepends:   sqlite3, str
+  CompiledObject: best
+
+Test test_fun
+  Run$:               flag(tests)
+  Command:            $test_fun
+  WorkingDirectory:   test
+
+Executable test_stmt
+  Path:           test
+  MainIs:         test_stmt.ml
+  Build$:         flag(tests)
+  Install:        false
+  BuildDepends:   sqlite3
+  CompiledObject: best
+
+Test test_stmt
+  Run$:               flag(tests)
+  Command:            $test_stmt
+  WorkingDirectory:   test
+  PostCommand:        rm t
+
+#
+
+Document API
+  Title:                API reference for sqlite3-ocaml
+  Type:                 OCamlbuild (0.3)
+  InstallDir:           $docdir/api
+  XOCamlbuildPath:      .
+  XOCamlbuildLibraries: sqlite3
+
+SourceRepository trunk
+  Type:       hg
+  Location:   ssh://hg@bitbucket.org/mmottl/sqlite3-ocaml
+  Browser:    https://bitbucket.org/mmottl/sqlite3-ocaml
+  Tag:        release-$(pkg_version)
