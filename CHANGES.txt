@@ -1,3 +1,11 @@
+2012-07-15:  New major release version 2.0.0:
+
+               * Upgraded to OCaml 4.00
+               * Switched to Oasis for packaging
+               * Switched to OCamlBuild for the build process
+               * Rewrote README in Markdown
+               * Added stricter compilation flags
+
 2012-05-19: Fixed cpp warnings and removed superfluous check for dynamic
             linking library.  The latter improves portability to FreeBSD.
 
