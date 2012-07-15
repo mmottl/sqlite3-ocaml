@@ -17,9 +17,12 @@ the old (version 2) SQLite and its OCaml wrapper `ocaml-sqlite`.
 Usage
 -----
 
-The API in file `lib/sqlite3.mli` is fully documented, and HTML-documentation
-can be built and installed with this distribution.  SQLite3 has its own [online
-documentation](http://www.sqlite.org/docs.html).
+The API in file `lib/sqlite3.mli` is fully documented,
+and HTML-documentation can be built using `make doc` and
+installed with this distribution.  It can also be found
+[online](http://mmottl.bitbucket.org/projects/sqlite3-ocaml/api/).
+
+SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
 
 ### Examples
 
