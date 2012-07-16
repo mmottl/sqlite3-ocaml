@@ -558,6 +558,21 @@ let rec split_string s =
   | Some pos -> String.before s pos :: split_string (String.after s (pos + 1))
   | None -> [s]
 
+(* string_trim taken from OCaml 4.00 standard library (String.trim) *)
+let is_space = function
+  | ' ' | '\012' | '\n' | '\r' | '\t' -> true
+  | _ -> false
+
+let string_trim s =
+  let len = String.length s in
+  let i = ref 0 in
+  while !i < len && is_space s.[!i] do incr i done;
+  let j = ref (len - 1) in
+  while !j >= !i && is_space s.[!j] do decr j done;
+  if !i = 0 && !j = len - 1 then s
+  else if !j >= !i then String.sub s !i (!j - !i + 1)
+  else ""
+
 let () =
   let additional_rules = function
     | After_rules ->
@@ -567,7 +582,7 @@ let () =
         let rec split_string s =
           match try Some (String.index s ' ') with Not_found -> None with
           | Some pos ->
-              let before = String.trim (String.before s pos) in
+              let before = string_trim (String.before s pos) in
               let after = String.after s (pos + 1) in
               if before = "" then split_string after
               else before :: split_string after
