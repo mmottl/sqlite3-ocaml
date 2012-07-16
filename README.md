@@ -8,7 +8,7 @@ What is SQLite3-OCaml?
 
 SQLite3-OCaml is an [OCaml](http://www.ocaml.org) library with bindings to the
 [SQLite3](http://www.sqlite.org) client API.  Sqlite3 is a self-contained,
-serverless, zero-configuration, transactional SQL databse engine with
+serverless, zero-configuration, transactional SQL database engine with
 outstanding performance for many use cases.
 
 These bindings are written in a way that enables a friendly coexistence with
