@@ -1,3 +1,6 @@
+2012-07-20:  Downgraded findlib version requirement to support the Debian
+             testing branch.
+
 2012-07-16:  Replaced String.trim function in myocamlbuild.ml to allow
              compiling with OCaml 3.12.1.
 
