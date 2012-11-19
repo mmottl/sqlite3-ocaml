@@ -1,6 +1,6 @@
 # OASIS_START
-# DO NOT EDIT (digest: 351f3ace294279ab0bc82513b0aa4dc8)
-version = "2.0.1"
+# DO NOT EDIT (digest: 27324187102378b24fdc95dc4761e05e)
+version = "2.0.3"
 description = "sqlite3-ocaml - bindings to the SQLite3 library"
 archive(byte) = "sqlite3.cma"
 archive(byte, plugin) = "sqlite3.cma"

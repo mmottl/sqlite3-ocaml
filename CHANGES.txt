@@ -1,16 +1,20 @@
-2012-07-20:  Downgraded findlib version requirement to support the Debian
-             testing branch.
+2012-11-19: Added missing .mldylib file for shared library support.
 
-2012-07-16:  Replaced String.trim function in myocamlbuild.ml to allow
-             compiling with OCaml 3.12.1.
+            Thanks to Hugo Heuzard for the bug report!
 
-2012-07-15:  New major release version 2.0.0:
+2012-07-20: Downgraded findlib version requirement to support the Debian
+            testing branch.
 
-               * Upgraded to OCaml 4.00
-               * Switched to Oasis for packaging
-               * Switched to OCamlBuild for the build process
-               * Rewrote README in Markdown
-               * Added stricter compilation flags
+2012-07-16: Replaced String.trim function in myocamlbuild.ml to allow
+            compiling with OCaml 3.12.1.
+
+2012-07-15: New major release version 2.0.0:
+
+              * Upgraded to OCaml 4.00
+              * Switched to Oasis for packaging
+              * Switched to OCamlBuild for the build process
+              * Rewrote README in Markdown
+              * Added stricter compilation flags
 
 2012-05-19: Fixed cpp warnings and removed superfluous check for dynamic
             linking library.  The latter improves portability to FreeBSD.
