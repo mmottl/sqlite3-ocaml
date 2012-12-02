@@ -843,16 +843,11 @@ CAMLprim value caml_sqlite3_bind(value v_stmt, value v_index, value v_data)
   return Val_rc(SQLITE_ERROR);
 }
 
-/* FIXME */
-
-/* Sorry this gives a linking error! */
-#if 0
 CAMLprim value caml_sqlite3_clear_bindings(value v_stmt)
 {
   sqlite3_stmt *stmt = safe_get_stmtw("clear_bindings", v_stmt)->stmt;
   return Val_rc(sqlite3_clear_bindings(stmt));
 }
-#endif
 
 CAMLprim value caml_sqlite3_column_name(value v_stmt, value v_index)
 {
@@ -937,19 +932,14 @@ CAMLprim value caml_sqlite3_column(value v_stmt, value v_index)
   CAMLreturn(v_res);
 }
 
-/* FIXME */
-
-/* Sorry, this gives a linking error! */
-#if 0
 CAMLprim value caml_sqlite3_sleep(value v_duration)
 {
   int res;
   caml_enter_blocking_section();
     res = sqlite3_sleep(Int_val(v_duration));
   caml_leave_blocking_section();
-  return (Int_val(res));
+  return Val_int(res);
 }
-#endif
 
 
 /* User-defined functions */

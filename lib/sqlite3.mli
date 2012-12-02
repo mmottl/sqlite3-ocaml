@@ -351,6 +351,10 @@ external reset : stmt -> Rc.t = "caml_sqlite3_stmt_reset"
     @raise SqliteError if the statement could not be reset.
 *)
 
+external sleep : int -> int = "caml_sqlite3_sleep"
+(** [sleep ms] sleeps at least [ms] milliseconds.  @return the number of
+    milliseconds of sleep actually requested from the operating system. *)
+
 
 (** {2 Data query} *)
 
@@ -434,9 +438,14 @@ external bind_parameter_index :
     @raise SqliteError if the statement is invalid.
 *)
 
-(* TODO: these give linking errors on some platforms *)
-(* external sleep : int -> int = "caml_sqlite3_sleep" *)
-(* external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings" *)
+external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings"
+(** [clear_bindings stmt] resets all bindings associated with prepared
+    statement [stmt].
+
+    @return the return code of this operation.
+
+    @raise SqliteError if the statement is invalid.
+*)
 
 
 (** {2 Stepwise query convenience functions} *)

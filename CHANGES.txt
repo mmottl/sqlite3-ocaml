@@ -1,3 +1,12 @@
+2012-12-02: Added new functions
+
+              * sleep
+              * clear_bindings
+
+            Really old operating system distributions may have had problems
+            linking these functions, but it seems that reasonably recent
+            ones support them.
+
 2012-11-19: Added missing .mldylib file for shared library support.
 
             Thanks to Hugo Heuzard for the bug report!
