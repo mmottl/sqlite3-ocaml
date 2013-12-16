@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 82fea3d6fec6637a0a4b91bdcef06e81) *)
+(* DO NOT EDIT (digest: 704ae4be7b33e10c4d412e1626b8d8b5) *)
 This is the INSTALL file for the sqlite3-ocaml distribution.
 
 This package uses OASIS to generate its build system. See section OASIS for
@@ -24,7 +24,7 @@ Installing
 Uninstalling
 ============
 
-1. Go to the root of the package 
+1. Go to the root of the package
 2. Run 'ocaml setup.ml -uninstall'
 
 OASIS

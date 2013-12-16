@@ -1,6 +1,6 @@
-OASISFormat:      0.3
+OASISFormat:      0.4
 Name:             sqlite3-ocaml
-Version:          2.0.4
+Version:          2.0.5
 Synopsis:         sqlite3-ocaml - bindings to the SQLite3 library
 Description:      sqlite3-ocaml offers library functions for accessing SQLite3 database
 Authors:          Markus Mottl <markus.mottl@gmail.com>,
@@ -18,7 +18,7 @@ Homepage:         https://bitbucket.org/mmottl/sqlite3-ocaml
 #Categories:
 #FilesAB:
 
-Plugins:          META (0.3), StdFiles (0.3), DevFiles (0.3)
+Plugins:          META (0.4), StdFiles (0.4), DevFiles (0.4)
 XStdFilesREADME:  false
 
 BuildTools:       ocamldoc, ocamlbuild
@@ -110,7 +110,7 @@ Test test_stmt
 
 Document API
   Title:                API reference for sqlite3-ocaml
-  Type:                 OCamlbuild (0.3)
+  Type:                 OCamlbuild (0.4)
   InstallDir:           $docdir/api
   XOCamlbuildPath:      .
   XOCamlbuildLibraries: sqlite3

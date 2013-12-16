@@ -1,7 +1,7 @@
 # OASIS_START
-# DO NOT EDIT (digest: 464fa2ec42f6bd6d1b210bfbe99a91cc)
-# Ignore VCS directories, you can use the same kind of rule outside 
-# OASIS_START/STOP if you want to exclude directories that contains 
+# DO NOT EDIT (digest: 4ea316e333012fd4d6e656443c3dba8b)
+# Ignore VCS directories, you can use the same kind of rule outside
+# OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
 <**/.svn>: -traverse
 <**/.svn>: not_hygienic
@@ -37,4 +37,9 @@
 <test/test_stmt.{native,byte}>: use_sqlite3
 <test/*.ml{,i}>: use_sqlite3
 # OASIS_STOP
-<**/*.ml{,i}>: warn_A, warn_e, warn_r, annot
+
+true: -traverse
+<{lib,test}/**>: traverse
+
+<**/*.ml{,i}>: warn(Aer-44), strict_sequence, annot
+"lib/sqlite3.cmxs": use_libsqlite3_stubs
