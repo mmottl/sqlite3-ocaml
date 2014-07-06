@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Sqlite3-ocaml : OCaml bindings to the SQLite3 database" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Sqlite3-ocaml</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/mmottl/sqlite3-ocaml">View on GitHub</a>
+
+          <h1 id="project_title">Sqlite3-ocaml</h1>
+          <h2 id="project_tagline">OCaml bindings to the SQLite3 database</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/mmottl/sqlite3-ocaml/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/mmottl/sqlite3-ocaml/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="sqlite3-ocaml---sqlite3-bindings-for-ocaml" class="anchor" href="#sqlite3-ocaml---sqlite3-bindings-for-ocaml"><span class="octicon octicon-link"></span></a>SQLite3-OCaml - SQLite3 Bindings for OCaml</h1>
+
+<hr><h2>
+<a name="what-is-sqlite3-ocaml" class="anchor" href="#what-is-sqlite3-ocaml"><span class="octicon octicon-link"></span></a>What is SQLite3-OCaml?</h2>
+
+<p>SQLite3-OCaml is an <a href="http://www.ocaml.org">OCaml</a> library with bindings to the
+<a href="http://www.sqlite.org">SQLite3</a> client API.  Sqlite3 is a self-contained,
+serverless, zero-configuration, transactional SQL database engine with
+outstanding performance for many use cases.</p>
+
+<p>These bindings are written in a way that enables a friendly coexistence with
+the old (version 2) SQLite and its OCaml wrapper <code>ocaml-sqlite</code>.</p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>The API in file <code>lib/sqlite3.mli</code> is fully documented, and HTML-documentation
+can be built using <code>make doc</code> and installed with this distribution.  It can
+also be found <a href="http://mmottl.github.io/sqlite3-ocaml/api">online</a>.</p>
+
+<p>SQLite3 has its own <a href="http://www.sqlite.org/docs.html">online documentation</a>.</p>
+
+<h3>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h3>
+
+<p>The <code>test</code>-directory in this distribution contains a few simple examples
+for testing various features of this library.</p>
+
+<h2>
+<a name="credits" class="anchor" href="#credits"><span class="octicon octicon-link"></span></a>Credits</h2>
+
+<ul>
+<li><p>Enrico Tassi contributed support for user-defined scalar functions.</p></li>
+<li><p>Markus Mottl rewrote Christian's bindings for Jane Street Holding, LLC to
+clean up a few things and to make it perform better in multi-threaded
+environments.</p></li>
+<li><p>Christian Szegedy wrote the initial release for SQLite version 3.</p></li>
+<li><p>Mikhail Fedotov wrote ocaml-sqlite for SQLite version 2.  His bindings
+served as a reference for this wrapper, but sqlite3 is written completely
+from scratch since the C interface changed significantly.</p></li>
+</ul><hr><h2>
+<a name="contact-information-and-contributing" class="anchor" href="#contact-information-and-contributing"><span class="octicon octicon-link"></span></a>Contact Information and Contributing</h2>
+
+<p>In the case of bugs, feature requests, contributions and similar, please
+contact the maintainers:</p>
+
+<ul>
+<li>Markus Mottl <a href="mailto:markus.mottl@gmail.com">markus.mottl@gmail.com</a>
+</li>
+<li>Christian Szegedy <a href="mailto:csdontspam@metamatix.com">csdontspam@metamatix.com</a>
+</li>
+</ul><p>Up-to-date information should be available at:
+<a href="http://mmottl.github.io/sqlite3-ocaml">http://mmottl.github.io/sqlite3-ocaml</a></p>
+
+<p>Enjoy!</p>
+
+<p>Markus Mottl on July 10, 2012</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Sqlite3-ocaml maintained by <a href="https://github.com/mmottl">mmottl</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
