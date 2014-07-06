@@ -1,0 +1,456 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Sqlite3" rel="Chapter" href="Sqlite3.html"><link title="Exceptions" rel="Section" href="#2_Exceptions">
+<link title="Types" rel="Section" href="#2_Types">
+<link title="Return codes" rel="Section" href="#2_Returncodes">
+<link title="Column data types" rel="Section" href="#2_Columndatatypes">
+<link title="General database operations" rel="Section" href="#2_Generaldatabaseoperations">
+<link title="Fine grained query operations" rel="Section" href="#2_Finegrainedqueryoperations">
+<link title="Data query" rel="Section" href="#2_Dataquery">
+<link title="Binding data to the query" rel="Section" href="#2_Bindingdatatothequery">
+<link title="Stepwise query convenience functions" rel="Section" href="#2_Stepwisequeryconveniencefunctions">
+<link title="User-defined functions" rel="Section" href="#2_Userdefinedfunctions">
+<title>Sqlite3</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Sqlite3.html">Sqlite3</a></h1>
+
+<pre><span class="keyword">module</span> Sqlite3: <code class="code">sig</code> <a href="Sqlite3.html">..</a> <code class="code">end</code></pre><div class="info module top">
+API for Sqlite 3.* databases<br>
+</div>
+<hr width="100%">
+<br>
+<h2 id="2_Exceptions">Exceptions</h2><br>
+
+<pre><span id="EXCEPTIONInternalError"><span class="keyword">exception</span> InternalError</span> <span class="keyword">of</span> <code class="type">string</code></pre>
+<div class="info ">
+<code class="code">InternalError reason</code> is raised when the bindings detect an
+    unknown/unsupported situation.<br>
+</div>
+
+<pre><span id="EXCEPTIONError"><span class="keyword">exception</span> Error</span> <span class="keyword">of</span> <code class="type">string</code></pre>
+<div class="info ">
+<code class="code">Error reason</code> is raised when some SQL operation is called on a
+    nonexistent handle and the functions does not return a return code,
+    or if there is no error code corresponding to this error.
+    Functions returning return codes communicate errors by returning
+    the specific error code.<br>
+</div>
+
+<pre><span id="EXCEPTIONRangeError"><span class="keyword">exception</span> RangeError</span> <span class="keyword">of</span> <code class="type">int * int</code></pre>
+<div class="info ">
+<code class="code">RangeError (index, maximum)</code> is raised if some column or bind
+    operation refers to a nonexistent column or binding.  The first
+    entry of the returned tuple is the specified index, the second is
+    the limit which was violated.<br>
+</div>
+<br>
+<h2 id="2_Types">Types</h2><br>
+
+<pre><span id="TYPEdb"><span class="keyword">type</span> <code class="type"></code>db</span> </pre>
+<div class="info ">
+Database handle.  Used to store information regarding open
+    databases and the error code from the last operation if the function
+    implementing that operation takes a database handle as a parameter.
+<p>
+
+    NOTE: DO NOT USE THIS HANDLE WITHIN THREADS OTHER THAN THE ONE THAT
+    CREATED IT!!!
+<p>
+
+    NOTE: database handles are closed (see <a href="Sqlite3.html#VALdb_close"><code class="code">Sqlite3.db_close</code></a>) automatically
+    when they are reclaimed by the GC unless they have already been
+    closed earlier by the user.  It is good practice to manually close
+    database handles to free resources as quickly as possible.<br>
+</div>
+
+
+<pre><span id="TYPEstmt"><span class="keyword">type</span> <code class="type"></code>stmt</span> </pre>
+<div class="info ">
+Compiled statement handle.  Stores information about compiled
+    statements created by the <code class="code">prepare</code> or <code class="code">prepare_tail</code> functions.
+<p>
+
+    NOTE: DO NOT USE THIS HANDLE WITHIN THREADS OTHER THAN THE ONE THAT
+    CREATED IT!!!<br>
+</div>
+
+
+<pre><span id="TYPEheader"><span class="keyword">type</span> <code class="type"></code>header</span> = <code class="type">string</code> </pre>
+<div class="info ">
+Type of name of a column returned by queries.<br>
+</div>
+
+
+<pre><span id="TYPEheaders"><span class="keyword">type</span> <code class="type"></code>headers</span> = <code class="type"><a href="Sqlite3.html#TYPEheader">header</a> array</code> </pre>
+<div class="info ">
+Type of names of columns returned by queries.<br>
+</div>
+
+
+<pre><span id="TYPErow"><span class="keyword">type</span> <code class="type"></code>row</span> = <code class="type">string option array</code> </pre>
+<div class="info ">
+Type of row data (with potential NULL-values)<br>
+</div>
+
+
+<pre><span id="TYPErow_not_null"><span class="keyword">type</span> <code class="type"></code>row_not_null</span> = <code class="type">string array</code> </pre>
+<div class="info ">
+Type of row data (without NULL-values)<br>
+</div>
+
+<br>
+<h2 id="2_Returncodes">Return codes</h2><br>
+
+<pre><span class="keyword">module</span> <a href="Sqlite3.Rc.html">Rc</a>: <code class="code">sig</code> <a href="Sqlite3.Rc.html">..</a> <code class="code">end</code></pre><br>
+<h2 id="2_Columndatatypes">Column data types</h2><br>
+
+<pre><span class="keyword">module</span> <a href="Sqlite3.Data.html">Data</a>: <code class="code">sig</code> <a href="Sqlite3.Data.html">..</a> <code class="code">end</code></pre><br>
+<h2 id="2_Generaldatabaseoperations">General database operations</h2><br>
+
+<pre><span id="VALdb_open"><span class="keyword">val</span> db_open</span> : <code class="type">?mode:[ `NO_CREATE | `READONLY ] -><br>       ?mutex:[ `FULL | `NO ] -><br>       ?cache:[ `PRIVATE | `SHARED ] -> ?vfs:string -> string -> <a href="Sqlite3.html#TYPEdb">db</a></code></pre><div class="info ">
+<code class="code">db_open ?mode ?mutex ?cache ?vfs filename</code> opens the database file
+    <code class="code">filename</code>, and returns a database handle.
+<p>
+
+    The optional arguments <code class="code">mode</code> and <code class="code">mutex</code> are only meaningful with SQlite
+    versions &gt;= 3.5, <code class="code">cache</code> only for versions &gt;= 3.6.18.  For older versions an
+    exception will be raised if any of them is set to a non-default value.  The
+    database is opened read-only if <code class="code">`READONLY</code> is passed as mode.  The database
+    file will not be created if it is missing and <code class="code">`NO_CREATE</code> is set.  <code class="code">mutex</code>
+    determines how the database is accessed.  The mutex parameters <code class="code">`NO</code> and
+    <code class="code">`FULL</code> correspond to <code class="code">SQLITE_OPEN_NOMUTEX</code> and <code class="code">SQLITE_OPEN_FULLMUTEX</code> in
+    the SQLite3 API respectively.  The cache parameters <code class="code">`SHARED</code> and <code class="code">`PRIVATE</code>
+    correspond to <code class="code">SQLITE_OPEN_SHAREDCACHE</code> and <code class="code">SQLITE_OPEN_PRIVATECACHE</code> in
+    the SQLite3 API respectively.<br>
+</div>
+<div class="param_info"><code class="code">mode</code> : default = read-write, create</div>
+<div class="param_info"><code class="code">mutex</code> : default = nothing</div>
+<div class="param_info"><code class="code">cache</code> : default = nothing</div>
+<div class="param_info"><code class="code">vfs</code> : default = nothing</div>
+
+<pre><span id="VALdb_close"><span class="keyword">val</span> db_close</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> bool</code></pre><div class="info ">
+<code class="code">db_close db</code> closes database <code class="code">db</code> and invalidates the handle.<br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+<b>Returns</b> <code class="code">false</code> if database was busy (database not closed in this
+    case!), <code class="code">true</code> otherwise.<br>
+</div>
+
+<pre><span id="VALenable_load_extension"><span class="keyword">val</span> enable_load_extension</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> bool -> bool</code></pre><div class="info ">
+<code class="code">enable_load_extension db onoff</code> enable/disable the sqlite3 load
+    extension.<br>
+<b>Returns</b> <code class="code">false</code> if the operation fails, <code class="code">true</code>
+    otherwise.<br>
+</div>
+
+<pre><span id="VALerrcode"><span class="keyword">val</span> errcode</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> <a href="Sqlite3.Rc.html#TYPEt">Rc.t</a></code></pre><div class="info ">
+<code class="code">errcode db</code><br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+<b>Returns</b> the error code of the last operation on database
+    <code class="code">db</code>.<br>
+</div>
+
+<pre><span id="VALerrmsg"><span class="keyword">val</span> errmsg</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> string</code></pre><div class="info ">
+<code class="code">errmsg db</code><br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+<b>Returns</b> the error message of the last operation on
+    database <code class="code">db</code>.<br>
+</div>
+
+<pre><span id="VALlast_insert_rowid"><span class="keyword">val</span> last_insert_rowid</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> int64</code></pre><div class="info ">
+<code class="code">last_insert_rowid db</code><br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+<b>Returns</b> the index of the row inserted by
+    the last operation on database <code class="code">db</code>.<br>
+</div>
+
+<pre><span id="VALexec"><span class="keyword">val</span> exec</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -><br>       ?cb:(<a href="Sqlite3.html#TYPErow">row</a> -> <a href="Sqlite3.html#TYPEheaders">headers</a> -> unit) -> string -> <a href="Sqlite3.Rc.html#TYPEt">Rc.t</a></code></pre><div class="info ">
+<code class="code">exec db ?cb sql</code> performs SQL-operation <code class="code">sql</code> on database <code class="code">db</code>.
+    If the operation contains query statements, then the callback function
+    <code class="code">cb</code> will be called for each matching row.  The first parameter of
+    the callback is the contents of the row, the second paramater are the
+    headers of the columns associated with the row.  Exceptions raised
+    within the callback will abort the execution and escape <a href="Sqlite3.html#VALexec"><code class="code">Sqlite3.exec</code></a>.<br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+<b>Returns</b> the return code of the operation.<br>
+</div>
+<div class="param_info"><code class="code">cb</code> : default = no callback</div>
+
+<pre><span id="VALexec_no_headers"><span class="keyword">val</span> exec_no_headers</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> cb:(<a href="Sqlite3.html#TYPErow">row</a> -> unit) -> string -> <a href="Sqlite3.Rc.html#TYPEt">Rc.t</a></code></pre><div class="info ">
+<code class="code">exec_no_headers db ?cb sql</code> performs SQL-operation <code class="code">sql</code> on database
+    <code class="code">db</code>.  If the operation contains query statements, then the callback
+    function <code class="code">cb</code> will be called for each matching row.  The parameter
+    of the callback is the contents of the row.  Exceptions raised within
+    the callback will abort the execution and escape <a href="Sqlite3.html#VALexec_no_headers"><code class="code">Sqlite3.exec_no_headers</code></a>.<br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+<b>Returns</b> the return code of the operation.<br>
+</div>
+
+<pre><span id="VALexec_not_null"><span class="keyword">val</span> exec_not_null</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -><br>       cb:(<a href="Sqlite3.html#TYPErow_not_null">row_not_null</a> -> <a href="Sqlite3.html#TYPEheaders">headers</a> -> unit) -><br>       string -> <a href="Sqlite3.Rc.html#TYPEt">Rc.t</a></code></pre><div class="info ">
+<code class="code">exec_not_null db ~cb sql</code> performs SQL-operation <code class="code">sql</code> on database
+    <code class="code">db</code>.  If the operation contains query statements, then the callback
+    function <code class="code">cb</code> will be called for each matching row.  The first
+    parameter of the callback is the contents of the row, which must
+    not contain NULL-values, the second paramater are the headers of
+    the columns associated with the row.  Exceptions raised within the
+    callback will abort the execution and escape <a href="Sqlite3.html#VALexec_not_null"><code class="code">Sqlite3.exec_not_null</code></a>.<br>
+<b>Raises</b><ul><li><code>SqliteError</code> if an invalid database handle is passed.</li>
+<li><code>SqliteError</code> if a row contains NULL.</li>
+</ul>
+<b>Returns</b> the return code of the operation.<br>
+</div>
+
+<pre><span id="VALexec_not_null_no_headers"><span class="keyword">val</span> exec_not_null_no_headers</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> cb:(<a href="Sqlite3.html#TYPErow_not_null">row_not_null</a> -> unit) -> string -> <a href="Sqlite3.Rc.html#TYPEt">Rc.t</a></code></pre><div class="info ">
+<code class="code">exec_not_null_no_headers db ~cb sql</code> performs SQL-operation <code class="code">sql</code>
+    on database <code class="code">db</code>.  If the operation contains query statements, then
+    the callback function <code class="code">cb</code> will be called for each matching row.
+    The parameter of the callback is the contents of the row, which must
+    not contain NULL-values.  Exceptions raised within the callback will
+    abort the execution and escape <a href="Sqlite3.html#VALexec_not_null_no_headers"><code class="code">Sqlite3.exec_not_null_no_headers</code></a>.<br>
+<b>Raises</b><ul><li><code>SqliteError</code> if an invalid database handle is passed.</li>
+<li><code>SqliteError</code> if a row contains NULL.</li>
+</ul>
+<b>Returns</b> the return code of the operation.<br>
+</div>
+
+<pre><span id="VALchanges"><span class="keyword">val</span> changes</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> int</code></pre><div class="info ">
+<code class="code">changes db</code><br>
+<b>Returns</b> the number of rows that were changed
+    or inserted or deleted by the most recently completed SQL statement
+    on database <code class="code">db</code>.<br>
+</div>
+<br>
+<h2 id="2_Finegrainedqueryoperations">Fine grained query operations</h2><br>
+
+<pre><span id="VALprepare"><span class="keyword">val</span> prepare</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> string -> <a href="Sqlite3.html#TYPEstmt">stmt</a></code></pre><div class="info ">
+<code class="code">prepare db sql</code> compile SQL-statement <code class="code">sql</code> for database <code class="code">db</code>
+    into bytecode.  The statement may be only partially compiled.
+    In this case <a href="Sqlite3.html#VALprepare_tail"><code class="code">Sqlite3.prepare_tail</code></a> can be called on the returned statement
+    to compile the remaining part of the SQL-statement.
+<p>
+
+    NOTE: this really uses the C-function <code class="code">sqlite3_prepare_v2</code>,
+    i.e. avoids the older, deprecated <code class="code">sqlite3_prepare</code>-function.<br>
+<b>Raises</b><ul><li><code>SqliteError</code> if an invalid database handle is passed.</li>
+<li><code>SqliteError</code> if the statement could not be prepared.</li>
+</ul>
+</div>
+
+<pre><span id="VALprepare_tail"><span class="keyword">val</span> prepare_tail</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> <a href="Sqlite3.html#TYPEstmt">stmt</a> option</code></pre><div class="info ">
+<code class="code">prepare_tail stmt</code> compile the remaining part of the SQL-statement
+    <code class="code">stmt</code> to bytecode.<br>
+<b>Raises</b> <code>SqliteError</code> if the statement could not be prepared.<br>
+<b>Returns</b> <code class="code">None</code> if there was no remaining part,
+    or <code class="code">Some remaining_part</code> otherwise.
+<p>
+
+    NOTE: this really uses the C-function <code class="code">sqlite3_prepare_v2</code>,
+    i.e. avoids the older, deprecated <code class="code">sqlite3_prepare</code>-function.<br>
+</div>
+
+<pre><span id="VALrecompile"><span class="keyword">val</span> recompile</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> unit</code></pre><div class="info ">
+<code class="code">recompile stmt</code> recompiles the SQL-statement associated with <code class="code">stmt</code>
+    to bytecode.  The statement may be only partially compiled.  In this
+    case <a href="Sqlite3.html#VALprepare_tail"><code class="code">Sqlite3.prepare_tail</code></a> can be called on the statement to compile the
+    remaining part of the SQL-statement.  Call this function if the
+    statement expires due to some schema change.<br>
+<b>Raises</b> <code>SqliteError</code> if the statement could not be recompiled.<br>
+</div>
+
+<pre><span id="VALstep"><span class="keyword">val</span> step</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> <a href="Sqlite3.Rc.html#TYPEt">Rc.t</a></code></pre><div class="info ">
+<code class="code">step stmt</code> performs one step of the query associated with
+    SQL-statement <code class="code">stmt</code>.<br>
+<b>Raises</b> <code>SqliteError</code> if the step could not be executed.<br>
+<b>Returns</b> the return code of this operation.<br>
+</div>
+
+<pre><span id="VALfinalize"><span class="keyword">val</span> finalize</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> <a href="Sqlite3.Rc.html#TYPEt">Rc.t</a></code></pre><div class="info ">
+<code class="code">finalize stmt</code> finalizes the statement <code class="code">stmt</code>.  After finalization,
+    the only valid usage of the statement is to use it in <a href="Sqlite3.html#VALprepare_tail"><code class="code">Sqlite3.prepare_tail</code></a>,
+    or to <a href="Sqlite3.html#VALrecompile"><code class="code">Sqlite3.recompile</code></a> it.<br>
+<b>Raises</b> <code>SqliteError</code> if the statement could not be finalized.<br>
+<b>Returns</b> the return code of this operation.<br>
+</div>
+
+<pre><span id="VALreset"><span class="keyword">val</span> reset</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> <a href="Sqlite3.Rc.html#TYPEt">Rc.t</a></code></pre><div class="info ">
+<code class="code">reset stmt</code> resets the statement <code class="code">stmt</code>, e.g. to restart the query,
+    perhaps with different bindings.<br>
+<b>Raises</b> <code>SqliteError</code> if the statement could not be reset.<br>
+<b>Returns</b> the return code of this operation.<br>
+</div>
+
+<pre><span id="VALsleep"><span class="keyword">val</span> sleep</span> : <code class="type">int -> int</code></pre><div class="info ">
+<code class="code">sleep ms</code> sleeps at least <code class="code">ms</code> milliseconds.<br>
+<b>Returns</b> the number of
+    milliseconds of sleep actually requested from the operating system.<br>
+</div>
+<br>
+<h2 id="2_Dataquery">Data query</h2><br>
+
+<pre><span id="VALdata_count"><span class="keyword">val</span> data_count</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> int</code></pre><div class="info ">
+<code class="code">data_count stmt</code><br>
+<b>Raises</b> <code>SqliteError</code> if the statement is invalid.<br>
+<b>Returns</b> the number of columns in the result of
+    the last step of statement <code class="code">stmt</code>.<br>
+</div>
+
+<pre><span id="VALcolumn_count"><span class="keyword">val</span> column_count</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> int</code></pre><div class="info ">
+<code class="code">column_count stmt</code><br>
+<b>Raises</b> <code>SqliteError</code> if the statement is invalid.<br>
+<b>Returns</b> the number of columns that would be
+    returned by executing statement <code class="code">stmt</code>.<br>
+</div>
+
+<pre><span id="VALcolumn"><span class="keyword">val</span> column</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> int -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a></code></pre><div class="info ">
+<code class="code">column stmt n</code><br>
+<b>Raises</b><ul><li><code>RangeError</code> if <code class="code">n</code> is out of range.</li>
+<li><code>SqliteError</code> if the statement is invalid.</li>
+</ul>
+<b>Returns</b> the data in column <code class="code">n</code> of the
+    result of the last step of statement <code class="code">stmt</code>.<br>
+</div>
+
+<pre><span id="VALcolumn_name"><span class="keyword">val</span> column_name</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> int -> <a href="Sqlite3.html#TYPEheader">header</a></code></pre><div class="info ">
+<code class="code">column_name stmt n</code><br>
+<b>Raises</b><ul><li><code>RangeError</code> if <code class="code">n</code> is out of range.</li>
+<li><code>SqliteError</code> if the statement is invalid.</li>
+</ul>
+<b>Returns</b> the header of column <code class="code">n</code> in the
+    result set of statement <code class="code">stmt</code>.<br>
+</div>
+
+<pre><span id="VALcolumn_decltype"><span class="keyword">val</span> column_decltype</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> int -> string option</code></pre><div class="info ">
+<code class="code">column_decltype stmt n</code><br>
+<b>Raises</b><ul><li><code>RangeError</code> if <code class="code">n</code> is out of range.</li>
+<li><code>SqliteError</code> if the statement is invalid.</li>
+</ul>
+<b>Returns</b> the declared type of the specified
+    column in the result set of statement <code class="code">stmt</code>.<br>
+</div>
+<br>
+<h2 id="2_Bindingdatatothequery">Binding data to the query</h2><br>
+
+<pre><span id="VALbind"><span class="keyword">val</span> bind</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> int -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a> -> <a href="Sqlite3.Rc.html#TYPEt">Rc.t</a></code></pre><div class="info ">
+<code class="code">bind stmt n data</code> binds the value <code class="code">data</code> to the free variable at
+    position <code class="code">n</code> of statement <code class="code">stmt</code>.  NOTE: the first variable has
+    index <code class="code">1</code>!<br>
+<b>Raises</b><ul><li><code>RangeError</code> if <code class="code">n</code> is out of range.</li>
+<li><code>SqliteError</code> if the statement is invalid.</li>
+</ul>
+<b>Returns</b> the return code of this operation.<br>
+</div>
+
+<pre><span id="VALbind_parameter_count"><span class="keyword">val</span> bind_parameter_count</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> int</code></pre><div class="info ">
+<code class="code">bind_parameter_count stmt</code><br>
+<b>Raises</b> <code>SqliteError</code> if the statement is invalid.<br>
+<b>Returns</b> the number of free variables in
+    statement <code class="code">stmt</code>.<br>
+</div>
+
+<pre><span id="VALbind_parameter_name"><span class="keyword">val</span> bind_parameter_name</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> int -> string option</code></pre><div class="info ">
+<code class="code">bind_parameter_name stmt n</code><br>
+<b>Raises</b><ul><li><code>RangeError</code> if <code class="code">n</code> is out of range.</li>
+<li><code>SqliteError</code> if the statement is invalid.</li>
+</ul>
+<b>Returns</b> <code class="code">Some parameter_name</code> of the free
+    variable at position <code class="code">n</code> of statement <code class="code">stmt</code>, or <code class="code">None</code> if it is
+    ordinary ("?").<br>
+</div>
+
+<pre><span id="VALbind_parameter_index"><span class="keyword">val</span> bind_parameter_index</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> string -> int</code></pre><div class="info ">
+<code class="code">bind_parameter_index stmt name</code><br>
+<b>Raises</b><ul><li><code>Not_found</code> if <code class="code">name</code> was not found.</li>
+<li><code>SqliteError</code> if the statement is invalid.</li>
+</ul>
+<b>Returns</b> the position of the free
+    variable with name <code class="code">name</code> in statement <code class="code">stmt</code>.<br>
+</div>
+
+<pre><span id="VALclear_bindings"><span class="keyword">val</span> clear_bindings</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> <a href="Sqlite3.Rc.html#TYPEt">Rc.t</a></code></pre><div class="info ">
+<code class="code">clear_bindings stmt</code> resets all bindings associated with prepared
+    statement <code class="code">stmt</code>.<br>
+<b>Raises</b> <code>SqliteError</code> if the statement is invalid.<br>
+<b>Returns</b> the return code of this operation.<br>
+</div>
+<br>
+<h2 id="2_Stepwisequeryconveniencefunctions">Stepwise query convenience functions</h2><br>
+
+<pre><span id="VALrow_data"><span class="keyword">val</span> row_data</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a> array</code></pre><div class="info ">
+<code class="code">row_data stmt</code><br>
+<b>Raises</b> <code>SqliteError</code> if the statement is invalid.<br>
+<b>Returns</b> all data values in the row returned by the
+    last query step performed with statement <code class="code">stmt</code>.<br>
+</div>
+
+<pre><span id="VALrow_names"><span class="keyword">val</span> row_names</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> <a href="Sqlite3.html#TYPEheaders">headers</a></code></pre><div class="info ">
+<code class="code">row_names stmt</code><br>
+<b>Raises</b> <code>SqliteError</code> if the statement is invalid.<br>
+<b>Returns</b> all column headers of the row returned by the
+    last query step performed with statement <code class="code">stmt</code>.<br>
+</div>
+
+<pre><span id="VALrow_decltypes"><span class="keyword">val</span> row_decltypes</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> string option array</code></pre><div class="info ">
+<code class="code">row_decltypes stmt</code><br>
+<b>Raises</b> <code>SqliteError</code> if the statement is invalid.<br>
+<b>Returns</b> all column type declarations of the
+    row returned by the last query step performed with statement <code class="code">stmt</code>.<br>
+</div>
+<br>
+<h2 id="2_Userdefinedfunctions">User-defined functions</h2><br>
+
+<pre><span id="VALcreate_funN"><span class="keyword">val</span> create_funN</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> string -> (<a href="Sqlite3.Data.html#TYPEt">Data.t</a> array -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a>) -> unit</code></pre><div class="info ">
+<code class="code">create_funN db name f</code> registers function <code class="code">f</code> under name <code class="code">name</code>
+    with database handle <code class="code">db</code>.  The function has arity <code class="code">N</code>.<br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+</div>
+
+<pre><span id="VALcreate_fun0"><span class="keyword">val</span> create_fun0</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> string -> (unit -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a>) -> unit</code></pre><div class="info ">
+<code class="code">create_funN db name f</code> registers function <code class="code">f</code> under name <code class="code">name</code>
+    with database handle <code class="code">db</code>.  The function has arity <code class="code">0</code>.<br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+</div>
+
+<pre><span id="VALcreate_fun1"><span class="keyword">val</span> create_fun1</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> string -> (<a href="Sqlite3.Data.html#TYPEt">Data.t</a> -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a>) -> unit</code></pre><div class="info ">
+<code class="code">create_fun1 db name f</code> registers function <code class="code">f</code> under name <code class="code">name</code>
+    with database handle <code class="code">db</code>.  The function has arity <code class="code">1</code>.<br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+</div>
+
+<pre><span id="VALcreate_fun2"><span class="keyword">val</span> create_fun2</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -><br>       string -> (<a href="Sqlite3.Data.html#TYPEt">Data.t</a> -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a> -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a>) -> unit</code></pre><div class="info ">
+<code class="code">create_fun2 db name f</code> registers function <code class="code">f</code> under name <code class="code">name</code>
+    with database handle <code class="code">db</code>.  The function has arity <code class="code">2</code>.<br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+</div>
+
+<pre><span id="VALcreate_fun3"><span class="keyword">val</span> create_fun3</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -><br>       string -><br>       (<a href="Sqlite3.Data.html#TYPEt">Data.t</a> -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a> -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a> -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a>) -><br>       unit</code></pre><div class="info ">
+<code class="code">create_fun3 db name f</code> registers function <code class="code">f</code> under name <code class="code">name</code>
+    with database handle <code class="code">db</code>.  The function has arity <code class="code">3</code>.<br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+</div>
+
+<pre><span id="VALdelete_function"><span class="keyword">val</span> delete_function</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> string -> unit</code></pre><div class="info ">
+<code class="code">delete_function db name</code> deletes function with name <code class="code">name</code> from
+    database handle <code class="code">db</code>.<br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+</div>
+
+<pre><span id="VALbusy_timeout"><span class="keyword">val</span> busy_timeout</span> : <code class="type"><a href="Sqlite3.html#TYPEdb">db</a> -> int -> unit</code></pre><div class="info ">
+<code class="code">busy_timeout db ms</code> sets a busy handler that sleeps for a
+    specified amount of time when a table is locked.  The handler will
+    sleep multiple times until at least <code class="code">ms</code> milliseconds of sleeping
+    have accumulated.<br>
+<b>Raises</b> <code>SqliteError</code> if an invalid database handle is passed.<br>
+</div>
+
+<pre><span class="keyword">module</span> <a href="Sqlite3.Aggregate.html">Aggregate</a>: <code class="code">sig</code> <a href="Sqlite3.Aggregate.html">..</a> <code class="code">end</code></pre></body></html>
