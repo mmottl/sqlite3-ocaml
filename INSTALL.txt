@@ -1,14 +1,16 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 704ae4be7b33e10c4d412e1626b8d8b5) *)
+(* DO NOT EDIT (digest: 9d8899a6f6c4cdc71a7a30bd6ed44bdb) *)
+
 This is the INSTALL file for the sqlite3-ocaml distribution.
 
 This package uses OASIS to generate its build system. See section OASIS for
-full information. 
+full information.
 
 Dependencies
 ============
 
 In order to compile this package, you will need:
+
 * ocaml (>= 3.12) for all, test test_agg, test test_db, test test_exec,
   test test_fun, test test_stmt, doc API
 * findlib (>= 1.3.1)
