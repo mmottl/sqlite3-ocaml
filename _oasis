@@ -1,6 +1,6 @@
 OASISFormat:      0.4
 Name:             sqlite3-ocaml
-Version:          2.0.5
+Version:          2.0.6
 Synopsis:         sqlite3-ocaml - bindings to the SQLite3 library
 Description:      sqlite3-ocaml offers library functions for accessing SQLite3 database
 Authors:          Markus Mottl <markus.mottl@gmail.com>,
