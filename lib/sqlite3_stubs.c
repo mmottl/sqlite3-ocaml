@@ -285,10 +285,10 @@ static inline value copy_not_null_string_array(const char** strs, int len)
   }
 }
 
-static inline value safe_copy_string_array(const char** strs, int len)
+static inline value safe_copy_header_strings(const char** strs, int len)
 {
   value v_res = copy_not_null_string_array(strs, len);
-  if (v_res == (value) NULL) raise_sqlite3_Error("Null element in row");
+  if (v_res == (value) NULL) raise_sqlite3_Error("Null element in header");
   return v_res;
 }
 
@@ -477,7 +477,7 @@ static inline int exec_callback(
     v_row = copy_string_option_array((const char **) row, num_columns);
 
     Begin_roots1(v_row);
-      v_header = safe_copy_string_array((const char **) header, num_columns);
+      v_header = safe_copy_header_strings((const char **) header, num_columns);
     End_roots();
 
     v_ret = caml_callback2_exn(*cbx->cbp, v_row, v_header);
@@ -591,7 +591,7 @@ static inline int exec_not_null_callback(
     }
 
     Begin_roots1(v_row);
-      v_header = safe_copy_string_array((const char **) header, num_columns);
+      v_header = safe_copy_header_strings((const char **) header, num_columns);
     End_roots();
 
     v_ret = caml_callback2_exn(*cbx->cbp, v_row, v_header);
