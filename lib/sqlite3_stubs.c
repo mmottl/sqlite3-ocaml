@@ -584,7 +584,11 @@ static inline int exec_not_null_callback(
 
     v_row = copy_not_null_string_array((const char **) row, num_columns);
 
-    if (v_row == (value) NULL) return 1;
+    if (v_row == (value) NULL)
+    {
+      caml_enter_blocking_section();
+      return 1;
+    }
 
     Begin_roots1(v_row);
       v_header = safe_copy_string_array((const char **) header, num_columns);
@@ -641,7 +645,12 @@ static inline int exec_not_null_no_headers_callback(
   caml_leave_blocking_section();
 
     v_row = copy_not_null_string_array((const char **) row, num_columns);
-    if (v_row == (value) NULL) return 1;
+    if (v_row == (value) NULL)
+    {
+      caml_enter_blocking_section();
+      return 1;
+    }
+
     v_ret = caml_callback_exn(*cbx->cbp, v_row);
 
     if (Is_exception_result(v_ret)) {
