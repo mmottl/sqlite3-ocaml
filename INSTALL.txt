@@ -1,7 +1,7 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 9d8899a6f6c4cdc71a7a30bd6ed44bdb) *)
+(* DO NOT EDIT (digest: dd3cb7c4515a29aaa64bbcda8b16a781) *)
 
-This is the INSTALL file for the sqlite3-ocaml distribution.
+This is the INSTALL file for the sqlite3 distribution.
 
 This package uses OASIS to generate its build system. See section OASIS for
 full information.

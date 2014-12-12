@@ -1,8 +1,9 @@
 # OASIS_START
-# DO NOT EDIT (digest: 4229fa2a44dd62be7c4c4e5e8015a6d2)
+# DO NOT EDIT (digest: 3fd9cff80b9dcdb8cdf52535e63056b7)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
+true: annot, bin_annot
 <**/.svn>: -traverse
 <**/.svn>: not_hygienic
 ".bzr": -traverse
@@ -15,7 +16,7 @@
 "_darcs": not_hygienic
 # Library sqlite3
 "lib/sqlite3.cmxs": use_sqlite3
-<lib/*.ml{,i}>: oasis_library_sqlite3_ccopt
+<lib/*.ml{,i,y}>: oasis_library_sqlite3_ccopt
 "lib/sqlite3_stubs.c": oasis_library_sqlite3_ccopt
 <lib/sqlite3.{cma,cmxa}>: oasis_library_sqlite3_cclib
 "lib/libsqlite3_stubs.lib": oasis_library_sqlite3_cclib
@@ -32,10 +33,10 @@
 # Executable test_fun
 <test/test_fun.{native,byte}>: pkg_str
 <test/test_fun.{native,byte}>: use_sqlite3
-<test/*.ml{,i}>: pkg_str
+<test/*.ml{,i,y}>: pkg_str
 # Executable test_stmt
 <test/test_stmt.{native,byte}>: use_sqlite3
-<test/*.ml{,i}>: use_sqlite3
+<test/*.ml{,i,y}>: use_sqlite3
 # OASIS_STOP
 
 true: -traverse

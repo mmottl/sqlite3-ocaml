@@ -1,5 +1,5 @@
 OASISFormat:      0.4
-Name:             sqlite3-ocaml
+Name:             sqlite3
 Version:          2.0.7
 Synopsis:         sqlite3-ocaml - SQLite3 bindings
 Description:      sqlite3-ocaml is an OCaml library with bindings to the
