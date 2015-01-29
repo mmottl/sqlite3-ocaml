@@ -750,4 +750,4 @@ let () =
   in
   dispatch (
     MyOCamlbuildBase.dispatch_combine
-      [MyOCamlbuildBase.dispatch_default package_default; additional_rules])
+      [MyOCamlbuildBase.dispatch_default conf package_default; additional_rules])
