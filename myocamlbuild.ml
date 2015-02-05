@@ -732,13 +732,13 @@ let () =
         let osqlite3_cflags =
           let cmd = "pkg-config --cflags sqlite3" in
           match read_lines_from_cmd ~max_lines:1 cmd with
-          | [cflags] when cflags <> "" -> S (ocamlify ~ocaml_flag:"-ccopt" cflags)
+          | [cflags] -> S (ocamlify ~ocaml_flag:"-ccopt" cflags)
           | _ -> failwith "pkg-config failed for cflags"
         in
         let sqlite3_clibs, osqlite3_clibs =
           let cmd = "pkg-config --libs sqlite3" in
           match read_lines_from_cmd ~max_lines:1 cmd with
-          | [libs] when libs <> "" ->
+          | [libs] ->
               S (split_flags libs), S (ocamlify ~ocaml_flag:"-cclib" libs)
           | _ -> failwith "pkg-config failed for libs"
         in
