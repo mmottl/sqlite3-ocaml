@@ -30,7 +30,14 @@ for testing various features of this library.
 
 ### Building
 
-SQLite3-OCaml depends upon `pkg-config` to locate and compile against an [SQLite3](http://www.sqlite.org) library compiled with [Run-Time Loadable Extensions](http://www.sqlite.org/loadext.html). 
+SQLite3-OCaml depends upon `pkg-config` to locate and compile against an [SQLite3](http://www.sqlite.org) library compiled with [Run-Time Loadable Extensions](http://www.sqlite.org/loadext.html). If you're missing this, the build will fail with:
+
+```
+Undefined symbols for architecture ....:
+  "_sqlite3_enable_load_extension", referenced from:
+      _caml_sqlite3_enable_load_extension in libsqlite3_stubs.a(sqlite3_stubs.o)
+     (maybe you meant: _caml_sqlite3_enable_load_extension)
+```
 
 - You can check if your library is missing the extensions by checking for the string `OMIT_LOAD_EXTENSION`. 
 - If you need to redirect where `pkg-config` finds the library, set the `PKG_CONFIG_PATH` environment variable to the new directory.
