@@ -28,6 +28,13 @@ SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
 The `test`-directory in this distribution contains a few simple examples
 for testing various features of this library.
 
+### Building
+
+SQLite3-OCaml depends upon `pkg-config` to locate and compile against an [SQLite3](http://www.sqlite.org) library compiled with [Run-Time Loadable Extensions](http://www.sqlite.org/loadext.html). 
+
+- You can check if your library is missing the extensions by checking for the string `OMIT_LOAD_EXTENSION`. 
+- If you need to redirect where `pkg-config` finds the library, set the `PKG_CONFIG_PATH` environment variable to the new directory.
+
 Credits
 -------
 
