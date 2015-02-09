@@ -222,7 +222,7 @@ external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings"
 external busy_timeout : db -> int -> unit = "caml_sqlite3_busy_timeout"
 
 external enable_load_extension :
-  db -> bool -> bool = "caml_sqlite3_enable_load_extension" "noalloc"
+  db -> bool -> bool = "caml_sqlite3_enable_load_extension"
 
 let row_data stmt = Array.init (data_count stmt) (column stmt)
 let row_names stmt = Array.init (data_count stmt) (column_name stmt)

@@ -192,7 +192,7 @@ external db_close : db -> bool = "caml_sqlite3_close"
 *)
 
 external enable_load_extension :
-  db -> bool -> bool = "caml_sqlite3_enable_load_extension" "noalloc"
+  db -> bool -> bool = "caml_sqlite3_enable_load_extension"
 (** [enable_load_extension db onoff] enable/disable the sqlite3 load
     extension.  @return [false] if the operation fails, [true]
     otherwise. *)
