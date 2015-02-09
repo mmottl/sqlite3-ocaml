@@ -28,19 +28,29 @@ SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
 The `test`-directory in this distribution contains a few simple examples
 for testing various features of this library.
 
-### Building
+### Build issues
 
-SQLite3-OCaml depends upon `pkg-config` to locate and compile against an [SQLite3](http://www.sqlite.org) library compiled with [Run-Time Loadable Extensions](http://www.sqlite.org/loadext.html). If you're missing this, the build will fail with:
+SQLite3-OCaml depends on `pkg-config` to locate and compile against an
+[SQLite3](http://www.sqlite.org) library.
+
+If the SQLite3 version is larger than or equal to 3.3.7, it is assumed that it
+supports [Run-Time Loadable Extensions](http://www.sqlite.org/loadext.html).
+If this feature has been explicitly disabled in the library, the build will
+fail with:
 
 ```
-Undefined symbols for architecture ....:
+Undefined symbols for architecture ...:
   "_sqlite3_enable_load_extension", referenced from:
       _caml_sqlite3_enable_load_extension in libsqlite3_stubs.a(sqlite3_stubs.o)
      (maybe you meant: _caml_sqlite3_enable_load_extension)
 ```
 
-- You can check if your library is missing the extensions by checking for the string `OMIT_LOAD_EXTENSION`. 
-- If you need to redirect where `pkg-config` finds the library, set the `PKG_CONFIG_PATH` environment variable to the new directory.
+  * You can check if your library is missing loadable extensions by searching
+    it for the string `OMIT_LOAD_EXTENSION`.
+
+  * If you need to change where `pkg-config` will look for the SQLite3
+    library, set the `PKG_CONFIG_PATH` environment variable to the new
+    directory.
 
 Credits
 -------
@@ -73,4 +83,4 @@ Up-to-date information should be available at:
 
 Enjoy!
 
-Markus Mottl on July 10, 2012
+Markus Mottl on February 9, 2015
