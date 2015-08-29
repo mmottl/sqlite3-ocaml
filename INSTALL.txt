@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: dd3cb7c4515a29aaa64bbcda8b16a781) *)
+(* DO NOT EDIT (digest: ca1786acdafc1c9f2a8fdd7a5247f689) *)
 
 This is the INSTALL file for the sqlite3 distribution.
 
@@ -11,8 +11,8 @@ Dependencies
 
 In order to compile this package, you will need:
 
-* ocaml (>= 3.12) for all, test test_agg, test test_db, test test_exec,
-  test test_fun, test test_stmt, doc API
+* ocaml (>= 3.12) for all, test test_agg, test test_db, test test_error,
+  test test_exec, test test_fun, test test_stmt, doc API
 * findlib (>= 1.3.1)
 
 Installing

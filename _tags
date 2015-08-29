@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 3fd9cff80b9dcdb8cdf52535e63056b7)
+# DO NOT EDIT (digest: 861fe4675b9540776aedfbf5f54a58d7)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -36,6 +36,8 @@ true: annot, bin_annot
 <test/*.ml{,i,y}>: pkg_str
 # Executable test_stmt
 <test/test_stmt.{native,byte}>: use_sqlite3
+# Executable test_error
+<test/test_error.{native,byte}>: use_sqlite3
 <test/*.ml{,i,y}>: use_sqlite3
 # OASIS_STOP
 

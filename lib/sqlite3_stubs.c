@@ -847,8 +847,7 @@ CAMLprim value caml_sqlite3_bind(value v_stmt, value v_index, value v_data)
                                         String_val(v_field),
                                         caml_string_length(v_field),
                                         SQLITE_TRANSIENT));
-      case 4 :
-        return Val_rc(SQLITE_ERROR);
+      case 4 : return Val_rc(SQLITE_ERROR);
     }
   }
   return Val_rc(SQLITE_ERROR);

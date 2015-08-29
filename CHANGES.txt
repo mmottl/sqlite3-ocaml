@@ -1,3 +1,7 @@
+2015-08-29: Added user function error handling (major API change).
+
+            Thanks to Joseph Young for this patch!
+
 2015-01-29: Fixed a build problem due to Oasis/ocamlbuild inconsistency.
 
             Thanks to Leonid Rozenberg <leonidr@gmail.com> for this patch!
