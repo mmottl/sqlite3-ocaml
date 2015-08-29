@@ -847,6 +847,8 @@ CAMLprim value caml_sqlite3_bind(value v_stmt, value v_index, value v_data)
                                         String_val(v_field),
                                         caml_string_length(v_field),
                                         SQLITE_TRANSIENT));
+      case 4 :
+        return Val_rc(SQLITE_ERROR);
     }
   }
   return Val_rc(SQLITE_ERROR);
@@ -1022,6 +1024,9 @@ static inline void set_sqlite3_result(sqlite3_context *ctx, value v_res)
       case 3 :
         sqlite3_result_blob(
           ctx, String_val(v), caml_string_length(v), SQLITE_TRANSIENT);
+        break;
+      case 4 :
+        sqlite3_result_error(ctx, String_val(v), caml_string_length(v));
         break;
       default :
         sqlite3_result_error(ctx, "unknown value returned by callback", -1);

@@ -112,6 +112,19 @@ Test test_stmt
   WorkingDirectory:   test
   PostCommand:        rm t
 
+Executable test_error
+  Path:           test
+  MainIs:         test_error.ml
+  Build$:         flag(tests)
+  Install:        false
+  BuildDepends:   sqlite3
+  CompiledObject: best
+
+Test test_error
+  Run$:               flag(tests)
+  Command:            $test_error
+  WorkingDirectory:   test
+
 #
 
 Document API
