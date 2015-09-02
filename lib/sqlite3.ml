@@ -112,13 +112,12 @@ module Data = struct
     | FLOAT of float
     | TEXT of string
     | BLOB of string
-    | ERROR of string
 
   let to_string = function
     | NONE | NULL -> ""
     | INT i -> Int64.to_string i
     | FLOAT f -> string_of_float f
-    | TEXT t | BLOB t | ERROR t -> t
+    | TEXT t | BLOB t -> t
 
   let to_string_debug = function
     | NONE -> "NONE"
@@ -127,7 +126,6 @@ module Data = struct
     | FLOAT f -> sprintf "FLOAT <%f>" f
     | TEXT t -> sprintf "TEXT <%S>" t
     | BLOB b -> sprintf "BLOB <%d>" (String.length b)
-    | ERROR e -> sprintf "ERROR <%S>" e
 end
 
 type header = string

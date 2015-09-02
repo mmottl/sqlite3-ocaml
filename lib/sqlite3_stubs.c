@@ -37,6 +37,7 @@
 #include <caml/signals.h>
 
 #include <sqlite3.h>
+#include <pthread.h>
 
 #if __GNUC__ >= 3
 # define inline inline __attribute__ ((always_inline))
@@ -105,6 +106,46 @@ typedef struct stmt_wrap {
 } stmt_wrap;
 
 
+/* Handling of exceptions in user-defined SQL-functions */
+
+/* For propagating exceptions from user-defined SQL-functions */
+static pthread_key_t user_exception_key;
+
+typedef struct user_exception { value exn; } user_exception;
+
+static inline void create_user_exception(value exn)
+{
+  user_exception *user_exn = malloc(sizeof(user_exception));
+  user_exn->exn = exn;
+  caml_register_global_root(&user_exn->exn);
+  pthread_setspecific(user_exception_key, user_exn);
+}
+
+static inline void destroy_user_exception(void *user_exc_)
+{
+  user_exception *user_exn = user_exc_;
+  caml_remove_global_root(&user_exn->exn);
+  free(user_exn);
+}
+
+static inline void maybe_raise_user_exception(int rc)
+{
+  if (rc == SQLITE_ERROR) {
+    user_exception *user_exn = pthread_getspecific(user_exception_key);
+
+    if (user_exn != NULL) {
+      CAMLparam0();
+      CAMLlocal1(v_exn);
+      v_exn = user_exn->exn;
+      destroy_user_exception(user_exn);
+      pthread_setspecific(user_exception_key, NULL);
+      caml_raise(v_exn);
+      CAMLnoreturn;
+    }
+  }
+}
+
+
 /* Macros to access the wrapper structures stored in the custom blocks */
 
 #define Sqlite3_val(x) (*((db_wrap **) (Data_custom_val(x))))
@@ -120,11 +161,11 @@ static value *caml_sqlite3_RangeError = NULL;
 static inline void raise_with_two_args(value v_tag, value v_arg1, value v_arg2)
 {
   CAMLparam3(v_tag, v_arg1, v_arg2);
-  value v_exc = caml_alloc_small(3, 0);
-  Field(v_exc, 0) = v_tag;
-  Field(v_exc, 1) = v_arg1;
-  Field(v_exc, 2) = v_arg2;
-  caml_raise(v_exc);
+  value v_exn = caml_alloc_small(3, 0);
+  Field(v_exn, 0) = v_tag;
+  Field(v_exn, 1) = v_arg1;
+  Field(v_exn, 2) = v_arg2;
+  caml_raise(v_exn);
   CAMLnoreturn;
 }
 
@@ -215,6 +256,7 @@ CAMLprim value caml_sqlite3_init(value __unused v_unit)
   caml_sqlite3_InternalError = caml_named_value("Sqlite3.InternalError");
   caml_sqlite3_Error = caml_named_value("Sqlite3.Error");
   caml_sqlite3_RangeError = caml_named_value("Sqlite3.RangeError");
+  pthread_key_create(&user_exception_key, destroy_user_exception);
   return Val_unit;
 }
 
@@ -521,6 +563,7 @@ CAMLprim value caml_sqlite3_exec(value v_db, value v_maybe_cb, value v_sql)
   caml_leave_blocking_section();
 
   if (rc == SQLITE_ABORT) caml_raise(*cbx.exn);
+  maybe_raise_user_exception(rc);
 
   CAMLreturn(Val_rc(rc));
 }
@@ -570,6 +613,7 @@ CAMLprim value caml_sqlite3_exec_no_headers(value v_db, value v_cb, value v_sql)
   caml_leave_blocking_section();
 
   if (rc == SQLITE_ABORT) caml_raise(*cbx.exn);
+  maybe_raise_user_exception(rc);
 
   CAMLreturn(Val_rc(rc));
 }
@@ -633,6 +677,8 @@ CAMLprim value caml_sqlite3_exec_not_null(value v_db, value v_cb, value v_sql)
     if (*cbx.exn != 0) caml_raise(*cbx.exn);
     else raise_sqlite3_Error("Null element in row");
   }
+  maybe_raise_user_exception(rc);
+
   CAMLreturn(Val_rc(rc));
 }
 
@@ -692,6 +738,8 @@ CAMLprim value caml_sqlite3_exec_not_null_no_headers(
     if (*cbx.exn != 0) caml_raise(*cbx.exn);
     else raise_sqlite3_Error("Null element in row");
   }
+  maybe_raise_user_exception(rc);
+
   CAMLreturn(Val_rc(rc));
 }
 
@@ -847,7 +895,6 @@ CAMLprim value caml_sqlite3_bind(value v_stmt, value v_index, value v_data)
                                         String_val(v_field),
                                         caml_string_length(v_field),
                                         SQLITE_TRANSIENT));
-      case 4 : return Val_rc(SQLITE_ERROR);
     }
   }
   return Val_rc(SQLITE_ERROR);
@@ -1002,14 +1049,15 @@ static inline value caml_sqlite3_wrap_values(int argc, sqlite3_value **args)
   }
 }
 
-static inline void exception_result(sqlite3_context *ctx)
+static inline void exception_result(sqlite3_context *ctx, value v_exn)
 {
   sqlite3_result_error(ctx, "OCaml callback raised an exception", -1);
+  create_user_exception(v_exn);
 }
 
 static inline void set_sqlite3_result(sqlite3_context *ctx, value v_res)
 {
-  if (Is_exception_result(v_res)) exception_result(ctx);
+  if (Is_exception_result(v_res)) exception_result(ctx, v_res);
   else if (Is_long(v_res)) sqlite3_result_null(ctx);
   else {
     value v = Field(v_res, 0);
@@ -1023,9 +1071,6 @@ static inline void set_sqlite3_result(sqlite3_context *ctx, value v_res)
       case 3 :
         sqlite3_result_blob(
           ctx, String_val(v), caml_string_length(v), SQLITE_TRANSIENT);
-        break;
-      case 4 :
-        sqlite3_result_error(ctx, String_val(v), caml_string_length(v));
         break;
       default :
         sqlite3_result_error(ctx, "unknown value returned by callback", -1);
@@ -1064,7 +1109,7 @@ static inline void caml_sqlite3_user_function_step(
     }
     v_args = caml_sqlite3_wrap_values(argc, argv);
     v_res = caml_callback2_exn(Field(data->v_fun, 2), agg_ctx->v_acc, v_args);
-    if (Is_exception_result(v_res)) exception_result(ctx);
+    if (Is_exception_result(v_res)) exception_result(ctx, v_res);
     else agg_ctx->v_acc = v_res;
   caml_enter_blocking_section();
 }

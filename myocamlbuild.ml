@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 8856c7fbdf56cf3b352c8f24a59be7a0) *)
+(* DO NOT EDIT (digest: 1308fb3d48472c2edc4cc51c862b6705) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -651,9 +651,12 @@ let package_default =
                    ])
             ]);
           (["oasis_library_sqlite3_cclib"; "link"],
-            [(OASISExpr.EBool true, S [A "-cclib"; A "-lsqlite3"])]);
+            [
+               (OASISExpr.EBool true,
+                 S [A "-cclib"; A "-lsqlite3"; A "-cclib"; A "-lpthread"])
+            ]);
           (["oasis_library_sqlite3_cclib"; "ocamlmklib"; "c"],
-            [(OASISExpr.EBool true, S [A "-lsqlite3"])])
+            [(OASISExpr.EBool true, S [A "-lsqlite3"; A "-lpthread"])])
        ];
      includes = [("test", ["lib"])]
   }
@@ -663,7 +666,7 @@ let conf = {MyOCamlbuildFindlib.no_automatic_syntax = false}
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default conf package_default;;
 
-# 667 "myocamlbuild.ml"
+# 670 "myocamlbuild.ml"
 (* OASIS_STOP *)
 
 let read_lines_from_cmd ~max_lines cmd =

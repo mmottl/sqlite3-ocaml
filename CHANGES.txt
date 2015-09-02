@@ -1,3 +1,13 @@
+2015-09-02: Major API change that is compatible with major release series 2:
+
+            It is now possible to return errors from user-defined SQL-functions
+            by simply raising (arbitrary) exceptions.  This somewhat
+            tricky internal change eliminates the need for Data.ERROR and
+            reestablishes compatibility with major release series 2.
+
+            Sorry for the churn, but the more elegant solution was not
+            quite obvious!
+
 2015-08-29: Added user function error handling (major API change).
 
             Thanks to Joseph Young for this patch!

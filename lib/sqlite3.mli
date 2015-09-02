@@ -142,7 +142,6 @@ module Data : sig
     | FLOAT of float
     | TEXT of string
     | BLOB of string
-    | ERROR of string
 
   val to_string : t -> string
   (** [to_string data] converts [data] to a string.  Both [NONE] and

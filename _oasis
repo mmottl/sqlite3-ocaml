@@ -1,6 +1,6 @@
 OASISFormat:      0.4
 Name:             sqlite3
-Version:          3.0.0
+Version:          4.0.0
 Synopsis:         sqlite3-ocaml - SQLite3 bindings
 Description:      sqlite3-ocaml is an OCaml library with bindings to the
                   SQLite3 client API.  Sqlite3 is a self-contained, serverless,
@@ -41,7 +41,7 @@ Library sqlite3
   CCOpt:          -g -O2 -fPIC -DPIC
   if flag(strict) && ccomp_type(cc)
     CCOpt+:       -Wall -pedantic -Wextra -Wunused -Wno-long-long
-  CCLib:          -lsqlite3
+  CCLib:          -lsqlite3 -lpthread
 
 
 # Tests
