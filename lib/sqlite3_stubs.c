@@ -115,7 +115,7 @@ typedef struct user_exception { value exn; } user_exception;
 
 static inline void create_user_exception(value v_exn)
 {
-  user_exception *user_exn = malloc(sizeof(user_exception));
+  user_exception *user_exn = caml_stat_alloc(sizeof(user_exception));
   user_exn->exn = v_exn;
   caml_register_global_root(&user_exn->exn);
   pthread_setspecific(user_exception_key, user_exn);
