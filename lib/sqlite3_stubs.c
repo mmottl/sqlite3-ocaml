@@ -113,10 +113,10 @@ static pthread_key_t user_exception_key;
 
 typedef struct user_exception { value exn; } user_exception;
 
-static inline void create_user_exception(value exn)
+static inline void create_user_exception(value v_exn)
 {
   user_exception *user_exn = malloc(sizeof(user_exception));
-  user_exn->exn = exn;
+  user_exn->exn = v_exn;
   caml_register_global_root(&user_exn->exn);
   pthread_setspecific(user_exception_key, user_exn);
 }
@@ -1049,10 +1049,11 @@ static inline value caml_sqlite3_wrap_values(int argc, sqlite3_value **args)
   }
 }
 
-static inline void exception_result(sqlite3_context *ctx, value v_exn)
+static inline void exception_result(sqlite3_context *ctx, value v_res)
 {
-  sqlite3_result_error(ctx, "OCaml callback raised an exception", -1);
+  value v_exn = Extract_exception(v_res);
   create_user_exception(v_exn);
+  sqlite3_result_error(ctx, "OCaml callback raised an exception", -1);
 }
 
 static inline void set_sqlite3_result(sqlite3_context *ctx, value v_res)
