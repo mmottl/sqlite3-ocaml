@@ -711,7 +711,6 @@ let string_trim s =
 let pkg_export =
   let env = BaseEnvLight.load () in
   let bcs = BaseEnvLight.var_get "brewcheck" env in
-  let  () = Printf.eprintf "bcs: %s\n" bcs in
   let bcs = try bool_of_string bcs with _ -> false in
   if not bcs then ""
   else
