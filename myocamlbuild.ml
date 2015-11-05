@@ -708,6 +708,19 @@ let string_trim s =
   else if !j >= !i then String.sub s !i (!j - !i + 1)
   else ""
 
+let pkg_export =
+  let env = BaseEnvLight.load () in
+  let bcs = BaseEnvLight.var_get "brewcheck" env in
+  let bcs = try bool_of_string bcs with _ -> false in
+  if not bcs then ""
+  else
+    let cmd = "brew ls sqlite | grep pkgconfig" in
+    match read_lines_from_cmd ~max_lines:1 cmd with
+    | [fullpath] when fullpath <> "" ->
+      let path = Filename.dirname fullpath in
+      Printf.sprintf "PKG_CONFIG_PATH=%s" path
+    | _ -> ""
+
 let () =
   let additional_rules = function
     | After_rules ->
@@ -733,13 +746,13 @@ let () =
           List.map cnv chunks
         in
         let osqlite3_cflags =
-          let cmd = "pkg-config --cflags sqlite3" in
+          let cmd = pkg_export ^ " pkg-config --cflags sqlite3" in
           match read_lines_from_cmd ~max_lines:1 cmd with
           | [cflags] -> S (ocamlify ~ocaml_flag:"-ccopt" cflags)
           | _ -> failwith "pkg-config failed for cflags"
         in
         let sqlite3_clibs, osqlite3_clibs =
-          let cmd = "pkg-config --libs sqlite3" in
+          let cmd = pkg_export ^ " pkg-config --libs sqlite3" in
           match read_lines_from_cmd ~max_lines:1 cmd with
           | [libs] ->
               S (split_flags libs), S (ocamlify ~ocaml_flag:"-cclib" libs)

@@ -33,6 +33,10 @@ Flag strict
   Description:    Strict compile-time checks
   Default:        true
 
+Flag brewcheck
+  Description:    Try to check against a homebrewed sqlite3
+  Default:        false
+
 Library sqlite3
   Path:           lib
   FindlibName:    sqlite3
