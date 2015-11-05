@@ -1,3 +1,7 @@
+2015-11-05: Improved build process for Homebrew users.
+
+            Thanks to Leonid Rozenberg <leonidr@gmail.com> for this patch!
+
 2015-09-02: Major API change that is compatible with major release series 2:
 
             It is now possible to return errors from user-defined SQL-functions
