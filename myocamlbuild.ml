@@ -712,7 +712,11 @@ let pkg_export =
   let env = BaseEnvLight.load () in
   let bcs = BaseEnvLight.var_get "brewcheck" env in
   let bcs = try bool_of_string bcs with _ -> false in
-  if not bcs then ""
+  let proc_env =
+    try ignore (Sys.getenv "SQLITE3_OCAML_BREWCHECK"); true
+    with _ -> false
+  in
+  if not (bcs || proc_env) then ""
   else
     let cmd = "brew ls sqlite | grep pkgconfig" in
     match read_lines_from_cmd ~max_lines:1 cmd with
