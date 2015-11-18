@@ -50,9 +50,9 @@ Undefined symbols for architecture ...:
 
   * If you need to change where `pkg-config` will look for the SQLite3
     library, set the `PKG_CONFIG_PATH` environment variable to the new
-    directory. This can be automated by setting the `SQLITE3_OCAML_BREWCHECK`
+    directory.  This can be automated by setting the `SQLITE3_OCAML_BREWCHECK`
     environment variable; this will instruct the build to see if a _brewed_
-    version os sqlite is installed and route `pkg-config` appropriately.
+    version of SQLite is installed and route `pkg-config` appropriately.
 
 Credits
 -------
