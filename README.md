@@ -74,15 +74,10 @@ Credits
 Contact Information and Contributing
 ------------------------------------
 
-In the case of bugs, feature requests, contributions and similar, please
-contact the maintainers:
-
-  * Markus Mottl <markus.mottl@gmail.com>
-  * Christian Szegedy <csdontspam@metamatix.com>
-
-Up-to-date information should be available at:
-<http://mmottl.github.io/sqlite3-ocaml>
+In the case of bugs, feature requests, contributions and similar,
+please communicate with the maintainers using the [GitHub project
+page](https://github.com/mmottl/sqlite3-ocaml).
 
 Enjoy!
 
-Markus Mottl on February 9, 2015
+Markus Mottl on December 15, 2015
