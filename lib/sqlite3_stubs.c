@@ -125,7 +125,7 @@ static inline void destroy_user_exception(void *user_exc_)
 {
   user_exception *user_exn = user_exc_;
   caml_remove_global_root(&user_exn->exn);
-  free(user_exn);
+  caml_stat_free(user_exn);
 }
 
 static inline void maybe_raise_user_exception(int rc)
@@ -343,11 +343,11 @@ static inline void ref_count_finalize_dbw(db_wrap *dbw)
     user_function *link;
     for (link = dbw->user_functions; link != NULL; link = link->next) {
       caml_remove_generational_global_root(&link->v_fun);
-      free(link);
+      caml_stat_free(link);
     }
     dbw->user_functions = NULL;
     sqlite3_close(dbw->db);
-    free(dbw);
+    caml_stat_free(dbw);
   }
 }
 
@@ -419,11 +419,11 @@ CAMLprim value caml_sqlite3_open(
   caml_enter_blocking_section();
 #ifdef SQLITE_HAS_OPEN_V2
     res = sqlite3_open_v2(file, &db, flags, vfs);
-    free(vfs);
+    caml_stat_free(vfs);
 #else
     res = sqlite3_open(file, &db);
 #endif
-    free(file);
+    caml_stat_free(file);
   caml_leave_blocking_section();
 
   if (res) {
@@ -559,7 +559,7 @@ CAMLprim value caml_sqlite3_exec(value v_db, value v_maybe_cb, value v_sql)
 
   caml_enter_blocking_section();
     rc = sqlite3_exec(dbw->db, sql, cb, (void *) &cbx, NULL);
-    free(sql);
+    caml_stat_free(sql);
   caml_leave_blocking_section();
 
   if (rc == SQLITE_ABORT) caml_raise(*cbx.exn);
@@ -609,7 +609,7 @@ CAMLprim value caml_sqlite3_exec_no_headers(value v_db, value v_cb, value v_sql)
   caml_enter_blocking_section();
     rc =
       sqlite3_exec(dbw->db, sql, exec_callback_no_headers, (void *) &cbx, NULL);
-    free(sql);
+    caml_stat_free(sql);
   caml_leave_blocking_section();
 
   if (rc == SQLITE_ABORT) caml_raise(*cbx.exn);
@@ -670,7 +670,7 @@ CAMLprim value caml_sqlite3_exec_not_null(value v_db, value v_cb, value v_sql)
   caml_enter_blocking_section();
     rc =
       sqlite3_exec(dbw->db, sql, exec_not_null_callback, (void *) &cbx, NULL);
-    free(sql);
+    caml_stat_free(sql);
   caml_leave_blocking_section();
 
   if (rc == SQLITE_ABORT) {
@@ -731,7 +731,7 @@ CAMLprim value caml_sqlite3_exec_not_null_no_headers(
     rc =
       sqlite3_exec(
         dbw->db, sql, exec_not_null_no_headers_callback, (void *) &cbx, NULL);
-    free(sql);
+    caml_stat_free(sql);
   caml_leave_blocking_section();
 
   if (rc == SQLITE_ABORT) {
@@ -751,9 +751,9 @@ static inline void finalize_stmt_gc(value v_stmt)
   stmt_wrap *stmtw = Sqlite3_stmtw_val(v_stmt);
   sqlite3_stmt *stmt = stmtw->stmt;
   if (stmt) sqlite3_finalize(stmt);
-  if (stmtw->sql) free(stmtw->sql);
+  if (stmtw->sql) caml_stat_free(stmtw->sql);
   ref_count_finalize_dbw(stmtw->db_wrap);
-  free(stmtw);
+  caml_stat_free(stmtw);
 }
 
 CAMLprim value caml_sqlite3_stmt_finalize(value v_stmt)
@@ -1137,7 +1137,7 @@ static inline void unregister_user_function(db_wrap *db_data, value v_name)
       if (prev == NULL) db_data->user_functions = link->next;
       else prev->next = link->next;
       caml_remove_generational_global_root(&link->v_fun);
-      free(link);
+      caml_stat_free(link);
       break;
     }
     prev = link;
@@ -1257,4 +1257,3 @@ CAMLprim value caml_sqlite3_changes(value v_db)
   check_db(dbw, "changes");
   return Val_int(sqlite3_changes(dbw->db));
 }
-
