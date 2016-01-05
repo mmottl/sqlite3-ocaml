@@ -33,10 +33,10 @@ for testing various features of this library.
 SQLite3-OCaml depends on `pkg-config` to locate and compile against an
 [SQLite3](http://www.sqlite.org) library.
 
-If the SQLite3 version is larger than or equal to 3.3.7, it is assumed that it
+If the SQLite3 version is greater than or equal to 3.3.7, it is assumed that it
 supports [Run-Time Loadable Extensions](http://www.sqlite.org/loadext.html).
-If this feature has been explicitly disabled in the library, the build will
-fail with:
+If this feature has been explicitly disabled in the library, building
+applications will fail with:
 
 ```
 Undefined symbols for architecture ...:
@@ -53,6 +53,11 @@ Undefined symbols for architecture ...:
     directory.  This can be automated by setting the `SQLITE3_OCAML_BREWCHECK`
     environment variable; this will instruct the build to see if a _brewed_
     version of SQLite is installed and route `pkg-config` appropriately.
+
+  * You can explicitly disable run-time loadable extensions by calling
+    `configure` with the flag `--disable-loadable-extensions` or by setting
+    the environment variable `SQLITE3_DISABLE_LOADABLE_EXTENSIONS` if linking
+    problems persist.
 
 Credits
 -------
@@ -80,4 +85,4 @@ page](https://github.com/mmottl/sqlite3-ocaml).
 
 Enjoy!
 
-Markus Mottl on December 15, 2015
+Markus Mottl on January 5, 2015

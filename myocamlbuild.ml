@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 1308fb3d48472c2edc4cc51c862b6705) *)
+(* DO NOT EDIT (digest: ef3f6bb7de5d2441c8248057cdf28ea3) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -625,6 +625,20 @@ let package_default =
                       A "-ccopt";
                       A "-DPIC"
                    ]);
+               (OASISExpr.ENot (OASISExpr.EFlag "loadable_extensions"),
+                 S
+                   [
+                      A "-ccopt";
+                      A "-g";
+                      A "-ccopt";
+                      A "-O2";
+                      A "-ccopt";
+                      A "-fPIC";
+                      A "-ccopt";
+                      A "-DPIC";
+                      A "-ccopt";
+                      A "-DSQLITE3_DISABLE_LOADABLE_EXTENSIONS"
+                   ]);
                (OASISExpr.EAnd
                   (OASISExpr.EFlag "strict",
                     OASISExpr.ETest ("ccomp_type", "cc")),
@@ -647,7 +661,39 @@ let package_default =
                       A "-ccopt";
                       A "-Wunused";
                       A "-ccopt";
-                      A "-Wno-long-long"
+                      A "-Wno-long-long";
+                      A "-ccopt";
+                      A "-Wno-keyword-macro"
+                   ]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EFlag "strict",
+                       OASISExpr.ETest ("ccomp_type", "cc")),
+                    OASISExpr.ENot (OASISExpr.EFlag "loadable_extensions")),
+                 S
+                   [
+                      A "-ccopt";
+                      A "-g";
+                      A "-ccopt";
+                      A "-O2";
+                      A "-ccopt";
+                      A "-fPIC";
+                      A "-ccopt";
+                      A "-DPIC";
+                      A "-ccopt";
+                      A "-Wall";
+                      A "-ccopt";
+                      A "-pedantic";
+                      A "-ccopt";
+                      A "-Wextra";
+                      A "-ccopt";
+                      A "-Wunused";
+                      A "-ccopt";
+                      A "-Wno-long-long";
+                      A "-ccopt";
+                      A "-Wno-keyword-macro";
+                      A "-ccopt";
+                      A "-DSQLITE3_DISABLE_LOADABLE_EXTENSIONS"
                    ])
             ]);
           (["oasis_library_sqlite3_cclib"; "link"],
@@ -666,7 +712,7 @@ let conf = {MyOCamlbuildFindlib.no_automatic_syntax = false}
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default conf package_default;;
 
-# 670 "myocamlbuild.ml"
+# 716 "myocamlbuild.ml"
 (* OASIS_STOP *)
 
 let read_lines_from_cmd ~max_lines cmd =
@@ -754,6 +800,15 @@ let () =
           match read_lines_from_cmd ~max_lines:1 cmd with
           | [cflags] -> S (ocamlify ~ocaml_flag:"-ccopt" cflags)
           | _ -> failwith "pkg-config failed for cflags"
+        in
+        let osqlite3_cflags =
+          try
+            ignore (Sys.getenv "SQLITE3_DISABLE_LOADABLE_EXTENSIONS");
+            S [
+              A "-ccopt"; A "-DSQLITE3_DISABLE_LOADABLE_EXTENSIONS";
+              osqlite3_cflags
+            ]
+          with _ -> osqlite3_cflags
         in
         let sqlite3_clibs, osqlite3_clibs =
           let cmd = pkg_export ^ " pkg-config --libs sqlite3" in

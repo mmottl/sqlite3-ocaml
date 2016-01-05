@@ -1,6 +1,6 @@
 OASISFormat:      0.4
 Name:             sqlite3
-Version:          4.0.2
+Version:          4.0.3
 Synopsis:         sqlite3-ocaml - SQLite3 bindings
 Description:      sqlite3-ocaml is an OCaml library with bindings to the
                   SQLite3 client API.  Sqlite3 is a self-contained, serverless,
@@ -12,7 +12,7 @@ Description:      sqlite3-ocaml is an OCaml library with bindings to the
 Authors:          Markus Mottl <markus.mottl@gmail.com>,
                   Christian Szegedy <csdontspam@metamatix.com>
 Copyrights:       (C) 2007-2010 Jane Street Holding LLC <opensource@janestreet.com>,
-                  (C) 2010-2015 Markus Mottl <markus.mottl@gmail.com>,
+                  (C) 2010-2016 Markus Mottl <markus.mottl@gmail.com>,
                   (C) 2005-2012 Christian Szegedy <csdontspam@metamatix.com>
 Maintainers:      Markus Mottl <markus.mottl@gmail.com>,
                   Christian Szegedy <csdontspam@metamatix.com>
@@ -37,6 +37,10 @@ Flag brewcheck
   Description:    Try to check against a homebrewed sqlite3
   Default:        false
 
+Flag loadable_extensions
+  Description:    Enable loadable extensions
+  Default:        true
+
 Library sqlite3
   Path:           lib
   FindlibName:    sqlite3
@@ -44,7 +48,9 @@ Library sqlite3
   CSources:       sqlite3_stubs.c
   CCOpt:          -g -O2 -fPIC -DPIC
   if flag(strict) && ccomp_type(cc)
-    CCOpt+:       -Wall -pedantic -Wextra -Wunused -Wno-long-long
+    CCOpt+:       -Wall -pedantic -Wextra -Wunused -Wno-long-long -Wno-keyword-macro
+  if !flag(loadable_extensions)
+    CCOpt+:       -DSQLITE3_DISABLE_LOADABLE_EXTENSIONS
   CCLib:          -lsqlite3 -lpthread
 
 
