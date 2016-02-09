@@ -166,8 +166,8 @@ val db_open :
 (** [db_open ?mode ?mutex ?cache ?vfs filename] opens the database file
     [filename], and returns a database handle.
     
-    Special [filename]s ":memory:" and "" open an in-memory or temporary
-    database respectfully.
+    Special filenames: ":memory:" and "" open an in-memory or temporary
+    database respectively.
     Behaviour explained here: https://www.sqlite.org/inmemorydb.html
 
     The optional arguments [mode] and [mutex] are only meaningful with SQlite
