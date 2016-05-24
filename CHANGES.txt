@@ -1,3 +1,7 @@
+2016-05-24: Fixed a bug finalizing user-defined functions for a database.
+
+            Thanks to Mark Bradley <barkmadley@gmail.com> for this patch!
+
 2015-11-18: More build process improvements for Homebrew users.
 
             Thanks to Leonid Rozenberg <leonidr@gmail.com> for this patch!
