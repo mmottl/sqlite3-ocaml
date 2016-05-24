@@ -341,8 +341,10 @@ static inline void ref_count_finalize_dbw(db_wrap *dbw)
 {
   if (--dbw->ref_count == 0) {
     user_function *link;
-    for (link = dbw->user_functions; link != NULL; link = link->next) {
+    user_function *next;
+    for (link = dbw->user_functions; link != NULL; link = next) {
       caml_remove_generational_global_root(&link->v_fun);
+      next = link->next;
       caml_stat_free(link);
     }
     dbw->user_functions = NULL;
