@@ -340,8 +340,7 @@ static inline value safe_copy_header_strings(const char** strs, int len)
 static inline void ref_count_finalize_dbw(db_wrap *dbw)
 {
   if (--dbw->ref_count == 0) {
-    user_function *link;
-    user_function *next;
+    user_function *link, *next;
     for (link = dbw->user_functions; link != NULL; link = next) {
       caml_remove_generational_global_root(&link->v_fun);
       next = link->next;
