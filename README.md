@@ -59,6 +59,10 @@ Undefined symbols for architecture ...:
     the environment variable `SQLITE3_DISABLE_LOADABLE_EXTENSIONS` if linking
     problems persist.
 
+  * Due to frequent installation issues with loadable extensions on Mac OS X,
+    the default there is to disable them.  You will have to explicitly enable
+    them on that platform.
+
 Credits
 -------
 
@@ -85,4 +89,4 @@ page](https://github.com/mmottl/sqlite3-ocaml).
 
 Enjoy!
 
-Markus Mottl on January 5, 2015
+Markus Mottl on June 14, 2016

@@ -1,3 +1,8 @@
+2016-06-14: Changed default configuration setting for loadable extensions
+            on Mac OS X.  Due to frequent installation issues the default
+            setting is now to turn off loadable extensions on that platform.
+            You will have to explicitly turn them on if you need them.
+
 2016-05-24: Fixed a bug finalizing user-defined functions for a database.
 
             Thanks to Mark Bradley <barkmadley@gmail.com> for this patch!

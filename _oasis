@@ -1,6 +1,6 @@
 OASISFormat:      0.4
 Name:             sqlite3
-Version:          4.0.4
+Version:          4.0.5
 Synopsis:         sqlite3-ocaml - SQLite3 bindings
 Description:      sqlite3-ocaml is an OCaml library with bindings to the
                   SQLite3 client API.  Sqlite3 is a self-contained, serverless,
@@ -39,7 +39,7 @@ Flag brewcheck
 
 Flag loadable_extensions
   Description:    Enable loadable extensions
-  Default:        true
+  Default$:       !system(macosx)
 
 Library sqlite3
   Path:           lib
