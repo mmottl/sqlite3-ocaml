@@ -124,6 +124,11 @@ Type of row data (without NULL-values)<br>
     <code class="code">filename</code>, and returns a database handle.
 <p>
 
+    Special filenames: ":memory:" and "" open an in-memory or temporary
+    database respectively.
+    Behaviour explained here: https://www.sqlite.org/inmemorydb.html
+<p>
+
     The optional arguments <code class="code">mode</code> and <code class="code">mutex</code> are only meaningful with SQlite
     versions &gt;= 3.5, <code class="code">cache</code> only for versions &gt;= 3.6.18.  For older versions an
     exception will be raised if any of them is set to a non-default value.  The
