@@ -7,7 +7,7 @@ build_on_osx () {
 }
 
 echo building
-ocaml setup.ml -configure -prefix prefix
+ocaml setup.ml -configure --prefix prefix
 
 case $TRAVIS_OS_NAME in
   osx) build_on_osx ;;
