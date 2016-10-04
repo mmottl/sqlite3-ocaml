@@ -7,6 +7,8 @@ build_on_osx () {
 }
 
 # install oasis to get the rest of the dependencies for the build
+eval `opam config env`
+export OPAMYES="true"
 opam install oasis
 
 echo building
