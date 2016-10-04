@@ -922,8 +922,12 @@ let pkg_export =
     try ignore (Sys.getenv "SQLITE3_OCAML_BREWCHECK"); true
     with _ -> false
   in
+  Printf.printf "bcs %b, proc_env %b\n" bcs proc_env;
   if not (bcs || proc_env) then ""
   else
+    let res = read_lines_from_cmd ~max_lines:100 "brew ls sqlite" in
+    Printf.printf "brew ls sqlite results:\n";
+    List.iter (Printf.printf "%s\n") res;
     let cmd = "brew ls sqlite | grep pkgconfig" in
     match read_lines_from_cmd ~max_lines:1 cmd with
     | [fullpath] when fullpath <> "" ->
@@ -955,6 +959,7 @@ let () =
           let cnv flag = A flag in
           List.map cnv chunks
         in
+        Printf.printf "----------pkg_export: %s------------\n" pkg_export;
         let osqlite3_cflags =
           let cmd = pkg_export ^ " pkg-config --cflags sqlite3" in
           match read_lines_from_cmd ~max_lines:1 cmd with
