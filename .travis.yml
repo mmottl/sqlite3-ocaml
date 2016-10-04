@@ -5,7 +5,7 @@ script:
   - bash -ex .travis-ocaml.sh
   - bash -ex travis_tests.sh
 os:
-  - linux
   - osx
+  - linux
 env:
   - OCAML_VERSION=4.03 OPAM_VERSION=1.2.2
