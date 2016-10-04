@@ -3,6 +3,7 @@ language: c
 install: wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-ocaml.sh
 script:
   - bash -ex .travis-ocaml.sh
+  - bash -ex travis_tests.sh
 os:
   - linux
   - osx
