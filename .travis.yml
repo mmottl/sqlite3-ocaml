@@ -1,0 +1,10 @@
+sudo: required
+language: c
+install: wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-ocaml.sh
+script:
+  - bash -ex .travis-ocaml.sh
+os:
+  - linux
+  - osx
+env:
+  - OCAML_VERSION=4.03 OPAM_VERSION=1.2.2
