@@ -6,6 +6,9 @@ build_on_osx () {
   env SQLITE3_OCAML_BREWCHECK=1 ocaml setup.ml -build
 }
 
+# install oasis to get the rest of the dependencies for the build
+opam install oasis
+
 echo building
 ocaml setup.ml -configure --prefix prefix
 
