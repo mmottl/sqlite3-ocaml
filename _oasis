@@ -42,7 +42,7 @@ Flag loadable_extensions
   Default$:       !system(macosx)
 
 Library sqlite3
-  Path:           lib
+  Path:           src
   FindlibName:    sqlite3
   Modules:        Sqlite3
   CSources:       sqlite3_stubs.c

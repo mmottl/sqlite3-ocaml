@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 0c8d8e3d3d3f32d2cf322309bc1cc8f0) *)
+(* DO NOT EDIT (digest: 1a2fe59d2f16c612797d18ebc0be204f) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -767,8 +767,8 @@ end
 open Ocamlbuild_plugin;;
 let package_default =
   {
-     MyOCamlbuildBase.lib_ocaml = [("sqlite3", ["lib"], [])];
-     lib_c = [("sqlite3", "lib", [])];
+     MyOCamlbuildBase.lib_ocaml = [("sqlite3", ["src"], [])];
+     lib_c = [("sqlite3", "src", [])];
      flags =
        [
           (["oasis_library_sqlite3_ccopt"; "compile"],
@@ -864,7 +864,7 @@ let package_default =
           (["oasis_library_sqlite3_cclib"; "ocamlmklib"; "c"],
             [(OASISExpr.EBool true, S [A "-lsqlite3"; A "-lpthread"])])
        ];
-     includes = [("test", ["lib"])]
+     includes = [("test", ["src"])]
   }
   ;;
 
