@@ -9,7 +9,7 @@ let () =
     | Data.TEXT rex, Data.TEXT s ->
        let r = Str.regexp rex in
        if Str.string_match r s 0 then Data.INT 1L else Data.INT 0L
-    | _ -> raise (Error "wrong types to 'REGEX'"));
+    | _ -> raise (Sqlite3.Error "wrong types to 'REGEX'"));
   let sqls =
     [
       "DROP TABLE IF EXISTS tbl";
@@ -33,5 +33,5 @@ let () =
         | r ->
             prerr_endline (Rc.to_string r);
             prerr_endline (errmsg db)
-      with Error s -> prerr_endline s)
+      with Sqlite3.Error s -> prerr_endline s)
    sqls
