@@ -5,4 +5,5 @@ let () =
     Printf.printf "->%d\n%!" i;
     ignore (db_open "t");
     Printf.printf "<-%d\n%!" i;
+    Gc.full_major ();
   done

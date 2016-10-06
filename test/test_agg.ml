@@ -7,7 +7,7 @@ let () =
     | Data.TEXT s, Data.INT i ->
        let suffix = String.make (Int64.to_int i) s.[0] in
        (s ^ suffix) :: l
-    | _ -> raise (Error "wrong types to 'STRREPEAT'")) 
+    | _ -> raise (Sqlite3.Error "wrong types to 'STRREPEAT'")) 
     ~final:(fun l -> Data.TEXT (String.concat " | " (List.rev l)));
   let sqls =
     [
@@ -32,5 +32,5 @@ let () =
         | r ->
             prerr_endline (Rc.to_string r);
             prerr_endline (errmsg db)
-      with Error s -> prerr_endline s)
+      with Sqlite3.Error s -> prerr_endline s)
    sqls
