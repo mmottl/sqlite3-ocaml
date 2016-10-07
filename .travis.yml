@@ -1,11 +1,17 @@
-sudo: required
 language: c
-install: wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-ocaml.sh
+
+install:
+  - wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-opam.sh
+
 script:
-  - bash -ex .travis-ocaml.sh
-  - bash -ex travis_tests.sh
+  - bash -ex .travis-opam.sh
+
 os:
-  - osx
   - linux
+  - osx
+
 env:
-  - OCAML_VERSION=4.03 OPAM_VERSION=1.2.2
+  matrix:
+    - OCAML_VERSION=4.03 PACKAGE=sqlite3 KEEP=1
+  global:
+    secure: Ma88QIoHnVQd/czhX3GwmHOFm7gINNRZtPQC+0BWmVkim55b5KCJLJWtzWrASUHkhoZgcugXPeM+/pfrZXRKXIQW7Cm2/yioNJ+0SEEHawX11RPQWNYGJHlZkd37q3gWnmt6XhOOsQlPmZtonjkAi/MVIfQcX4OfgWyqWMCAzcU=
