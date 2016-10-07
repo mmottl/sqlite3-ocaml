@@ -1,0 +1,175 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Sqlite3" rel="Chapter" href="Sqlite3.html"><title>Sqlite3</title>
+</head>
+<body>
+<code class="code"><span class="keyword">sig</span>
+&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">InternalError</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Error</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">RangeError</span>&nbsp;<span class="keyword">of</span>&nbsp;int&nbsp;*&nbsp;int
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;db
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;stmt
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;header&nbsp;=&nbsp;string
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;headers&nbsp;=&nbsp;<span class="constructor">Sqlite3</span>.header&nbsp;array
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;row&nbsp;=&nbsp;string&nbsp;option&nbsp;array
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;row_not_null&nbsp;=&nbsp;string&nbsp;array
+&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Rc</span>&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">sig</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;unknown
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;int_of_unknown&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.unknown&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;=&nbsp;<span class="string">"%identity"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">OK</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">ERROR</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">INTERNAL</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PERM</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">ABORT</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">BUSY</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">LOCKED</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">NOMEM</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">READONLY</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">INTERRUPT</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">IOERR</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">CORRUPT</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">NOTFOUND</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">FULL</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">CANTOPEN</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PROTOCOL</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">EMPTY</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">SCHEMA</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">TOOBIG</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">CONSTRAINT</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">MISMATCH</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">MISUSE</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">NOFLS</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">AUTH</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">FORMAT</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">RANGE</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">NOTADB</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">ROW</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">DONE</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">UNKNOWN</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.unknown
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_string&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>
+&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Data</span>&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">sig</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">NONE</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">NULL</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">INT</span>&nbsp;<span class="keyword">of</span>&nbsp;int64
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">FLOAT</span>&nbsp;<span class="keyword">of</span>&nbsp;float
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">TEXT</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">BLOB</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_string&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_string_debug&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;db_open&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;?mode:[&nbsp;<span class="keywordsign">`</span><span class="constructor">NO_CREATE</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">READONLY</span>&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;?mutex:[&nbsp;<span class="keywordsign">`</span><span class="constructor">FULL</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">NO</span>&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;?cache:[&nbsp;<span class="keywordsign">`</span><span class="constructor">PRIVATE</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">SHARED</span>&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?vfs:string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.db
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;db_close&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool&nbsp;=&nbsp;<span class="string">"caml_sqlite3_close"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;enable_load_extension&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_enable_load_extension"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;errcode&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t&nbsp;=&nbsp;<span class="string">"caml_sqlite3_errcode"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;errmsg&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;=&nbsp;<span class="string">"caml_sqlite3_errmsg"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;last_insert_rowid&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int64
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_last_insert_rowid"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;exec&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;?cb:(<span class="constructor">Sqlite3</span>.row&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.headers&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_exec"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;exec_no_headers&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cb:(<span class="constructor">Sqlite3</span>.row&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_exec_no_headers"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;exec_not_null&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;cb:(<span class="constructor">Sqlite3</span>.row_not_null&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.headers&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t&nbsp;=&nbsp;<span class="string">"caml_sqlite3_exec_not_null"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;exec_not_null_no_headers&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cb:(<span class="constructor">Sqlite3</span>.row_not_null&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_exec_not_null_no_headers"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;changes&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;=&nbsp;<span class="string">"caml_sqlite3_changes"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;prepare&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.stmt
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_prepare"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;prepare_tail&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;option
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_prepare_tail"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;recompile&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;=&nbsp;<span class="string">"caml_sqlite3_recompile"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;step&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t&nbsp;=&nbsp;<span class="string">"caml_sqlite3_step"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;finalize&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_stmt_finalize"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;reset&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t&nbsp;=&nbsp;<span class="string">"caml_sqlite3_stmt_reset"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;sleep&nbsp;:&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;=&nbsp;<span class="string">"caml_sqlite3_sleep"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;data_count&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;=&nbsp;<span class="string">"caml_sqlite3_data_count"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;column_count&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;=&nbsp;<span class="string">"caml_sqlite3_column_count"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;column&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_column"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;column_name&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.header
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_column_name"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;column_decltype&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;option
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_column_decltype"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;bind&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_bind"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;bind_parameter_count&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_bind_parameter_count"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;bind_parameter_name&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;option
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_bind_parameter_name"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;bind_parameter_index&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_bind_parameter_index"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;clear_bindings&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_clear_bindings"</span>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;row_data&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;array
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;row_names&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.headers
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;row_decltypes&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;option&nbsp;array
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_funN&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;array&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_fun0&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_fun1&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_fun2&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_fun3&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;unit
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;delete_function&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_delete_function"</span>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;busy_timeout&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Aggregate</span>&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">sig</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_fun0&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init:<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;step:(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;final:(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_fun1&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init:<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;step:(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final:(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_fun2&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init:<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;step:(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final:(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_fun3&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init:<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;step:(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final:(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_funN&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Sqlite3</span>.db&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;init:<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;step:(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;array&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final:(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>
+<span class="keyword">end</span></code></body></html>
