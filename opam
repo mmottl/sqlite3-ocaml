@@ -1,4 +1,6 @@
 opam-version: "1.2"
+name: "sqlite3"
+version: "4.0.5"
 maintainer: "Markus Mottl <markus.mottl@gmail.com>"
 authors: [ "Markus Mottl <markus.mottl@gmail.com>"
            "Christian Szegedy <csdontspam@metamatix.com>" ]
@@ -26,6 +28,7 @@ build-doc: [ "ocaml" "setup.ml" "-doc" ]
 depends: [
   "ocamlbuild" {build}
   "ocamlfind" {build & >= "1.3.1"}
+  # Included from _opam file
   "conf-pkg-config" {build}
 ]
 available: [ ocaml-version >= "3.12" ]
