@@ -19,7 +19,7 @@ Usage
 
 The API in file `src/sqlite3.mli` is fully documented, and HTML-documentation
 can be built using `make doc` and installed with this distribution.  It can
-also be found [online](http://mmottl.github.io/sqlite3-ocaml/api).
+also be found [online](http://mmottl.github.io/sqlite3-ocaml/API.docdir).
 
 SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
 

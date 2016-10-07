@@ -5,6 +5,7 @@ install:
 
 script:
   - bash -ex .travis-opam.sh
+  - bash -ex .travis-docgen.sh
 
 os:
   - linux
