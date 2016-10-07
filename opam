@@ -1,6 +1,6 @@
 opam-version: "1.2"
 name: "sqlite3"
-version: "4.0.5"
+version: "4.0.6"
 maintainer: "Markus Mottl <markus.mottl@gmail.com>"
 authors: [ "Markus Mottl <markus.mottl@gmail.com>"
            "Christian Szegedy <csdontspam@metamatix.com>" ]
