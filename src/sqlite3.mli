@@ -165,7 +165,7 @@ val db_open :
   db
 (** [db_open ?mode ?mutex ?cache ?vfs filename] opens the database file
     [filename], and returns a database handle.
-    
+
     Special filenames: ":memory:" and "" open an in-memory or temporary
     database respectively.
     Behaviour explained here: https://www.sqlite.org/inmemorydb.html
@@ -376,6 +376,14 @@ external column_count : stmt -> int = "caml_sqlite3_column_count"
     @raise SqliteError if the statement is invalid.
 *)
 
+external column_blob : stmt -> int -> string option = "caml_sqlite3_column_blob"
+(** [column stmt n] @return the bytes in column [n] of the
+    result of the last step of statement [stmt].
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
 external column : stmt -> int -> Data.t = "caml_sqlite3_column"
 (** [column stmt n] @return the data in column [n] of the
     result of the last step of statement [stmt].
@@ -453,6 +461,13 @@ external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings"
 
 
 (** {2 Stepwise query convenience functions} *)
+
+val row_blobs : stmt -> row
+(** [row_blobs stmt] @return all data in the row returned by the
+    last query step performed with statement [stmt].
+
+    @raise SqliteError if the statement is invalid.
+*)
 
 val row_data : stmt -> Data.t array
 (** [row_data stmt] @return all data values in the row returned by the

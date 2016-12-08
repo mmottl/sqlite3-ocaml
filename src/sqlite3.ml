@@ -200,6 +200,7 @@ external finalize : stmt -> Rc.t = "caml_sqlite3_stmt_finalize"
 
 external data_count : stmt -> int = "caml_sqlite3_data_count"
 external column_count : stmt -> int = "caml_sqlite3_column_count"
+external column_blob : stmt -> int -> string option = "caml_sqlite3_column_blob"
 external column : stmt -> int -> Data.t = "caml_sqlite3_column"
 external column_name : stmt -> int -> string = "caml_sqlite3_column_name"
 
@@ -224,6 +225,7 @@ external busy_timeout : db -> int -> unit = "caml_sqlite3_busy_timeout"
 external enable_load_extension :
   db -> bool -> bool = "caml_sqlite3_enable_load_extension"
 
+let row_blobs stmt = Array.init (data_count stmt) (column_blob stmt)
 let row_data stmt = Array.init (data_count stmt) (column stmt)
 let row_names stmt = Array.init (data_count stmt) (column_name stmt)
 let row_decltypes stmt = Array.init (data_count stmt) (column_decltype stmt)
