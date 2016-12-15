@@ -1,3 +1,11 @@
+2016-12-15: Added new functions for more efficient and convenient blob access:
+
+              * column_blob
+              * row_blobs
+
+            Thanks to Nicolas Ojeda Bar <nicolas.ojeda.bar@lexifi.com>
+            for this patch!
+
 2016-10-07: Some portability improvements and Travis integration
 
             Thanks to Leonid Rozenberg <leonidr@gmail.com> for his Travis work!
