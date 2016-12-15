@@ -377,8 +377,8 @@ external column_count : stmt -> int = "caml_sqlite3_column_count"
 *)
 
 external column_blob : stmt -> int -> string option = "caml_sqlite3_column_blob"
-(** [column stmt n] @return the bytes in column [n] of the
-    result of the last step of statement [stmt].
+(** [column_blob stmt n] @return [Some bytes] in column [n] of the
+    result of the last step of statement [stmt], or [None] if NULL.
 
     @raise RangeError if [n] is out of range.
     @raise SqliteError if the statement is invalid.
@@ -463,8 +463,8 @@ external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings"
 (** {2 Stepwise query convenience functions} *)
 
 val row_blobs : stmt -> row
-(** [row_blobs stmt] @return all data in the row returned by the
-    last query step performed with statement [stmt].
+(** [row_blobs stmt] @return the row returned by the last query step performed
+    with statement [stmt] (array of optional blobs).
 
     @raise SqliteError if the statement is invalid.
 *)

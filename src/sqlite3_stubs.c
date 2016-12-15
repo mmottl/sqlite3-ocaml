@@ -951,22 +951,17 @@ CAMLprim value caml_sqlite3_column_count(value v_stmt)
 CAMLprim value caml_sqlite3_column_blob(value v_stmt, value v_index)
 {
   CAMLparam1(v_stmt);
-  CAMLlocal1(v_tmp);
-  value v_res;
   sqlite3_stmt *stmt = safe_get_stmtw("column_blob", v_stmt)->stmt;
   int i = Int_val(v_index);
   range_check(i, sqlite3_column_count(stmt));
-  if (sqlite3_column_type(stmt, i) == SQLITE_NULL) {
-    v_res = Val_int(0);
-  } else {
+  if (sqlite3_column_type(stmt, i) == SQLITE_NULL) CAMLreturn(Val_None);
+  else {
     const void *blob = sqlite3_column_blob(stmt, i);
     int len = sqlite3_column_bytes(stmt, i);
-    v_tmp = caml_alloc_string(len);
-    memcpy(String_val(v_tmp), blob, len);
-    v_res = caml_alloc_small(1, 0);
-    Field(v_res, 0) = v_tmp;
+    value v_str = caml_alloc_string(len);
+    memcpy(String_val(v_str), blob, len);
+    CAMLreturn(Val_Some(v_str));
   }
-  CAMLreturn(v_res);
 }
 
 CAMLprim value caml_sqlite3_column(value v_stmt, value v_index)
