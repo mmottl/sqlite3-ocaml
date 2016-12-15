@@ -106,6 +106,8 @@
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;sleep&nbsp;:&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;=&nbsp;<span class="string">"caml_sqlite3_sleep"</span>
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;data_count&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;=&nbsp;<span class="string">"caml_sqlite3_data_count"</span>
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;column_count&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;=&nbsp;<span class="string">"caml_sqlite3_column_count"</span>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;column_blob&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;option
+&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_column_blob"</span>
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;column&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t
 &nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_column"</span>
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;column_name&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.header
@@ -122,6 +124,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_bind_parameter_index"</span>
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;clear_bindings&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Rc</span>.t
 &nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"caml_sqlite3_clear_bindings"</span>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;row_blobs&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.row
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;row_data&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.<span class="constructor">Data</span>.t&nbsp;array
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;row_names&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sqlite3</span>.headers
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;row_decltypes&nbsp;:&nbsp;<span class="constructor">Sqlite3</span>.stmt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;option&nbsp;array

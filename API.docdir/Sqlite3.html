@@ -317,6 +317,15 @@ Type of row data (without NULL-values)<br>
     returned by executing statement <code class="code">stmt</code>.<br>
 </div>
 
+<pre><span id="VALcolumn_blob"><span class="keyword">val</span> column_blob</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> int -> string option</code></pre><div class="info ">
+<code class="code">column_blob stmt n</code><br>
+<b>Raises</b><ul><li><code>RangeError</code> if <code class="code">n</code> is out of range.</li>
+<li><code>SqliteError</code> if the statement is invalid.</li>
+</ul>
+<b>Returns</b> <code class="code">Some bytes</code> in column <code class="code">n</code> of the
+    result of the last step of statement <code class="code">stmt</code>, or <code class="code">None</code> if NULL.<br>
+</div>
+
 <pre><span id="VALcolumn"><span class="keyword">val</span> column</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> int -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a></code></pre><div class="info ">
 <code class="code">column stmt n</code><br>
 <b>Raises</b><ul><li><code>RangeError</code> if <code class="code">n</code> is out of range.</li>
@@ -390,6 +399,13 @@ Type of row data (without NULL-values)<br>
 </div>
 <br>
 <h2 id="2_Stepwisequeryconveniencefunctions">Stepwise query convenience functions</h2><br>
+
+<pre><span id="VALrow_blobs"><span class="keyword">val</span> row_blobs</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> <a href="Sqlite3.html#TYPErow">row</a></code></pre><div class="info ">
+<code class="code">row_blobs stmt</code><br>
+<b>Raises</b> <code>SqliteError</code> if the statement is invalid.<br>
+<b>Returns</b> the row returned by the last query step performed
+    with statement <code class="code">stmt</code> (array of optional blobs).<br>
+</div>
 
 <pre><span id="VALrow_data"><span class="keyword">val</span> row_data</span> : <code class="type"><a href="Sqlite3.html#TYPEstmt">stmt</a> -> <a href="Sqlite3.Data.html#TYPEt">Data.t</a> array</code></pre><div class="info ">
 <code class="code">row_data stmt</code><br>
