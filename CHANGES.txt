@@ -1,3 +1,6 @@
+2017-01-03: Fixed incorrect LGPL license reference in Oasis specification.
+            The software is actually distributed under the Expat-license.
+
 2016-12-15: Added new functions for more efficient and convenient blob access:
 
               * column_blob
