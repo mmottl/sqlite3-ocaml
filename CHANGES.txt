@@ -1,3 +1,5 @@
+2017-01-04: Added external dependency to OPAM spec for openSUSE support.
+
 2017-01-03: Fixed incorrect LGPL license reference in Oasis specification.
             The software is actually distributed under the Expat-license.
 
