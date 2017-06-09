@@ -470,7 +470,7 @@ CAMLprim value caml_sqlite3_enable_load_extension(value v_db, value v_onoff)
   int ret;
   db_wrap *dbw = Sqlite3_val(v_db);
   ret = sqlite3_enable_load_extension(dbw->db, Bool_val(v_onoff));
-  return Val_bool(ret);
+  return Val_bool(ret == SQLITE_OK);
 }
 #else
 CAMLprim value caml_sqlite3_enable_load_extension(
