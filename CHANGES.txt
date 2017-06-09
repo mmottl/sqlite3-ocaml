@@ -1,3 +1,6 @@
+2017-06-11: Fixed return value bug in enable_load_extension.  The result
+            was just the opposite of what the API documentation says.
+
 2017-01-04: Added external dependency to OPAM spec for openSUSE support.
 
 2017-01-03: Fixed incorrect LGPL license reference in Oasis specification.
