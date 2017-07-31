@@ -1,10 +1,6 @@
-SQLite3-OCaml - SQLite3 Bindings for OCaml
-==========================================
+## SQLite3-OCaml - SQLite3 Bindings for OCaml
 
----------------------------------------------------------------------------
-
-What is SQLite3-OCaml?
-----------------------
+### What is SQLite3-OCaml?
 
 SQLite3-OCaml is an [OCaml](http://www.ocaml.org) library with bindings to the
 [SQLite3](http://www.sqlite.org) client API.  Sqlite3 is a self-contained,
@@ -14,8 +10,7 @@ outstanding performance for many use cases.
 These bindings are written in a way that enables a friendly coexistence with
 the old (version 2) SQLite and its OCaml wrapper `ocaml-sqlite`.
 
-Usage
------
+### Usage
 
 The API in file `src/sqlite3.mli` is fully documented, and HTML-documentation
 can be built using `make doc` and installed with this distribution.  It can
@@ -23,12 +18,12 @@ also be found [online](http://mmottl.github.io/sqlite3-ocaml/API.docdir).
 
 SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
 
-### Examples
+#### Examples
 
 The `test`-directory in this distribution contains a few simple examples
 for testing various features of this library.
 
-### Build issues
+#### Build issues
 
 SQLite3-OCaml depends on `pkg-config` to locate and compile against an
 [SQLite3](http://www.sqlite.org) library.
@@ -63,8 +58,7 @@ Undefined symbols for architecture ...:
     the default there is to disable them.  You will have to explicitly enable
     them on that platform.
 
-Credits
--------
+### Credits
 
   * Enrico Tassi contributed support for user-defined scalar functions.
 
@@ -78,15 +72,9 @@ Credits
     served as a reference for this wrapper, but sqlite3 is written completely
     from scratch since the C interface changed significantly.
 
----------------------------------------------------------------------------
+### Contact Information and Contributing
 
-Contact Information and Contributing
-------------------------------------
+Please submit bugs reports, feature requests, contributions and similar to
+the [GitHub issue tracker](https://github.com/mmottl/sqlite3-ocaml/issues).
 
-In the case of bugs, feature requests, contributions and similar,
-please communicate with the maintainers using the [GitHub project
-page](https://github.com/mmottl/sqlite3-ocaml).
-
-Enjoy!
-
-Markus Mottl on June 14, 2016
+Up-to-date information is available at: <https://mmottl.github.io/sqlite3-ocaml>
