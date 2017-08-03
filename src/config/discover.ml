@@ -26,17 +26,13 @@ let pkg_export =
     try ignore (Caml.Sys.getenv "SQLITE3_OCAML_BREWCHECK"); true
     with _ -> false
   in
-  printf "pkg_export has_brewcheck %b\n%!" has_brewcheck;
   if not has_brewcheck then ""
   else
-    let res = read_lines_from_cmd ~max_lines:100 "brew ls sqlite" in
-    printf "brew ls sqlite results:\n%!";
-    List.iter ~f:(printf "%s\n%!") res;
     let cmd = "brew ls sqlite | grep pkgconfig" in
     match read_lines_from_cmd ~max_lines:1 cmd with
     | [fullpath] when String.(fullpath <> "") ->
-      let path = Caml.Filename.dirname fullpath in
-      Printf.sprintf "PKG_CONFIG_PATH=%s" path
+        let path = Caml.Filename.dirname fullpath in
+        Printf.sprintf "PKG_CONFIG_PATH=%s" path
     | _ -> ""
 
 let () =
@@ -46,7 +42,6 @@ let () =
       Option.value_map (C.ocaml_config_var c "system") ~default:false
         ~f:(function "macosx" -> true | _ -> false)
     in
-    printf "----------pkg_export: %s------------\n" pkg_export;
     let cflags =
       let cmd = pkg_export ^ " pkg-config --cflags sqlite3" in
       match read_lines_from_cmd ~max_lines:1 cmd with
