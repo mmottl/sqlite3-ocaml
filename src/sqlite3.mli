@@ -607,11 +607,11 @@ module Aggregate : sig
 end
 
 module Backup : sig
-  (** type of a backup between two databases *)
+  (** Type of a backup between two databases *)
   type t
 
-  val init : db -> string -> db -> string -> t
-  (** [init dst dst_name src src_name] initializes a backup from the
+  val init : dst : db -> dst_name : string -> src : db -> src_name : string -> t
+  (** [init ~dst ~dst_name ~src ~src_name] initializes a backup from the
       database [src]/[src_name] to the database [dst]/[dst_name].
 
       @raise SqliteError if there is already a read or read-write
@@ -634,4 +634,3 @@ module Backup : sig
   (** [pagecount backup] returns the total number of pages in the source
       database of [backup]. *)
 end
-

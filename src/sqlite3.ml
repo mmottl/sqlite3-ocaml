@@ -276,7 +276,11 @@ end
 
 module Backup = struct
   type t
-  external init : db -> string -> db -> string -> t = "caml_sqlite3_backup_init"
+
+  external init :
+    dst : db -> dst_name : string ->
+    src : db -> src_name : string -> t = "caml_sqlite3_backup_init"
+
   external step : t -> int -> Rc.t = "caml_sqlite3_backup_step"
   external finish : t -> Rc.t = "caml_sqlite3_backup_finish"
   external remaining : t -> int = "caml_sqlite3_backup_remaining"
