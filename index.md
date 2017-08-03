@@ -14,7 +14,7 @@ the old (version 2) SQLite and its OCaml wrapper `ocaml-sqlite`.
 
 The API in file `src/sqlite3.mli` is fully documented, and HTML-documentation
 can be built using `make doc` and installed with this distribution.  It can
-also be found [online](http://mmottl.github.io/sqlite3-ocaml/API.docdir).
+also be found [online](http://mmottl.github.io/sqlite3-ocaml/api/sqlite3).
 
 SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
 
@@ -46,7 +46,7 @@ Undefined symbols for architecture ...:
   * If you need to change where `pkg-config` will look for the SQLite3
     library, set the `PKG_CONFIG_PATH` environment variable to the new
     directory.  This can be automated by setting the `SQLITE3_OCAML_BREWCHECK`
-    environment variable; this will instruct the build to see if a _brewed_
+    environment variable.  This will instruct the build to see if a _brewed_
     version of SQLite is installed and route `pkg-config` appropriately.
 
   * You can explicitly disable run-time loadable extensions by calling
