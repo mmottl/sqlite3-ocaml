@@ -274,6 +274,14 @@ module Aggregate = struct
       (fun acc args -> step acc args.(0) args.(1) args.(2)) final
 end
 
+module Backup = struct
+  type t
+  external init : db -> string -> db -> string -> t = "caml_sqlite3_backup_init"
+  external step : t -> int -> Rc.t = "caml_sqlite3_backup_step"
+  external finish : t -> Rc.t = "caml_sqlite3_backup_finish"
+  external remaining : t -> int = "caml_sqlite3_backup_remaining"
+  external pagecount : t -> int = "caml_sqlite3_backup_pagecount"
+end
 
 (* Initialisation *)
 
