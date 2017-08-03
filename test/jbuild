@@ -1,0 +1,12 @@
+(jbuild_version 1)
+
+(executables (
+  (names (test_agg test_db test_error test_exec test_fun test_stmt))
+  (flags (
+    :standard
+    -w -9
+    -safe-string -strict-sequence
+    -principal -short-paths
+  ))
+  (libraries (sqlite3))
+))

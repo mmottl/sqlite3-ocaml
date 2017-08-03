@@ -1,0 +1,25 @@
+(jbuild_version 1)
+
+(library (
+  (name sqlite3)
+  (public_name sqlite3)
+  (flags (
+    :standard
+    -w -9
+    -safe-string -strict-sequence
+    -principal -short-paths
+  ))
+  (c_names (sqlite3_stubs))
+  (c_flags (
+    (:include c_flags.sexp) -g -O2 -fPIC -DPIC
+    ; NOTE: for debugging before releases
+    ; -Wall -pedantic -Wextra -Wunused -Wno-long-long -Wno-keyword-macro
+  ))
+  (c_library_flags (:include c_library_flags.sexp))
+))
+
+(rule (
+  (targets (c_flags.sexp c_library_flags.sexp))
+  (deps (config/discover.exe))
+  (action (run ${<} -ocamlc ${OCAMLC}))
+))
