@@ -12,9 +12,8 @@ the old (version 2) SQLite and its OCaml wrapper `ocaml-sqlite`.
 
 ### Usage
 
-The API in file `src/sqlite3.mli` is fully documented, and HTML-documentation
-can be built using `make doc` and installed with this distribution.  It can
-also be found [online](http://mmottl.github.io/sqlite3-ocaml/api/sqlite3).
+The API in file `src/sqlite3.mli` is fully documented.  It can also be found
+[online](http://mmottl.github.io/sqlite3-ocaml/api/sqlite3).
 
 SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
 
@@ -60,17 +59,19 @@ Undefined symbols for architecture ...:
 
 ### Credits
 
-  * Enrico Tassi contributed support for user-defined scalar functions.
+  * Mikhail Fedotov wrote ocaml-sqlite for SQLite version 2.  His bindings
+    served as a reference for this wrapper, but sqlite3 is written completely
+    from scratch since the C interface changed significantly.
+
+  * Christian Szegedy wrote the initial release for SQLite version 3.
 
   * Markus Mottl rewrote Christian's bindings for Jane Street Holding, LLC to
     clean up a few things and to make it perform better in multi-threaded
     environments.
 
-  * Christian Szegedy wrote the initial release for SQLite version 3.
+  * Enrico Tassi contributed support for user-defined scalar functions.
 
-  * Mikhail Fedotov wrote ocaml-sqlite for SQLite version 2.  His bindings
-    served as a reference for this wrapper, but sqlite3 is written completely
-    from scratch since the C interface changed significantly.
+  * Markus W. Weissmann contributed backup functionality.
 
 ### Contact Information and Contributing
 
