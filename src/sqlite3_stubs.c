@@ -150,6 +150,7 @@ static inline void maybe_raise_user_exception(int rc)
 
 #define Sqlite3_val(x) (*((db_wrap **) (Data_custom_val(x))))
 #define Sqlite3_stmtw_val(x) (*((stmt_wrap **) (Data_custom_val(x))))
+#define Sqlite3_backup_val(x) (*((sqlite3_backup **) (Data_custom_val(x))))
 
 
 /* Exceptions */
@@ -1273,4 +1274,75 @@ CAMLprim value caml_sqlite3_changes(value v_db)
   db_wrap *dbw = Sqlite3_val(v_db);
   check_db(dbw, "changes");
   return Val_int(sqlite3_changes(dbw->db));
+}
+
+
+/* Backup functionality */
+
+CAMLprim value caml_sqlite3_backup_init(
+    value v_dst, value v_dst_name, value v_src, value v_src_name)
+{
+  CAMLparam4(v_dst, v_dst_name, v_src, v_src_name);
+  CAMLlocal1(v_res);
+  sqlite3_backup *res;
+  int dst_len, src_len;
+  char *dst_name, *src_name;
+
+  db_wrap *dst = Sqlite3_val(v_dst);
+  db_wrap *src = Sqlite3_val(v_src);
+
+  dst_len = caml_string_length(v_dst_name) + 1;
+  dst_name = caml_stat_alloc(dst_len);
+  memcpy(dst_name, String_val(v_dst_name), dst_len);
+
+  src_len = caml_string_length(v_src_name) + 1;
+  src_name = caml_stat_alloc(src_len);
+  memcpy(src_name, String_val(v_src_name), src_len);
+
+  caml_enter_blocking_section();
+
+  res = sqlite3_backup_init(dst->db, dst_name, src->db, src_name);
+  caml_stat_free(dst_name);
+  caml_stat_free(src_name);
+
+  caml_leave_blocking_section();
+
+  if (NULL == res) raise_sqlite3_current(dst->db, "backup_init");
+
+  Sqlite3_backup_val(v_res) = res;
+
+  CAMLreturn(v_res);
+}
+
+CAMLprim value caml_sqlite3_backup_step(value v_backup, value v_pagecount)
+{
+  CAMLparam1(v_backup);
+  sqlite3_backup *backup = Sqlite3_backup_val(v_backup);
+  int rc, pagecount = Int_val(v_pagecount);
+
+  caml_enter_blocking_section();
+
+  rc = sqlite3_backup_step(backup, pagecount);
+
+  caml_leave_blocking_section();
+
+  CAMLreturn(Val_rc(rc));
+}
+
+CAMLprim value caml_sqlite3_backup_finish(value v_backup)
+{
+  sqlite3_backup *backup = Sqlite3_backup_val(v_backup);
+  return Val_rc(sqlite3_backup_finish(backup));
+}
+
+CAMLprim value caml_sqlite3_backup_remaining(value v_backup)
+{
+  sqlite3_backup *backup = Sqlite3_backup_val(v_backup);
+  return Val_int(sqlite3_backup_remaining(backup));
+}
+
+CAMLprim value caml_sqlite3_backup_pagecount(value v_backup)
+{
+  sqlite3_backup *backup = Sqlite3_backup_val(v_backup);
+  return Val_int(sqlite3_backup_pagecount(backup));
 }

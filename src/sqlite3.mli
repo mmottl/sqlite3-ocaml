@@ -605,3 +605,32 @@ module Aggregate : sig
       @raise SqliteError if an invalid database handle is passed.
   *)
 end
+
+module Backup : sig
+  (** Type of a backup between two databases *)
+  type t
+
+  val init : dst : db -> dst_name : string -> src : db -> src_name : string -> t
+  (** [init ~dst ~dst_name ~src ~src_name] initializes a backup from the
+      database [src]/[src_name] to the database [dst]/[dst_name].
+
+      @raise SqliteError if there is already a read or read-write
+      transaction open on the destination database
+  *)
+
+  val step : t -> int -> Rc.t
+  (** [step backup pagecount] will copy up to [pagecount] pages between the
+      associated databases of [backup]. *)
+
+  val finish : t -> Rc.t
+  (** [finish backup] destroys the association [backup]; this is to be
+      called after [step] returns [SQLITE_DONE]. *)
+
+  val remaining : t -> int
+  (** [remaining backup] returns the number of pages still to be backed
+      up in [backup]. *)
+
+  val pagecount : t -> int
+  (** [pagecount backup] returns the total number of pages in the source
+      database of [backup]. *)
+end
