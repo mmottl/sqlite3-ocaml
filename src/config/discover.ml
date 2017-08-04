@@ -35,6 +35,8 @@ let pkg_export =
         Printf.sprintf "PKG_CONFIG_PATH=%s" path
     | _ -> ""
 
+let split_ws str = List.filter (String.split ~on:' ' str) ~f:(String.(<>) "")
+
 let () =
   let module C = Configurator in
   C.main ~name:"sqlite3" (fun c ->
@@ -46,7 +48,7 @@ let () =
       let cmd = pkg_export ^ " pkg-config --cflags sqlite3" in
       match read_lines_from_cmd ~max_lines:1 cmd with
       | [cflags] ->
-          let cflags = String.split ~on:' ' cflags in
+          let cflags = split_ws cflags in
           if
             is_macosx ||
             try
@@ -60,7 +62,7 @@ let () =
     let libs =
       let cmd = pkg_export ^ " pkg-config --libs sqlite3" in
       match read_lines_from_cmd ~max_lines:1 cmd with
-      | [libs] -> String.split ~on:' ' libs
+      | [libs] -> split_ws libs
       | _ -> failwith "pkg-config failed to return libs"
     in
     let conf = { C.Pkg_config.cflags; libs } in
