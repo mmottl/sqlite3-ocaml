@@ -170,7 +170,9 @@ static inline void raise_with_two_args(value v_tag, value v_arg1, value v_arg2)
   CAMLnoreturn;
 }
 
-static inline void raise_sqlite3_InternalError(char *msg) Noreturn;
+CAMLnoreturn_start
+static inline void raise_sqlite3_InternalError(char *msg)
+CAMLnoreturn_end;
 
 static inline void raise_sqlite3_InternalError(char *msg)
 {
@@ -183,7 +185,9 @@ static inline void range_check(int v, int max)
     raise_with_two_args(*caml_sqlite3_RangeError, Val_int(v), Val_int(max));
 }
 
-static void raise_sqlite3_Error(const char *fmt, ...) Noreturn;
+CAMLnoreturn_start
+static void raise_sqlite3_Error(const char *fmt, ...)
+CAMLnoreturn_end;
 
 static void raise_sqlite3_Error(const char *fmt, ...)
 {
