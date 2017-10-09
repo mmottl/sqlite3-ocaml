@@ -2,6 +2,8 @@
 
   * Improved compatibility with MSVC
 
+  * Used untagging and unboxing attributes on external functions
+
 
 ### 4.2.0 (2017-08-03)
 

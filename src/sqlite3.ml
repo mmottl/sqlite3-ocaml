@@ -169,7 +169,10 @@ external db_close : db -> bool = "caml_sqlite3_close"
 
 external errcode : db -> Rc.t = "caml_sqlite3_errcode"
 external errmsg : db -> string = "caml_sqlite3_errmsg"
-external last_insert_rowid : db -> int64 = "caml_sqlite3_last_insert_rowid"
+
+external last_insert_rowid : db -> (int64 [@unboxed])
+  = "caml_sqlite3_last_insert_rowid_bc" "caml_sqlite3_last_insert_rowid"
+  [@@noalloc]
 
 external exec :
   db -> ?cb : (string option array -> headers -> unit) -> string -> Rc.t
@@ -187,7 +190,8 @@ external exec_not_null_no_headers :
   db -> cb : (string array -> unit) -> string -> Rc.t
   = "caml_sqlite3_exec_not_null_no_headers"
 
-external changes : db -> int = "caml_sqlite3_changes"
+external changes : db -> (int [@untagged])
+  = "caml_sqlite3_changes_bc" "caml_sqlite3_changes"
 
 external prepare : db -> string -> stmt = "caml_sqlite3_prepare"
 external prepare_tail : stmt -> stmt option = "caml_sqlite3_prepare_tail"
@@ -195,32 +199,50 @@ external recompile : stmt -> unit = "caml_sqlite3_recompile"
 
 external step : stmt -> Rc.t = "caml_sqlite3_step"
 external reset : stmt -> Rc.t = "caml_sqlite3_stmt_reset"
-external sleep : int -> int = "caml_sqlite3_sleep"
+
+external sleep : (int [@untagged]) -> (int [@untagged])
+  = "caml_sqlite3_sleep_bc" "caml_sqlite3_sleep"
+
 external finalize : stmt -> Rc.t = "caml_sqlite3_stmt_finalize"
 
-external data_count : stmt -> int = "caml_sqlite3_data_count"
-external column_count : stmt -> int = "caml_sqlite3_column_count"
-external column_blob : stmt -> int -> string option = "caml_sqlite3_column_blob"
-external column : stmt -> int -> Data.t = "caml_sqlite3_column"
-external column_name : stmt -> int -> string = "caml_sqlite3_column_name"
+external data_count : stmt -> (int [@untagged])
+  = "caml_sqlite3_data_count_bc" "caml_sqlite3_data_count"
+
+external column_count : stmt -> (int [@untagged])
+  = "caml_sqlite3_column_count_bc" "caml_sqlite3_column_count"
+
+external column_blob :
+  stmt -> (int [@untagged]) -> string option
+  = "caml_sqlite3_column_blob_bc" "caml_sqlite3_column_blob"
+
+external column : stmt -> (int [@untagged]) -> Data.t
+  = "caml_sqlite3_column_bc" "caml_sqlite3_column"
+
+external column_name : stmt -> (int [@untagged]) -> string
+  = "caml_sqlite3_column_name_bc" "caml_sqlite3_column_name"
 
 external column_decltype :
-  stmt -> int -> string option = "caml_sqlite3_column_decltype"
+  stmt -> (int [@untagged]) -> string option
+  = "caml_sqlite3_column_decltype_bc" "caml_sqlite3_column_decltype"
 
-external bind : stmt -> int -> Data.t -> Rc.t = "caml_sqlite3_bind"
+external bind : stmt -> (int [@untagged]) -> Data.t -> Rc.t
+  = "caml_sqlite3_bind_bc" "caml_sqlite3_bind"
 
-external bind_parameter_count :
-  stmt -> int = "caml_sqlite3_bind_parameter_count"
+external bind_parameter_count : stmt -> (int [@untagged])
+  = "caml_sqlite3_bind_parameter_count_bc" "caml_sqlite3_bind_parameter_count"
 
 external bind_parameter_name :
-  stmt -> int -> string option = "caml_sqlite3_bind_parameter_name"
+  stmt -> (int [@untagged]) -> string option
+  = "caml_sqlite3_bind_parameter_name_bc" "caml_sqlite3_bind_parameter_name"
 
 external bind_parameter_index :
-  stmt -> string -> int = "caml_sqlite3_bind_parameter_index"
+  stmt -> string -> (int [@untagged])
+  = "caml_sqlite3_bind_parameter_index_bc" "caml_sqlite3_bind_parameter_index"
 
 external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings"
 
-external busy_timeout : db -> int -> unit = "caml_sqlite3_busy_timeout"
+external busy_timeout : db -> (int [@untagged]) -> unit
+  = "caml_sqlite3_busy_timeout_bc" "caml_sqlite3_busy_timeout"
 
 external enable_load_extension :
   db -> bool -> bool = "caml_sqlite3_enable_load_extension"
@@ -234,8 +256,8 @@ let row_decltypes stmt = Array.init (data_count stmt) (column_decltype stmt)
 (* Function registration *)
 
 external create_function :
-  db -> string -> int -> (Data.t array -> Data.t) -> unit =
-  "caml_sqlite3_create_function"
+  db -> string -> (int [@untagged]) -> (Data.t array -> Data.t) -> unit
+  = "caml_sqlite3_create_function_bc" "caml_sqlite3_create_function"
 
 let create_funN db name f = create_function db name (-1) f
 let create_fun0 db name f = create_function db name 0 (fun _ -> f ())
@@ -251,10 +273,10 @@ external delete_function : db -> string -> unit = "caml_sqlite3_delete_function"
 
 module Aggregate = struct
   external create_function :
-    db -> string -> int ->
+    db -> string -> (int [@untagged]) ->
     'a -> ('a -> Data.t array -> 'a) -> ('a -> Data.t) -> unit =
     "caml_sqlite3_create_aggregate_function_bc"
-    "caml_sqlite3_create_aggregate_function_nc"
+    "caml_sqlite3_create_aggregate_function"
 
   let create_funN db name ~init ~step ~final =
     create_function db name (-1) init step final
@@ -281,10 +303,18 @@ module Backup = struct
     dst : db -> dst_name : string ->
     src : db -> src_name : string -> t = "caml_sqlite3_backup_init"
 
-  external step : t -> int -> Rc.t = "caml_sqlite3_backup_step"
+  external step : t -> (int [@untagged]) -> Rc.t
+    = "caml_sqlite3_backup_step_bc" "caml_sqlite3_backup_step"
+
   external finish : t -> Rc.t = "caml_sqlite3_backup_finish"
-  external remaining : t -> int = "caml_sqlite3_backup_remaining"
-  external pagecount : t -> int = "caml_sqlite3_backup_pagecount"
+
+  external remaining : t -> (int [@untagged])
+    = "caml_sqlite3_backup_remaining_bc" "caml_sqlite3_backup_remaining"
+    [@@noalloc]
+
+  external pagecount : t -> (int [@untagged])
+    = "caml_sqlite3_backup_pagecount_bc" "caml_sqlite3_backup_pagecount"
+    [@@noalloc]
 end
 
 (* Initialisation *)

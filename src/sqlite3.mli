@@ -89,7 +89,7 @@ type row_not_null = string array
 module Rc : sig
   type unknown  (** Type of unknown return codes *)
 
-  external int_of_unknown : unknown -> int = "%identity"
+  val int_of_unknown : unknown -> int
   (** [int_of_unknown n] converts unknown return code [rc] to an
       integer. *)
 
@@ -187,7 +187,7 @@ val db_open :
     @param vfs default = nothing
 *)
 
-external db_close : db -> bool = "caml_sqlite3_close"
+val db_close : db -> bool
 (** [db_close db] closes database [db] and invalidates the handle.
     @return [false] if database was busy (database not closed in this
     case!), [true] otherwise.
@@ -195,35 +195,33 @@ external db_close : db -> bool = "caml_sqlite3_close"
     @raise SqliteError if an invalid database handle is passed.
 *)
 
-external enable_load_extension :
-  db -> bool -> bool = "caml_sqlite3_enable_load_extension"
+val enable_load_extension : db -> bool -> bool
 (** [enable_load_extension db onoff] enable/disable the sqlite3 load
     extension.  @return [false] if the operation fails, [true]
     otherwise. *)
 
-external errcode : db -> Rc.t = "caml_sqlite3_errcode"
+val errcode : db -> Rc.t
 (** [errcode db] @return the error code of the last operation on database
     [db].
 
     @raise SqliteError if an invalid database handle is passed.
 *)
 
-external errmsg : db -> string = "caml_sqlite3_errmsg"
+val errmsg : db -> string
 (** [errmsg db] @return the error message of the last operation on
     database [db].
 
     @raise SqliteError if an invalid database handle is passed.
 *)
 
-external last_insert_rowid : db -> int64 = "caml_sqlite3_last_insert_rowid"
+val last_insert_rowid : db -> int64
 (** [last_insert_rowid db] @return the index of the row inserted by
     the last operation on database [db].
 
     @raise SqliteError if an invalid database handle is passed.
 *)
 
-external exec :
-  db -> ?cb : (row -> headers -> unit) -> string -> Rc.t = "caml_sqlite3_exec"
+val exec : db -> ?cb : (row -> headers -> unit) -> string -> Rc.t
 (** [exec db ?cb sql] performs SQL-operation [sql] on database [db].
     If the operation contains query statements, then the callback function
     [cb] will be called for each matching row.  The first parameter of
@@ -238,8 +236,7 @@ external exec :
     @raise SqliteError if an invalid database handle is passed.
 *)
 
-external exec_no_headers :
-  db -> cb : (row -> unit) -> string -> Rc.t = "caml_sqlite3_exec_no_headers"
+val exec_no_headers : db -> cb : (row -> unit) -> string -> Rc.t
 (** [exec_no_headers db ?cb sql] performs SQL-operation [sql] on database
     [db].  If the operation contains query statements, then the callback
     function [cb] will be called for each matching row.  The parameter
@@ -251,9 +248,8 @@ external exec_no_headers :
     @raise SqliteError if an invalid database handle is passed.
 *)
 
-external exec_not_null :
-  db -> cb : (row_not_null -> headers -> unit) -> string
-  -> Rc.t = "caml_sqlite3_exec_not_null"
+val exec_not_null :
+  db -> cb : (row_not_null -> headers -> unit) -> string -> Rc.t
 (** [exec_not_null db ~cb sql] performs SQL-operation [sql] on database
     [db].  If the operation contains query statements, then the callback
     function [cb] will be called for each matching row.  The first
@@ -268,9 +264,8 @@ external exec_not_null :
     @raise SqliteError if a row contains NULL.
 *)
 
-external exec_not_null_no_headers :
-  db -> cb : (row_not_null -> unit) -> string
-  -> Rc.t = "caml_sqlite3_exec_not_null_no_headers"
+val exec_not_null_no_headers :
+  db -> cb : (row_not_null -> unit) -> string -> Rc.t
 (** [exec_not_null_no_headers db ~cb sql] performs SQL-operation [sql]
     on database [db].  If the operation contains query statements, then
     the callback function [cb] will be called for each matching row.
@@ -284,7 +279,7 @@ external exec_not_null_no_headers :
     @raise SqliteError if a row contains NULL.
 *)
 
-external changes : db -> int = "caml_sqlite3_changes"
+val changes : db -> int
 (** [changes db] @return the number of rows that were changed
     or inserted or deleted by the most recently completed SQL statement
     on database [db].
@@ -293,7 +288,7 @@ external changes : db -> int = "caml_sqlite3_changes"
 
 (** {2 Fine grained query operations} *)
 
-external prepare : db -> string -> stmt = "caml_sqlite3_prepare"
+val prepare : db -> string -> stmt
 (** [prepare db sql] compile SQL-statement [sql] for database [db]
     into bytecode.  The statement may be only partially compiled.
     In this case {!prepare_tail} can be called on the returned statement
@@ -306,7 +301,7 @@ external prepare : db -> string -> stmt = "caml_sqlite3_prepare"
     @raise SqliteError if the statement could not be prepared.
 *)
 
-external prepare_tail : stmt -> stmt option = "caml_sqlite3_prepare_tail"
+val prepare_tail : stmt -> stmt option
 (** [prepare_tail stmt] compile the remaining part of the SQL-statement
     [stmt] to bytecode.  @return [None] if there was no remaining part,
     or [Some remaining_part] otherwise.
@@ -317,7 +312,7 @@ external prepare_tail : stmt -> stmt option = "caml_sqlite3_prepare_tail"
     @raise SqliteError if the statement could not be prepared.
 *)
 
-external recompile : stmt -> unit = "caml_sqlite3_recompile"
+val recompile : stmt -> unit
 (** [recompile stmt] recompiles the SQL-statement associated with [stmt]
     to bytecode.  The statement may be only partially compiled.  In this
     case {!prepare_tail} can be called on the statement to compile the
@@ -327,7 +322,7 @@ external recompile : stmt -> unit = "caml_sqlite3_recompile"
     @raise SqliteError if the statement could not be recompiled.
 *)
 
-external step : stmt -> Rc.t = "caml_sqlite3_step"
+val step : stmt -> Rc.t
 (** [step stmt] performs one step of the query associated with
     SQL-statement [stmt].
 
@@ -336,7 +331,7 @@ external step : stmt -> Rc.t = "caml_sqlite3_step"
     @raise SqliteError if the step could not be executed.
 *)
 
-external finalize : stmt -> Rc.t = "caml_sqlite3_stmt_finalize"
+val finalize : stmt -> Rc.t
 (** [finalize stmt] finalizes the statement [stmt].  After finalization,
     the only valid usage of the statement is to use it in {!prepare_tail},
     or to {!recompile} it.
@@ -346,7 +341,7 @@ external finalize : stmt -> Rc.t = "caml_sqlite3_stmt_finalize"
     @raise SqliteError if the statement could not be finalized.
 *)
 
-external reset : stmt -> Rc.t = "caml_sqlite3_stmt_reset"
+val reset : stmt -> Rc.t
 (** [reset stmt] resets the statement [stmt], e.g. to restart the query,
     perhaps with different bindings.
 
@@ -355,28 +350,28 @@ external reset : stmt -> Rc.t = "caml_sqlite3_stmt_reset"
     @raise SqliteError if the statement could not be reset.
 *)
 
-external sleep : int -> int = "caml_sqlite3_sleep"
+val sleep : int -> int
 (** [sleep ms] sleeps at least [ms] milliseconds.  @return the number of
     milliseconds of sleep actually requested from the operating system. *)
 
 
 (** {2 Data query} *)
 
-external data_count : stmt -> int = "caml_sqlite3_data_count"
+val data_count : stmt -> int
 (** [data_count stmt] @return the number of columns in the result of
     the last step of statement [stmt].
 
     @raise SqliteError if the statement is invalid.
 *)
 
-external column_count : stmt -> int = "caml_sqlite3_column_count"
+val column_count : stmt -> int
 (** [column_count stmt] @return the number of columns that would be
     returned by executing statement [stmt].
 
     @raise SqliteError if the statement is invalid.
 *)
 
-external column_blob : stmt -> int -> string option = "caml_sqlite3_column_blob"
+val column_blob : stmt -> int -> string option
 (** [column_blob stmt n] @return [Some bytes] in column [n] of the
     result of the last step of statement [stmt], or [None] if NULL.
 
@@ -384,7 +379,7 @@ external column_blob : stmt -> int -> string option = "caml_sqlite3_column_blob"
     @raise SqliteError if the statement is invalid.
 *)
 
-external column : stmt -> int -> Data.t = "caml_sqlite3_column"
+val column : stmt -> int -> Data.t
 (** [column stmt n] @return the data in column [n] of the
     result of the last step of statement [stmt].
 
@@ -392,7 +387,7 @@ external column : stmt -> int -> Data.t = "caml_sqlite3_column"
     @raise SqliteError if the statement is invalid.
 *)
 
-external column_name : stmt -> int -> header = "caml_sqlite3_column_name"
+val column_name : stmt -> int -> header
 (** [column_name stmt n] @return the header of column [n] in the
     result set of statement [stmt].
 
@@ -400,8 +395,7 @@ external column_name : stmt -> int -> header = "caml_sqlite3_column_name"
     @raise SqliteError if the statement is invalid.
 *)
 
-external column_decltype :
-  stmt -> int -> string option = "caml_sqlite3_column_decltype"
+val column_decltype : stmt -> int -> string option
 (** [column_decltype stmt n] @return the declared type of the specified
     column in the result set of statement [stmt].
 
@@ -412,7 +406,7 @@ external column_decltype :
 
 (** {2 Binding data to the query} *)
 
-external bind : stmt -> int -> Data.t -> Rc.t = "caml_sqlite3_bind"
+val bind : stmt -> int -> Data.t -> Rc.t
 (** [bind stmt n data] binds the value [data] to the free variable at
     position [n] of statement [stmt].  NOTE: the first variable has
     index [1]!
@@ -423,16 +417,14 @@ external bind : stmt -> int -> Data.t -> Rc.t = "caml_sqlite3_bind"
     @raise SqliteError if the statement is invalid.
 *)
 
-external bind_parameter_count :
-  stmt -> int = "caml_sqlite3_bind_parameter_count"
+val bind_parameter_count : stmt -> int
 (** [bind_parameter_count stmt] @return the number of free variables in
     statement [stmt].
 
     @raise SqliteError if the statement is invalid.
 *)
 
-external bind_parameter_name :
-  stmt -> int -> string option = "caml_sqlite3_bind_parameter_name"
+val bind_parameter_name : stmt -> int -> string option
 (** [bind_parameter_name stmt n] @return [Some parameter_name] of the free
     variable at position [n] of statement [stmt], or [None] if it is
     ordinary ("?").
@@ -441,8 +433,7 @@ external bind_parameter_name :
     @raise SqliteError if the statement is invalid.
 *)
 
-external bind_parameter_index :
-  stmt -> string -> int = "caml_sqlite3_bind_parameter_index"
+val bind_parameter_index : stmt -> string -> int
 (** [bind_parameter_index stmt name] @return the position of the free
     variable with name [name] in statement [stmt].
 
@@ -450,7 +441,7 @@ external bind_parameter_index :
     @raise SqliteError if the statement is invalid.
 *)
 
-external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings"
+val clear_bindings : stmt -> Rc.t
 (** [clear_bindings stmt] resets all bindings associated with prepared
     statement [stmt].
 
@@ -528,7 +519,7 @@ val create_fun3 : db -> string -> (Data.t -> Data.t -> Data.t-> Data.t) -> unit
     @raise SqliteError if an invalid database handle is passed.
 *)
 
-external delete_function : db -> string -> unit = "caml_sqlite3_delete_function"
+val delete_function : db -> string -> unit
 (** [delete_function db name] deletes function with name [name] from
     database handle [db].
 
