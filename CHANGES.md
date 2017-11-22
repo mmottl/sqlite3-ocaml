@@ -1,3 +1,8 @@
+### 4.3.1 (2017-11-22)
+
+  * Improved finalization of databases and statements for better performance
+
+
 ### 4.3.0 (2017-10-10)
 
   * Improved compatibility with MSVC

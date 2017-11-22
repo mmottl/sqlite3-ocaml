@@ -148,9 +148,9 @@ static inline void maybe_raise_user_exception(int rc)
 
 /* Macros to access the wrapper structures stored in the custom blocks */
 
-#define Sqlite3_val(x) (*((db_wrap **) (Data_custom_val(x))))
-#define Sqlite3_stmtw_val(x) (*((stmt_wrap **) (Data_custom_val(x))))
-#define Sqlite3_backup_val(x) (*((sqlite3_backup **) (Data_custom_val(x))))
+#define Sqlite3_val(x) (*((db_wrap **) Data_custom_val(x)))
+#define Sqlite3_stmtw_val(x) (*((stmt_wrap **) Data_custom_val(x)))
+#define Sqlite3_backup_val(x) (*((sqlite3_backup **) Data_custom_val(x)))
 
 
 /* Exceptions */
@@ -357,11 +357,21 @@ static inline void ref_count_finalize_dbw(db_wrap *dbw)
   }
 }
 
-static inline void dbw_finalize_gc(value v_dbw)
+static inline void db_wrap_finalize_gc(value v_dbw)
 {
   db_wrap *dbw = Sqlite3_val(v_dbw);
   if (dbw->db) ref_count_finalize_dbw(dbw);
 }
+
+static struct custom_operations db_wrap_ops = {
+  "sqlite3_ocaml_db_wrap",
+  db_wrap_finalize_gc,
+  custom_compare_default,
+  custom_hash_default,
+  custom_serialize_default,
+  custom_deserialize_default,
+  custom_compare_ext_default
+};
 
 #ifdef SQLITE_HAS_OPEN_V2
 static inline int get_open_flags(value v_mode, value v_mutex, value v_cache)
@@ -445,10 +455,8 @@ CAMLprim value caml_sqlite3_open(
       "open returned neither a database nor an error");
   /* "open" succeded */
   {
-    db_wrap *dbw;
-    value v_res = caml_alloc_final(2, dbw_finalize_gc, 1, 100);
-    Sqlite3_val(v_res) = NULL;
-    dbw = caml_stat_alloc(sizeof(db_wrap));
+    db_wrap *dbw = caml_stat_alloc(sizeof(db_wrap));
+    value v_res = caml_alloc_custom(&db_wrap_ops, sizeof(db_wrap *), 1, 1000);
     dbw->db = db;
     dbw->rc = SQLITE_OK;
     dbw->ref_count = 1;
@@ -758,7 +766,7 @@ CAMLprim value caml_sqlite3_exec_not_null_no_headers(
 
 /* Statements */
 
-static inline void finalize_stmt_gc(value v_stmt)
+static inline void stmt_wrap_finalize_gc(value v_stmt)
 {
   stmt_wrap *stmtw = Sqlite3_stmtw_val(v_stmt);
   sqlite3_stmt *stmt = stmtw->stmt;
@@ -768,26 +776,21 @@ static inline void finalize_stmt_gc(value v_stmt)
   caml_stat_free(stmtw);
 }
 
-CAMLprim value caml_sqlite3_stmt_finalize(value v_stmt)
-{
-  stmt_wrap *stmtw = safe_get_stmtw("finalize", v_stmt);
-  int rc = sqlite3_finalize(stmtw->stmt);
-  stmtw->stmt = NULL;
-  return Val_rc(rc);
-}
-
-CAMLprim value caml_sqlite3_stmt_reset(value v_stmt)
-{
-  sqlite3_stmt *stmt = safe_get_stmtw("reset", v_stmt)->stmt;
-  return Val_rc(sqlite3_reset(stmt));
-}
+static struct custom_operations stmt_wrap_ops = {
+  "sqlite3_ocaml_stmt_wrap",
+  stmt_wrap_finalize_gc,
+  custom_compare_default,
+  custom_hash_default,
+  custom_serialize_default,
+  custom_deserialize_default,
+  custom_compare_ext_default
+};
 
 static inline value alloc_stmt(db_wrap *dbw)
 {
-  value v_stmt = caml_alloc_final(2, finalize_stmt_gc, 1, 100);
-  stmt_wrap *stmtw;
-  Sqlite3_stmtw_val(v_stmt) = NULL;
-  stmtw = caml_stat_alloc(sizeof(stmt_wrap));
+  stmt_wrap *stmtw = caml_stat_alloc(sizeof(stmt_wrap));
+  value v_stmt =
+    caml_alloc_custom(&stmt_wrap_ops, sizeof(stmt_wrap *), 1, 1000);
   stmtw->db_wrap = dbw;
   dbw->ref_count++;
   stmtw->stmt = NULL;
@@ -809,6 +812,20 @@ static inline void prepare_it(
                           &(stmtw->stmt), (const char **) &(stmtw->tail));
   if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, loc);
   if (!stmtw->stmt) raise_sqlite3_Error("No code compiled from %s", sql);
+}
+
+CAMLprim value caml_sqlite3_stmt_finalize(value v_stmt)
+{
+  stmt_wrap *stmtw = safe_get_stmtw("finalize", v_stmt);
+  int rc = sqlite3_finalize(stmtw->stmt);
+  stmtw->stmt = NULL;
+  return Val_rc(rc);
+}
+
+CAMLprim value caml_sqlite3_stmt_reset(value v_stmt)
+{
+  sqlite3_stmt *stmt = safe_get_stmtw("reset", v_stmt)->stmt;
+  return Val_rc(sqlite3_reset(stmt));
 }
 
 CAMLprim value caml_sqlite3_prepare(value v_db, value v_sql)
