@@ -54,8 +54,9 @@ type db
     databases and the error code from the last operation if the function
     implementing that operation takes a database handle as a parameter.
 
-    NOTE: DO NOT USE THIS HANDLE WITHIN THREADS OTHER THAN THE ONE THAT
-    CREATED IT!!!
+    @see <https://sqlite.org/threadsafe.html> about thread safety when
+    accessing database handles and also consider using the [mutex] flag with
+    {!db_open} if necessary.
 
     NOTE: database handles are closed (see {!db_close}) automatically
     when they are reclaimed by the GC unless they have already been
@@ -67,8 +68,8 @@ type stmt
 (** Compiled statement handle.  Stores information about compiled
     statements created by the [prepare] or [prepare_tail] functions.
 
-    NOTE: DO NOT USE THIS HANDLE WITHIN THREADS OTHER THAN THE ONE THAT
-    CREATED IT!!!
+    @see <https://sqlite.org/threadsafe.html> about thread safety when
+    accessing statement handles.
 *)
 
 type header = string
