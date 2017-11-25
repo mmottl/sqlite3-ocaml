@@ -424,7 +424,7 @@ CAMLprim value caml_sqlite3_open(
   }
 #else
   if (Int_val(v_mode) || Int_val(v_mutex) || Int_val(v_cache))
-    caml_failwith("SQlite3 version < 3.5 does not support open flags");
+    caml_failwith("SQLite3 version < 3.5 does not support open flags");
   if (v_vfs_opt != Val_None)
     caml_failwith("SQLite3 version < 3.5 does not support VFS modules");
 #endif

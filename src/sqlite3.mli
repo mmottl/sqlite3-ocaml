@@ -170,7 +170,7 @@ val db_open :
     database respectively.
     Behaviour explained here: https://www.sqlite.org/inmemorydb.html
 
-    The optional arguments [mode] and [mutex] are only meaningful with SQlite
+    The optional arguments [mode] and [mutex] are only meaningful with SQLite
     versions >= 3.5, [cache] only for versions >= 3.6.18.  For older versions an
     exception will be raised if any of them is set to a non-default value.  The
     database is opened read-only if [`READONLY] is passed as mode.  The database
