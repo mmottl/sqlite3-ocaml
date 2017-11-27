@@ -1,3 +1,9 @@
+### 4.3.2 (2017-11-27)
+
+  * Added missing -lpthread linking flag to avoid problems with projects
+    that do not link with the OCaml threads library.
+
+
 ### 4.3.1 (2017-11-22)
 
   * Improved finalization of databases and statements for better performance
