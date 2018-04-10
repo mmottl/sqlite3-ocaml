@@ -51,10 +51,8 @@ let () =
           let cflags = split_ws cflags in
           if
             is_macosx ||
-            try
-              ignore (Caml.Sys.getenv "SQLITE3_DISABLE_LOADABLE_EXTENSIONS");
-              true
-            with Not_found -> false
+            Option.is_some (
+              Caml.Sys.getenv_opt "SQLITE3_DISABLE_LOADABLE_EXTENSIONS")
           then "-DSQLITE3_DISABLE_LOADABLE_EXTENSIONS" :: cflags
           else cflags
       | _ -> failwith "pkg-config failed to return cflags"
@@ -70,5 +68,4 @@ let () =
       Out_channel.write_all file ~data:(Sexp.to_string sexp)
     in
     write_sexp "c_flags.sexp" (sexp_of_list sexp_of_string conf.cflags);
-    write_sexp "c_library_flags.sexp"
-      (sexp_of_list sexp_of_string conf.libs))
+    write_sexp "c_library_flags.sexp" (sexp_of_list sexp_of_string conf.libs))

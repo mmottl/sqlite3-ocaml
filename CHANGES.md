@@ -1,3 +1,8 @@
+### ?.??.? (????-??-??)
+
+  * Fixed warnings and errors in configuration code due to upstream changes.
+
+
 ### 4.3.2 (2017-11-27)
 
   * Added missing -lpthread linking flag to avoid problems with projects
