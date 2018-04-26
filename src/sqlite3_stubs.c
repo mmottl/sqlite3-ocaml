@@ -63,6 +63,10 @@
 # define SQLITE_HAS_OPEN_V2
 #endif
 
+#if SQLITE_VERSION_NUMBER >= 3006000
+# define SQLITE_HAS_OPEN_MUTEX_PARAMS
+#endif
+
 #if SQLITE_VERSION_NUMBER >= 3006018
 # define SQLITE_HAS_OPEN_CACHE_PARAMS
 #endif
@@ -390,8 +394,14 @@ static inline int get_open_flags(value v_mode, value v_uri, value v_memory, valu
   }
   switch (Int_val(v_mutex)) {
     case 0 : break;
+#ifdef SQLITE_HAS_OPEN_MUTEX_PARAMS
     case 1 : flags |= SQLITE_OPEN_NOMUTEX; break;
     default : flags |= SQLITE_OPEN_FULLMUTEX; break;
+#else
+    default :
+      caml_failwith(
+        "SQLite3 version < 3.6.0 does not support mutex parameters for open");
+#endif
   }
   switch (Int_val(v_cache)) {
     case 0 : break;
