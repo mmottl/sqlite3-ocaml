@@ -159,6 +159,8 @@ end
 
 val db_open :
   ?mode : [ `READONLY | `NO_CREATE ] ->
+  ?uri : bool ->
+  ?memory : bool ->
   ?mutex : [ `NO | `FULL ] ->
   ?cache : [ `SHARED | `PRIVATE ] ->
   ?vfs : string ->
@@ -171,18 +173,24 @@ val db_open :
     database respectively.
     Behaviour explained here: https://www.sqlite.org/inmemorydb.html
 
-    The optional arguments [mode] and [mutex] are only meaningful with SQLite
-    versions >= 3.5, [cache] only for versions >= 3.6.18.  For older versions an
-    exception will be raised if any of them is set to a non-default value.  The
-    database is opened read-only if [`READONLY] is passed as mode.  The database
-    file will not be created if it is missing and [`NO_CREATE] is set.  [mutex]
-    determines how the database is accessed.  The mutex parameters [`NO] and
-    [`FULL] correspond to [SQLITE_OPEN_NOMUTEX] and [SQLITE_OPEN_FULLMUTEX] in
-    the SQLite3 API respectively.  The cache parameters [`SHARED] and [`PRIVATE]
-    correspond to [SQLITE_OPEN_SHAREDCACHE] and [SQLITE_OPEN_PRIVATECACHE] in
-    the SQLite3 API respectively.
+    The optional arguments [mode], [uri], [memory] and [mutex] are only
+    meaningful with SQLite versions >= 3.5, [cache] only for versions >= 3.6.18.
+    For older versions an exception will be raised if any of them is set to a
+    non-default value.  The database is opened read-only if [`READONLY] is
+    passed as mode.  The database file will not be created if it is missing and
+    [`NO_CREATE] is set.  The [uri] parameter enables URI filename
+    interepretation and corresponds to [SQLITE_OPEN_URI] in the SQLite3 API.
+    The [memory] parameter opens an in-memory database and corresponds to
+    [SQLITE_OPEN_MEMORY] in the SQLite3 API.   [mutex] determines how the
+    database is accessed.  The mutex parameters [`NO] and [`FULL] correspond to
+    [SQLITE_OPEN_NOMUTEX] and [SQLITE_OPEN_FULLMUTEX] in the SQLite3 API
+    respectively.  The cache parameters [`SHARED] and [`PRIVATE] correspond to
+    [SQLITE_OPEN_SHAREDCACHE] and [SQLITE_OPEN_PRIVATECACHE] in the SQLite3 API
+    respectively.
 
     @param mode default = read-write, create
+    @param uri default = false
+    @param memory default = false
     @param mutex default = nothing
     @param cache default = nothing
     @param vfs default = nothing
