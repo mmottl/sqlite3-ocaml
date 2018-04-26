@@ -1,7 +1,13 @@
-### ?.??.? (????-??-??)
+### 4.4.0 (2018-04-26)
+
+  * Support for new open flags:
+
+      * uri - for URI filename interpretation
+      * memory - for in-memory databases
+
+    Thanks to Raman Varabets for this contribution!
 
   * Fixed warnings and errors in configuration code due to upstream changes.
-
 
 ### 4.3.2 (2017-11-27)
 
