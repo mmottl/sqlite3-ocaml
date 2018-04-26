@@ -378,7 +378,8 @@ static struct custom_operations db_wrap_ops = {
 };
 
 #ifdef SQLITE_HAS_OPEN_V2
-static inline int get_open_flags(value v_mode, value v_uri, value v_memory, value v_mutex, value v_cache)
+static inline int get_open_flags(
+    value v_mode, value v_uri, value v_memory, value v_mutex, value v_cache)
 {
   int flags;
   switch (Int_val(v_mode)) {
@@ -386,12 +387,8 @@ static inline int get_open_flags(value v_mode, value v_uri, value v_memory, valu
     case 1 : flags = SQLITE_OPEN_READWRITE; break;
     default : flags = SQLITE_OPEN_READONLY; break;
   }
-  if (Bool_val(v_uri)) {
-    flags |= SQLITE_OPEN_URI;
-  }
-  if (Bool_val(v_memory)) {
-    flags |= SQLITE_OPEN_MEMORY;
-  }
+  if (Bool_val(v_uri)) flags |= SQLITE_OPEN_URI;
+  if (Bool_val(v_memory)) flags |= SQLITE_OPEN_MEMORY;
   switch (Int_val(v_mutex)) {
     case 0 : break;
 #ifdef SQLITE_HAS_OPEN_MUTEX_PARAMS
@@ -418,8 +415,9 @@ static inline int get_open_flags(value v_mode, value v_uri, value v_memory, valu
 }
 #endif
 
-CAMLprim value caml_sqlite3_open_native(
-  value v_mode, value v_uri, value v_memory, value v_mutex, value v_cache, value v_vfs_opt, value v_file)
+CAMLprim value caml_sqlite3_open(
+  value v_mode, value v_uri, value v_memory,
+  value v_mutex, value v_cache, value v_vfs_opt, value v_file)
 {
   sqlite3 *db;
   int res;
@@ -439,7 +437,13 @@ CAMLprim value caml_sqlite3_open_native(
     memcpy(vfs, String_val(v_vfs), vfs_len);
   }
 #else
-  if (Int_val(v_mode) || Bool_val(v_uri) || Bool_val(v_memory) || Int_val(v_mutex) || Int_val(v_cache))
+  if (
+      Int_val(v_mode) ||
+      Bool_val(v_uri) ||
+      Bool_val(v_memory) ||
+      Int_val(v_mutex) ||
+      Int_val(v_cache)
+     )
     caml_failwith("SQLite3 version < 3.5 does not support open flags");
   if (v_vfs_opt != Val_None)
     caml_failwith("SQLite3 version < 3.5 does not support VFS modules");
@@ -482,9 +486,11 @@ CAMLprim value caml_sqlite3_open_native(
   }
 }
 
-CAMLprim value caml_sqlite3_open_bytecode(value *argv, int argn)
+CAMLprim value caml_sqlite3_open_bc(value *argv, int argn)
 {
-  return caml_sqlite3_open_native(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);
+  return
+    caml_sqlite3_open(
+        argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);
 }
 
 CAMLprim value caml_sqlite3_close(value v_db)

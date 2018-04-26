@@ -156,10 +156,12 @@ module Cache = struct
 end
 
 external db_open :
-  mode : Mode.t -> uri : bool -> memory : bool -> mutex : Mut.t -> cache : Cache.t ->
-  ?vfs : string -> string -> db = "caml_sqlite3_open_bytecode" "caml_sqlite3_open_native"
+  mode : Mode.t -> uri : bool -> memory : bool ->
+  mutex : Mut.t -> cache : Cache.t ->
+  ?vfs : string -> string -> db
+  = "caml_sqlite3_open_bc" "caml_sqlite3_open"
 
-let db_open ?mode ?(uri=false) ?(memory=false) ?mutex ?cache ?vfs name =
+let db_open ?mode ?(uri = false) ?(memory = false) ?mutex ?cache ?vfs name =
   let mode = Mode.lift mode in
   let mutex = Mut.lift mutex in
   let cache = Cache.lift cache in

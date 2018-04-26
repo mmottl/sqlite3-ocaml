@@ -166,8 +166,8 @@ val db_open :
   ?vfs : string ->
   string ->
   db
-(** [db_open ?mode ?mutex ?cache ?vfs filename] opens the database file
-    [filename], and returns a database handle.
+(** [db_open ?mode ?uri ?memory ?mutex ?cache ?vfs filename] opens the
+    database file [filename], and returns a database handle.
 
     Special filenames: ":memory:" and "" open an in-memory or temporary
     database respectively.
@@ -179,7 +179,7 @@ val db_open :
     non-default value.  The database is opened read-only if [`READONLY] is
     passed as mode.  The database file will not be created if it is missing and
     [`NO_CREATE] is set.  The [uri] parameter enables URI filename
-    interepretation and corresponds to [SQLITE_OPEN_URI] in the SQLite3 API.
+    interpretation and corresponds to [SQLITE_OPEN_URI] in the SQLite3 API.
     The [memory] parameter opens an in-memory database and corresponds to
     [SQLITE_OPEN_MEMORY] in the SQLite3 API.   [mutex] determines how the
     database is accessed.  The mutex parameters [`NO] and [`FULL] correspond to
