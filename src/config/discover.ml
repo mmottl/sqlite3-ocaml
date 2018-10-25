@@ -38,7 +38,7 @@ let pkg_export =
 let split_ws str = List.filter (String.split ~on:' ' str) ~f:(String.(<>) "")
 
 let () =
-  let module C = Configurator in
+  let module C = Configurator.V1 in
   C.main ~name:"sqlite3" (fun c ->
     let is_macosx =
       Option.value_map (C.ocaml_config_var c "system") ~default:false
@@ -64,8 +64,5 @@ let () =
       | _ -> failwith "pkg-config failed to return libs"
     in
     let conf = { C.Pkg_config.cflags; libs } in
-    let write_sexp file sexp =
-      Out_channel.write_all file ~data:(Sexp.to_string sexp)
-    in
-    write_sexp "c_flags.sexp" (sexp_of_list sexp_of_string conf.cflags);
-    write_sexp "c_library_flags.sexp" (sexp_of_list sexp_of_string conf.libs))
+    C.Flags.write_sexp "c_flags.sexp" conf.cflags;
+    C.Flags.write_sexp "c_library_flags.sexp" conf.libs)

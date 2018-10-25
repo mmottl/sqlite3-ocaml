@@ -1,0 +1,4 @@
+(executables
+  (names test_agg test_db test_error test_exec test_fun test_stmt)
+  (libraries str sqlite3)
+)

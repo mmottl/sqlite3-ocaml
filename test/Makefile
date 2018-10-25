@@ -4,7 +4,7 @@ TARGETS = \
 .PHONY: all clean
 
 all:
-	@jbuilder build --dev $(TARGETS)
+	@dune build $(TARGETS)
 
 clean:
-	@jbuilder clean
+	@dune clean

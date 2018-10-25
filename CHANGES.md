@@ -1,3 +1,8 @@
+### 4.4.1 (2018-10-25)
+
+  * Switched to dune, dune-release, and OPAM 2.0
+
+
 ### 4.4.0 (2018-04-26)
 
   * Support for new open flags:
