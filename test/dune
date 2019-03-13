@@ -1,4 +1,6 @@
-(executables
-  (names test_agg test_db test_error test_exec test_fun test_stmt)
-  (libraries str sqlite3)
+(library
+  (name sqlite3_test)
+  (inline_tests)
+  (libraries core str sqlite3)
+  (preprocess (pps ppx_inline_test))
 )

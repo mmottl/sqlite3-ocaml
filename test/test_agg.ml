@@ -1,6 +1,6 @@
 open Sqlite3
 
-let () =
+let%test "test_agg" =
   let db = db_open "t" in
   Aggregate.create_fun2 db "STRREPEAT" ~init:[] ~step:(fun l s i  ->
     match s, i with
@@ -33,4 +33,6 @@ let () =
             prerr_endline (Rc.to_string r);
             prerr_endline (errmsg db)
       with Sqlite3.Error s -> prerr_endline s)
-   sqls
+   sqls;
+  true
+  ;;

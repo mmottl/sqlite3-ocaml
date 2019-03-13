@@ -25,7 +25,7 @@ let stepbystep_wrong s =
     done
   done
 
-let () =
+let%test "test_stmt" =
   let db = db_open "t" in
 
   (* Test the finalization... *)
@@ -77,6 +77,8 @@ let () =
   print_endline "E-------------------------------------------";
   try
     match prepare_tail stmt with
-    | Some s -> stepbystep_wrong s
+    | Some s -> stepbystep_wrong s; true
     | None -> failwith "Tail not found!"
-  with xcp -> Printf.printf "Ok: %s\n" (Printexc.to_string xcp)
+  with xcp -> Printf.printf "Ok: %s\n" (Printexc.to_string xcp);
+  true;
+  ;;

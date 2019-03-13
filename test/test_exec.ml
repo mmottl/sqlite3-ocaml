@@ -3,7 +3,7 @@ open Sqlite3
 
 exception Dummy
 
-let () =
+let%test "test_exec" =
   let db = db_open "t" in
   for i = 0 to 10 do
     try
@@ -44,4 +44,6 @@ let () =
       | Rc.OK -> print_endline "OK"
       | _ -> assert false
     with xcp -> print_endline (Printexc.to_string xcp)
-  done
+  done;
+  true
+  ;;
