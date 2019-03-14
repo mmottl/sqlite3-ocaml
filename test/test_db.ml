@@ -9,4 +9,3 @@ let%test "test_db" =
   done;
   print_endline "Able to open and close database";
   true
-  ;;

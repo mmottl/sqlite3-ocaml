@@ -9,8 +9,5 @@ let%test "test_error" =
   try
     let res = exec db "SELECT MYERROR();" in
     prerr_endline ("Should have thrown an error: " ^ Rc.to_string res);
-    true
-  with This_function_always_fails -> print_endline "Ok";
-  true
-  ;;
-
+    false
+  with This_function_always_fails -> print_endline "Ok"; true

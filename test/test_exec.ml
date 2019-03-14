@@ -46,4 +46,3 @@ let%test "test_exec" =
     with xcp -> print_endline (Printexc.to_string xcp)
   done;
   true
-  ;;

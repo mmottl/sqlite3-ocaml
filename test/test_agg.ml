@@ -35,4 +35,3 @@ let%test "test_agg" =
       with Sqlite3.Error s -> prerr_endline s)
    sqls;
   true
-  ;;

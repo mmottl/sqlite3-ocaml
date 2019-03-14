@@ -36,4 +36,3 @@ let%test "test_fun" =
       with Sqlite3.Error s -> prerr_endline s)
    sqls;
    true
-   ;;

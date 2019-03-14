@@ -77,8 +77,6 @@ let%test "test_stmt" =
   print_endline "E-------------------------------------------";
   try
     match prepare_tail stmt with
-    | Some s -> stepbystep_wrong s; true
+    | Some s -> stepbystep_wrong s; false
     | None -> failwith "Tail not found!"
-  with xcp -> Printf.printf "Ok: %s\n" (Printexc.to_string xcp);
-  true;
-  ;;
+  with xcp -> Printf.printf "Ok: %s\n" (Printexc.to_string xcp); true
