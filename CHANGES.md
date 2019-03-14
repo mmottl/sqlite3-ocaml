@@ -1,3 +1,10 @@
+### ?.?.? (????-??-??)
+
+  * Improved testing framework using `ppx_inline_test`
+
+    Thanks to Ted Spence <tspence@fb.com> for this contribution!
+
+
 ### 4.4.1 (2018-10-25)
 
   * Switched to dune, dune-release, and OPAM 2.0
