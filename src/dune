@@ -1,16 +1,26 @@
 (library
   (public_name sqlite3)
-  (c_names sqlite3_stubs)
+  (c_names sqlite3_stubs sqlite3)
   (c_flags (
-    (:include c_flags.sexp) -g -O2 -fPIC -DPIC
+    (:include c_flags.sexp) -I .
     ; NOTE: for debugging before releases
     ; -Wall -pedantic -Wextra -Wunused -Wno-long-long -Wno-keyword-macro
   ))
-  (c_library_flags (:include c_library_flags.sexp) -lpthread)
+  (c_library_flags (:include c_library_flags.sexp))
 )
 
 (rule
   (targets c_flags.sexp c_library_flags.sexp)
   (deps (:discover config/discover.exe))
   (action (run %{discover}))
+)
+
+(rule
+  (targets sqlite3.c sqlite3.h)
+  (action
+    (progn
+      (system "curl -L https://www.sqlite.org/2019/sqlite-amalgamation-3270200.zip -o sqlite-amalgamation.zip")
+      (system "unzip -j sqlite-amalgamation.zip")
+    )
+  )
 )
