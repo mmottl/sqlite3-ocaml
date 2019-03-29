@@ -322,9 +322,11 @@ end
 (* Initialisation *)
 
 external init : unit -> unit = "caml_sqlite3_init"
+external cleanup : unit -> unit = "caml_sqlite3_cleanup"
 
 let () =
   Callback.register_exception "Sqlite3.InternalError" (InternalError "");
   Callback.register_exception "Sqlite3.Error" (Error "");
   Callback.register_exception "Sqlite3.RangeError" (RangeError (0, 0));
+  at_exit cleanup;
   init ()
