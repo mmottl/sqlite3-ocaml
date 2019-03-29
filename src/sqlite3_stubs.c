@@ -37,7 +37,6 @@
 #include <caml/signals.h>
 
 #include <sqlite3.h>
-#include <pthread.h>
 
 #if __GNUC__ >= 3
 # define inline inline __attribute__ ((always_inline))
@@ -46,6 +45,9 @@
 # endif
 #else
 # define __unused
+# ifdef inline
+#  undef inline
+# endif
 # define inline
 #endif
 
@@ -69,6 +71,38 @@
 
 #if SQLITE_VERSION_NUMBER >= 3006018
 # define SQLITE_HAS_OPEN_CACHE_PARAMS
+#endif
+
+#ifndef _WIN32
+#include <pthread.h>
+#else
+#include <windows.h>
+typedef DWORD pthread_key_t;
+
+void destroy_user_exception(void *user_exc_);
+
+static int pthread_key_create(pthread_key_t *key, void (*destructor)(void*))
+{
+  CAMLassert(destructor == &destroy_user_exception);
+  *key = TlsAlloc();
+  if (*key == TLS_OUT_OF_INDEXES)
+    return GetLastError();
+  else
+    return 0;
+}
+
+static inline void *pthread_getspecific(pthread_key_t key)
+{
+  return TlsGetValue(key);
+}
+
+static int pthread_setspecific(pthread_key_t key, void *value)
+{
+  void *old = TlsGetValue(key);
+  if (old)
+    destroy_user_exception(old);
+  return TlsSetValue(key, value);
+}
 #endif
 
 /* Utility definitions */
@@ -269,6 +303,11 @@ CAMLprim value caml_sqlite3_init(value __unused v_unit)
   return Val_unit;
 }
 
+CAMLprim value caml_sqlite3_cleanup(value __unused v_unit)
+{
+  pthread_setspecific(user_exception_key, NULL);
+  return Val_unit;
+}
 
 /* Conversion from return values */
 
