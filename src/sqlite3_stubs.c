@@ -79,7 +79,7 @@
 #include <windows.h>
 typedef DWORD pthread_key_t;
 
-void destroy_user_exception(void *user_exc_);
+static void destroy_user_exception(void *user_exc_);
 
 static int pthread_key_create(pthread_key_t *key, void (*destructor)(void*))
 {
