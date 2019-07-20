@@ -30,6 +30,7 @@ open Printf
 exception InternalError of string
 exception Error of string
 exception RangeError of int * int
+exception DataTypeError of string
 
 type db
 type stmt
@@ -113,12 +114,7 @@ module Data = struct
     | TEXT of string
     | BLOB of string
 
-  let to_string = function
-    | NONE | NULL -> ""
-    | INT i -> Int64.to_string i
-    | FLOAT f -> string_of_float f
-    | TEXT t | BLOB t -> t
-
+  (* Debug print method *)
   let to_string_debug = function
     | NONE -> "NONE"
     | NULL -> "NULL"
@@ -126,6 +122,90 @@ module Data = struct
     | FLOAT f -> sprintf "FLOAT <%f>" f
     | TEXT t -> sprintf "TEXT <%S>" t
     | BLOB b -> sprintf "BLOB <%d>" (String.length b)
+
+  (* Convert values to Data.t *)
+  let from_string (value: string option): t =
+    match value with
+    | Some s -> TEXT s
+    | None -> NULL
+
+  let from_int (value: int option): t =
+    match value with
+    | Some i -> INT (Int64.of_int i)
+    | None -> NULL
+
+  let from_int64 (value: int64 option): t =
+    match value with
+    | Some i -> INT i
+    | None -> NULL
+
+  let from_float (value: float option): t =
+    match value with
+    | Some f -> FLOAT f
+    | None -> NULL
+
+  let from_bool (value: bool option): t =
+    match value with
+    | Some false -> INT (Int64.of_int 0)
+    | Some true -> INT (Int64.of_int 1)
+    | None -> NULL
+
+  (* exception-based type conversion *)
+  let to_string_exn (value: t): string =
+    match value with
+    | TEXT s -> s
+    | _ -> raise (DataTypeError (
+      Printf.sprintf "Expected string, but was %s" 
+        (to_string_debug value)))
+
+  let to_int_exn (value: t): int =
+    match value with
+    | INT i -> Int64.to_int i
+    | _ -> raise (DataTypeError (
+      Printf.sprintf "Expected int, but was %s" 
+        (to_string_debug value)))
+
+  let to_int64_exn (value: t): int64 =
+    match value with
+    | INT i -> i
+    | _ -> raise (DataTypeError (
+      Printf.sprintf "Expected int64, but was %s" 
+        (to_string_debug value)))
+
+  let to_float_exn (value: t): float =
+    match value with
+    | FLOAT f -> f
+    | _ -> raise (DataTypeError (
+      Printf.sprintf "Expected float, but was %s" 
+        (to_string_debug value)))
+
+  let to_bool_exn (value: t): bool =
+    match value with
+    | INT 0L -> false
+    | INT 1L -> true
+    | _ -> raise (DataTypeError (
+      Printf.sprintf "Expected bool, but was %s" 
+        (to_string_debug value)))
+
+  (* option-based type conversion *)
+  let to_string (value: t): string option =
+    try Some (to_string_exn value) with DataTypeError _ -> None
+  let to_int (value: t): int option =
+    try Some (to_int_exn value) with DataTypeError _ -> None
+  let to_int64 (value: t): int64 option =
+    try Some (to_int64_exn value) with DataTypeError _ -> None
+  let to_float (value: t): float option =
+    try Some (to_float_exn value) with DataTypeError _ -> None
+  let to_bool (value: t): bool option =
+    try Some (to_bool_exn value) with DataTypeError _ -> None
+
+  (* Simplified string coercion *)
+  let to_string_coerce = function
+    | NONE | NULL -> ""
+    | INT i -> Int64.to_string i
+    | FLOAT f -> string_of_float f
+    | TEXT t | BLOB t -> t
+
 end
 
 type header = string

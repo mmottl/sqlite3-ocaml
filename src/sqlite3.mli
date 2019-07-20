@@ -46,6 +46,9 @@ exception RangeError of int * int
     entry of the returned tuple is the specified index, the second is
     the limit which was violated. *)
 
+exception DataTypeError of string
+(** [DataTypeError (msg)] is raised when you attempt to convert a
+    Data.t structure to an object via an invalid conversion. *)
 
 (** {2 Types} *)
 
@@ -144,9 +147,71 @@ module Data : sig
     | TEXT of string
     | BLOB of string
 
-  val to_string : t -> string
-  (** [to_string data] converts [data] to a string.  Both [NONE] and
-      [NULL] are converted to the empty string. *)
+  val from_string : string option -> t
+  (** [from_string value] converts [value] to a `Data.t`, 
+      converting `None` to sqlite `NULL`. *)
+
+  val from_int : int option -> t
+  (** [from_int value] converts [value] to a `Data.t`, 
+      converting `None` to sqlite `NULL`. *)
+
+  val from_int64 : int64 option -> t
+  (** [from_int64 value] converts [value] to a `Data.t`, 
+      converting `None` to sqlite `NULL`. *)
+
+  val from_float : float option -> t
+  (** [from_float value] converts [value] to a `Data.t`, 
+      converting `None` to sqlite `NULL`. *)
+
+  val from_bool : bool option -> t
+  (** [from_bool value] converts [value] to a `Data.t`, 
+      converting `None` to sqlite `NULL`. *)
+
+  val to_string_exn : t -> string
+  (** [to_string_exn data] converts [data] to a string, and raises
+      an exception if it is not a valid conversion. This method
+      also converts data of type BLOB to a string. *)
+
+  val to_int_exn : t -> int
+  (** [to_int_exn data] converts [data] to an int, and raises
+      an exception if it is not a valid conversion. *)
+
+  val to_int64_exn : t -> int64
+  (** [to_int64_exn data] converts [data] to an int64, and raises
+      an exception if it is not a valid conversion. *)
+
+  val to_float_exn : t -> float
+  (** [to_float_exn data] converts [data] to a float, and raises
+      an exception if it is not a valid conversion. *)
+
+  val to_bool_exn : t -> bool
+  (** [to_bool_exn data] converts [data] to a bool, and raises
+      an exception if it is not a valid conversion. *)
+
+  val to_string : t -> string option
+  (** [to_string data] converts [data] to `Some string` or 
+      `None` if it is not a valid conversion. This method
+      also converts data of type BLOB to a string. *)
+
+  val to_int : t -> int option
+  (** [to_int data] converts [data] to `Some int` or 
+      `None` if it is not a valid conversion. *)
+
+  val to_int64 : t -> int64 option
+  (** [to_int64 data] converts [data] to `Some int64` or 
+      `None` if it is not a valid conversion. *)
+
+  val to_float : t -> float option
+  (** [to_float data] converts [data] to `Some float` or 
+      `None` if it is not a valid conversion. *)
+      
+  val to_bool : t -> bool option
+  (** [to_bool data] converts [data] to `Some bool` or 
+      `None` if it is not a valid conversion. *)
+  
+  val to_string_coerce : t -> string
+  (** [to_string_unsafe data] coerces [data] to a string, using coercion
+      on ints, NULLs, floats, and other data types. *)
 
   val to_string_debug : t -> string
   (** [to_string_debug data] converts [data] to a string including the
