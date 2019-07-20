@@ -202,6 +202,21 @@ external recompile : stmt -> unit = "caml_sqlite3_recompile"
 external step : stmt -> Rc.t = "caml_sqlite3_step"
 external reset : stmt -> Rc.t = "caml_sqlite3_stmt_reset"
 
+let prepare_or_reset
+    (db: db)
+    (stmt_ref: stmt option ref)
+    (sql: string): stmt =
+  let stmt = match !stmt_ref with
+    | Some s ->
+      reset s |> Rc.check;
+      s
+    | None ->
+      let s = prepare db sql in
+      stmt_ref := Some s;
+      s
+  in
+  stmt
+
 external sleep : (int [@untagged]) -> (int [@untagged])
   = "caml_sqlite3_sleep_bc" "caml_sqlite3_sleep"
 

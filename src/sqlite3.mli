@@ -310,6 +310,13 @@ val prepare : db -> string -> stmt
     @raise SqliteError if the statement could not be prepared.
 *)
 
+val prepare_or_reset : db -> stmt option ref -> string -> stmt
+(** [prepare_or_reset db stmt_opt sql] will either compile a new
+    statement or reset an existing statement.  This is useful for
+    executing multiple identical commands in a loop since it will 
+    prepare the statement on first usage but reuse it afterwards.
+ *)
+
 val prepare_tail : stmt -> stmt option
 (** [prepare_tail stmt] compile the remaining part of the SQL-statement
     [stmt] to bytecode.  @return [None] if there was no remaining part,
