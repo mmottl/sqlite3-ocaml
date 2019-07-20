@@ -72,7 +72,6 @@ module Rc = struct
     | DONE
     | UNKNOWN of unknown
 
-
   let to_string = function
     | OK -> "OK"
     | ERROR -> "ERROR"
