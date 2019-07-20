@@ -11,7 +11,7 @@ let stepbystep s =
       Printf.printf "%s column[%d] %s = %s\n%!"
         (column_decltype s i) i
         (column_name s i)
-        (Data.to_string (column s i))
+        (Data.to_string_coerce (column s i))
     done
   done
 
@@ -21,7 +21,7 @@ let stepbystep_wrong s =
       Printf.printf "%s column[%d] %s = %s\n%!"
         (column_decltype s i) i
         (column_name s i)
-        (Data.to_string (column s i))
+        (Data.to_string_coerce (column s i))
     done
   done
 
