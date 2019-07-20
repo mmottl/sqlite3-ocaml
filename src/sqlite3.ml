@@ -30,6 +30,7 @@ open Printf
 exception InternalError of string
 exception Error of string
 exception RangeError of int * int
+exception SqliteError of string
 
 type db
 type stmt
@@ -71,6 +72,7 @@ module Rc = struct
     | DONE
     | UNKNOWN of unknown
 
+
   let to_string = function
     | OK -> "OK"
     | ERROR -> "ERROR"
@@ -102,6 +104,12 @@ module Rc = struct
     | ROW -> "ROW"
     | DONE -> "DONE"
     | UNKNOWN n -> sprintf "UNKNOWN %d" (int_of_unknown n)
+
+  let check (rc: t): unit = 
+    match rc with
+    | OK | DONE -> ()
+    | err -> 
+      raise (SqliteError (to_string err))
 end
 
 module Data = struct
