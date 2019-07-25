@@ -64,11 +64,11 @@ let%test "test_values" =
   ignore (reset select_stmt);
   ignore (bind select_stmt 1 (Sqlite3.Data.INT 2L));
   if Sqlite3.step select_stmt = Sqlite3.Rc.ROW then begin
-    assert ((Data.to_string (column select_stmt 0)) = None);
-    assert ((Data.to_int (column select_stmt 1)) = None);
-    assert ((Data.to_int64 (column select_stmt 2)) = None);
-    assert ((Data.to_float (column select_stmt 3)) = None);
-    assert ((Data.to_bool (column select_stmt 4)) = None);
+    assert ((column_to_string select_stmt 0) = None);
+    assert ((column_to_int select_stmt 1) = None);
+    assert ((column_to_int64 select_stmt 2) = None);
+    assert ((column_to_float select_stmt 3) = None);
+    assert ((column_to_bool select_stmt 4) = None);
   end;
 
   (* Clean up *)

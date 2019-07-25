@@ -479,6 +479,56 @@ val column : stmt -> int -> Data.t
     @raise SqliteError if the statement is invalid.
 *)
 
+val column_to_string : stmt -> int -> string option
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt] as a string,
+    or `None` if the value is null or if the column cannot
+    be converted.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_to_int : stmt -> int -> int option
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt] as a int,
+    or `None` if the value is null or if the column cannot
+    be converted.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_to_int64 : stmt -> int -> int64 option
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt] as a int64,
+    or `None` if the value is null or if the column cannot
+    be converted.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_to_float : stmt -> int -> float option
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt] as a float,
+    or `None` if the value is null or if the column cannot
+    be converted.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_to_bool : stmt -> int -> bool option
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt] as a bool,
+    or `None` if the value is null or if the column cannot
+    be converted.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
 val column_name : stmt -> int -> header
 (** [column_name stmt n] @return the header of column [n] in the
     result set of statement [stmt].

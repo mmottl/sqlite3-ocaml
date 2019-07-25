@@ -313,6 +313,12 @@ external column_blob :
 external column : stmt -> (int [@untagged]) -> Data.t
   = "caml_sqlite3_column_bc" "caml_sqlite3_column"
 
+let column_to_string stmt num = column stmt num |> Data.to_string
+let column_to_int stmt num = column stmt num |> Data.to_int
+let column_to_int64 stmt num = column stmt num |> Data.to_int64
+let column_to_float stmt num = column stmt num |> Data.to_float
+let column_to_bool stmt num = column stmt num |> Data.to_bool
+
 external column_name : stmt -> (int [@untagged]) -> string
   = "caml_sqlite3_column_name_bc" "caml_sqlite3_column_name"
 
