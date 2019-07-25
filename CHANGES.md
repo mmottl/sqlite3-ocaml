@@ -2,7 +2,9 @@
 
   * Improved testing framework using `ppx_inline_test`
 
-  * Added Sqlite.Rc.check for easier return code checking.
+  * Added Sqlite3.Rc.check for easier return code checking.
+
+  * Added Sqlite3.prepare_or_reset for reusing prepared statements in loops.
 
   Thanks to Ted Spence <tspence@fb.com> for these contributions!
 

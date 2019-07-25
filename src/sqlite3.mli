@@ -318,11 +318,15 @@ val prepare : db -> string -> stmt
 *)
 
 val prepare_or_reset : db -> stmt option ref -> string -> stmt
-(** [prepare_or_reset db stmt_opt sql] will either compile a new
-    statement or reset an existing statement.  This is useful for
-    executing multiple identical commands in a loop since it will 
-    prepare the statement on first usage but reuse it afterwards.
- *)
+(** [prepare_or_reset db opt_stmt_ref sql] if [opt_stmt_ref] contains
+    [Some stmt], then [stmt] will be reset and returned.  Otherwise fresh
+    statement [stmt] will be prepared, stored as [Some stmt] in [opt_stmt_ref]
+    and then returned.  This is useful for executing multiple identical
+    commands in a loop, because we can more efficiently reuse the statement
+    from previous iterations.
+
+    @raise SqliteError if the statement could not be prepared or reset.
+*)
 
 val prepare_tail : stmt -> stmt option
 (** [prepare_tail stmt] compile the remaining part of the SQL-statement
