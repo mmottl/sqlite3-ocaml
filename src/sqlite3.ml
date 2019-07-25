@@ -104,11 +104,9 @@ module Rc = struct
     | DONE -> "DONE"
     | UNKNOWN n -> sprintf "UNKNOWN %d" (int_of_unknown n)
 
-  let check (rc: t): unit = 
-    match rc with
+  let check = function
     | OK | DONE -> ()
-    | err -> 
-      raise (SqliteError (to_string err))
+    | err -> raise (SqliteError (to_string err))
 end
 
 module Data = struct
