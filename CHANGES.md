@@ -1,8 +1,12 @@
-### ?.?.? (????-??-??)
+### 4.5.0 (2019-07-25)
 
   * Improved testing framework using `ppx_inline_test`
 
-    Thanks to Ted Spence <tspence@fb.com> for this contribution!
+  * Added Sqlite3.Rc.check for easier return code checking.
+
+  * Added Sqlite3.prepare_or_reset for reusing prepared statements in loops.
+
+  Thanks to Ted Spence <tspence@fb.com> for these contributions!
 
 
 ### 4.4.1 (2018-10-25)

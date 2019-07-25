@@ -50,6 +50,10 @@ exception DataTypeError of string
 (** [DataTypeError (msg)] is raised when you attempt to convert a
     Data.t structure to an object via an invalid conversion. *)
 
+exception SqliteError of string
+(** [SqliteError err_msg] is raised after calling [Rc.check] on a return code
+    that does not indicate success. *)
+
 (** {2 Types} *)
 
 type db
@@ -132,8 +136,11 @@ module Rc : sig
 
   val to_string : t -> string
   (** [to_string rc] converts return code [rc] to a string. *)
-end
 
+  val check : t -> unit
+  (** [check rc] raises an exception if [rc] does not correspond to a return
+      code indicating success. *)
+end
 
 (** {2 Column data types} *)
 
@@ -373,6 +380,17 @@ val prepare : db -> string -> stmt
 
     @raise SqliteError if an invalid database handle is passed.
     @raise SqliteError if the statement could not be prepared.
+*)
+
+val prepare_or_reset : db -> stmt option ref -> string -> stmt
+(** [prepare_or_reset db opt_stmt_ref sql] if [opt_stmt_ref] contains
+    [Some stmt], then [stmt] will be reset and returned.  Otherwise fresh
+    statement [stmt] will be prepared, stored as [Some stmt] in [opt_stmt_ref]
+    and then returned.  This is useful for executing multiple identical
+    commands in a loop, because we can more efficiently reuse the statement
+    from previous iterations.
+
+    @raise SqliteError if the statement could not be prepared or reset.
 *)
 
 val prepare_tail : stmt -> stmt option

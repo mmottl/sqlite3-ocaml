@@ -47,6 +47,13 @@ let%test "test_stmt" =
     ignore (prepare_tail (prepare db sql))
   done;
 
+  let premade_statement = ref None in
+  for _i = 0 to 100 do
+    (* Printf.printf "Create statement %d\n%!" i; *)
+    let sql = Printf.sprintf "SELECT * FROM tbl0; SELECT * FROM tbl1;" in
+    ignore (prepare_or_reset db premade_statement sql)
+  done;
+
   for _i = 1 to 10 do
     (* Printf.printf "Create statement %d\n%!" i; *)
     let sql = Printf.sprintf "SELECT * FROM tbl0; SELECT * FROM tbl1;" in

@@ -31,6 +31,7 @@ exception InternalError of string
 exception Error of string
 exception RangeError of int * int
 exception DataTypeError of string
+exception SqliteError of string
 
 type db
 type stmt
@@ -103,6 +104,10 @@ module Rc = struct
     | ROW -> "ROW"
     | DONE -> "DONE"
     | UNKNOWN n -> sprintf "UNKNOWN %d" (int_of_unknown n)
+
+  let check = function
+    | OK | DONE -> ()
+    | err -> raise (SqliteError (to_string err))
 end
 
 module Data = struct
@@ -281,6 +286,14 @@ external recompile : stmt -> unit = "caml_sqlite3_recompile"
 
 external step : stmt -> Rc.t = "caml_sqlite3_step"
 external reset : stmt -> Rc.t = "caml_sqlite3_stmt_reset"
+
+let prepare_or_reset db opt_stmt_ref sql =
+  match !opt_stmt_ref with
+  | Some stmt -> reset stmt |> Rc.check; stmt
+  | None ->
+      let stmt = prepare db sql in
+      opt_stmt_ref := Some stmt;
+      stmt
 
 external sleep : (int [@untagged]) -> (int [@untagged])
   = "caml_sqlite3_sleep_bc" "caml_sqlite3_sleep"
