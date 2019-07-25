@@ -46,6 +46,10 @@ exception RangeError of int * int
     entry of the returned tuple is the specified index, the second is
     the limit which was violated. *)
 
+exception SqliteError of string
+(** [SqliteError err_msg] is raised after calling [Rc.check] on a return code
+    that does not indicate success. *)
+
 
 (** {2 Types} *)
 
@@ -129,8 +133,11 @@ module Rc : sig
 
   val to_string : t -> string
   (** [to_string rc] converts return code [rc] to a string. *)
-end
 
+  val check : t -> unit
+  (** [check rc] raises an exception if [rc] does not correspond to a return
+      code indicating success. *)
+end
 
 (** {2 Column data types} *)
 
