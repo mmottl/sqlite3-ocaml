@@ -413,7 +413,8 @@ static struct custom_operations db_wrap_ops = {
   custom_hash_default,
   custom_serialize_default,
   custom_deserialize_default,
-  custom_compare_ext_default
+  custom_compare_ext_default,
+  custom_fixed_length_default
 };
 
 #ifdef SQLITE_HAS_OPEN_V2
@@ -525,7 +526,7 @@ CAMLprim value caml_sqlite3_open(
   }
 }
 
-CAMLprim value caml_sqlite3_open_bc(value *argv, int argn)
+CAMLprim value caml_sqlite3_open_bc(value *argv, int __unused argn)
 {
   return
     caml_sqlite3_open(
@@ -849,7 +850,8 @@ static struct custom_operations stmt_wrap_ops = {
   custom_hash_default,
   custom_serialize_default,
   custom_deserialize_default,
-  custom_compare_ext_default
+  custom_compare_ext_default,
+  custom_fixed_length_default
 };
 
 static inline value alloc_stmt(db_wrap *dbw)
