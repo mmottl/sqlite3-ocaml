@@ -509,12 +509,16 @@ CAMLprim value caml_sqlite3_open(
   caml_leave_blocking_section();
 
   if (res) {
-    const char *msg;
+    char msg[1024];
     if (db) {
-      msg = sqlite3_errmsg(db);
+      /* Can't use sqlite3_errmsg()'s return value after closing the
+         database. */
+      snprintf(msg, sizeof msg, "%s", sqlite3_errmsg(db));
       my_sqlite3_close(db);
     }
-    else msg = "<unknown_error>";
+    else {
+      strcpy(msg, "<unknown_error>");
+    }
     raise_sqlite3_Error("error opening database: %s", msg);
   } else if (db == NULL)
     raise_sqlite3_InternalError(
