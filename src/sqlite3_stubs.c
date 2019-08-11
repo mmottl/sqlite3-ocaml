@@ -65,6 +65,12 @@
 # define SQLITE_HAS_OPEN_V2
 #endif
 
+#if SQLITE_VERSION_NUMBER >= 3007014
+# define my_sqlite3_close sqlite3_close_v2
+#else
+# define my_sqlite3_close sqlite3_close
+#endif
+
 #if SQLITE_VERSION_NUMBER >= 3006000
 # define SQLITE_HAS_OPEN_MUTEX_PARAMS
 #endif
@@ -395,7 +401,7 @@ static inline void ref_count_finalize_dbw(db_wrap *dbw)
       caml_stat_free(link);
     }
     dbw->user_functions = NULL;
-    sqlite3_close(dbw->db);
+    my_sqlite3_close(dbw->db);
     caml_stat_free(dbw);
   }
 }
@@ -506,7 +512,7 @@ CAMLprim value caml_sqlite3_open(
     const char *msg;
     if (db) {
       msg = sqlite3_errmsg(db);
-      sqlite3_close(db);
+      my_sqlite3_close(db);
     }
     else msg = "<unknown_error>";
     raise_sqlite3_Error("error opening database: %s", msg);
@@ -538,7 +544,7 @@ CAMLprim value caml_sqlite3_close(value v_db)
   int ret, not_busy;
   db_wrap *dbw = Sqlite3_val(v_db);
   check_db(dbw, "close");
-  ret = sqlite3_close(dbw->db);
+  ret = my_sqlite3_close(dbw->db);
   not_busy = ret != SQLITE_BUSY;
   if (not_busy) dbw->db = NULL;
   return Val_bool(not_busy);
