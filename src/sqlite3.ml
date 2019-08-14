@@ -230,8 +230,31 @@ external column_blob :
   stmt -> (int [@untagged]) -> string option
   = "caml_sqlite3_column_blob_bc" "caml_sqlite3_column_blob"
 
+let column_bytes stmt n =
+  match column_blob stmt n with
+  | Some b -> Some (Bytes.unsafe_of_string b)
+  | None -> None
+
 external column : stmt -> (int [@untagged]) -> Data.t
   = "caml_sqlite3_column_bc" "caml_sqlite3_column"
+
+let column_int stmt n =
+  match column stmt n with
+  | Data.INT i when i > Int64.of_int Int.max_int ->
+    raise (RangeError (n, Int.max_int))
+  | Data.INT i when i < Int64.of_int Int.min_int ->
+    raise (RangeError (n, Int.min_int))
+  | Data.INT i -> Int64.to_int i
+  | _ -> raise (Invalid_argument "not an integer value")
+
+let column_int32 stmt n =
+  match column stmt n with
+  | Data.INT i when i > Int64.of_int32 Int32.max_int ->
+    raise (RangeError (n, Int32.to_int Int32.max_int))
+  | Data.INT i when i < Int64.of_int32 Int32.min_int ->
+    raise (RangeError (n, Int32.to_int Int32.min_int))
+  | Data.INT i -> Int64.to_int32 i
+  | _ -> raise (Invalid_argument "not an integer value")
 
 external column_name : stmt -> (int [@untagged]) -> string
   = "caml_sqlite3_column_name_bc" "caml_sqlite3_column_name"
@@ -254,6 +277,37 @@ external bind_parameter_index :
   stmt -> string -> (int [@untagged])
   = "caml_sqlite3_bind_parameter_index_bc" "caml_sqlite3_bind_parameter_index"
 
+let bind_blob stmt n blob =
+  bind stmt n (Data.BLOB (Bytes.unsafe_to_string blob))
+
+let bind_bool stmt n b =
+  bind stmt n (Data.INT (if b then 1L else 0L))
+
+let bind_int stmt n i =
+  bind stmt n (Data.INT (Int64.of_int i))
+
+let bind_int32 stmt n i =
+  bind stmt n (Data.INT (Int64.of_int32 i))
+
+let bind_name stmt name dat =
+  bind stmt (bind_parameter_index stmt name) dat
+
+let bind_names stmt lst =
+  List.fold_left (fun rc (name, dat) ->
+      if rc = Rc.OK then
+        bind stmt (bind_parameter_index stmt name) dat
+      else
+        rc)
+    Rc.OK lst
+
+let bind_values stmt lst =
+  fst (List.fold_left (fun (rc, i) dat ->
+      if rc = Rc.OK then
+        bind stmt i dat, i + 1
+      else
+        rc, i + 1
+    ) (Rc.OK, 1) lst)
+
 external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings"
 
 external busy_timeout : db -> (int [@untagged]) -> unit
@@ -267,6 +321,24 @@ let row_data stmt = Array.init (data_count stmt) (column stmt)
 let row_names stmt = Array.init (data_count stmt) (column_name stmt)
 let row_decltypes stmt = Array.init (data_count stmt) (column_decltype stmt)
 
+let iter stmt f =
+  try
+    while step stmt = Rc.ROW do
+      f (row_data stmt)
+    done;
+    reset stmt
+  with exn -> ignore(reset stmt); raise exn
+
+let rec fold_helper stmt kons knil =
+  if step stmt = Rc.ROW then
+    fold_helper stmt kons (kons knil (row_data stmt))
+  else
+    (reset stmt), knil
+
+let fold stmt kons knil =
+  try
+    fold_helper stmt kons knil
+  with exn -> ignore(reset stmt); raise exn
 
 (* Function registration *)
 

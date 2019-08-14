@@ -1090,7 +1090,7 @@ CAMLprim value caml_sqlite3_column_blob(value v_stmt, intnat i)
     const void *blob = sqlite3_column_blob(stmt, i);
     int len = sqlite3_column_bytes(stmt, i);
     value v_str = caml_alloc_string(len);
-    memcpy(String_val(v_str), blob, len);
+    memcpy(Bytes_val(v_str), blob, len);
     CAMLreturn(Val_Some(v_str));
   }
 }

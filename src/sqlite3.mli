@@ -302,7 +302,7 @@ val changes : db -> int
 *)
 
 
-(** {2 Fine grained query operations} *)
+(** {2 Prepared Statements} *)
 
 val prepare : db -> string -> stmt
 (** [prepare db sql] compile SQL-statement [sql] for database [db]
@@ -349,15 +349,6 @@ val recompile : stmt -> unit
     @raise SqliteError if the statement could not be recompiled.
 *)
 
-val step : stmt -> Rc.t
-(** [step stmt] performs one step of the query associated with
-    SQL-statement [stmt].
-
-    @return the return code of this operation.
-
-    @raise SqliteError if the step could not be executed.
-*)
-
 val finalize : stmt -> Rc.t
 (** [finalize stmt] finalizes the statement [stmt].  After finalization,
     the only valid usage of the statement is to use it in {!prepare_tail},
@@ -368,21 +359,7 @@ val finalize : stmt -> Rc.t
     @raise SqliteError if the statement could not be finalized.
 *)
 
-val reset : stmt -> Rc.t
-(** [reset stmt] resets the statement [stmt], e.g. to restart the query,
-    perhaps with different bindings.
-
-    @return the return code of this operation.
-
-    @raise SqliteError if the statement could not be reset.
-*)
-
-val sleep : int -> int
-(** [sleep ms] sleeps at least [ms] milliseconds.  @return the number of
-    milliseconds of sleep actually requested from the operating system. *)
-
-
-(** {2 Data query} *)
+(** {3 Data query} *)
 
 val data_count : stmt -> int
 (** [data_count stmt] @return the number of columns in the result of
@@ -398,6 +375,36 @@ val column_count : stmt -> int
     @raise SqliteError if the statement is invalid.
 *)
 
+val column : stmt -> int -> Data.t
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt].
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_int : stmt -> int -> int
+(** [column_int stmt n] @return the int in column [n] of the result of the
+    last step of statement [stmt]. Avoids having to manually convert from
+    an [int64] in a [Data.INT].
+
+    @raise RangeError if [n] is out of range.
+    @raise RangeError if the integer cannot be represented by an int value.
+    @raise Invalid_argument if the [n]th column is not an integer value.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_int32 : stmt -> int -> int32
+(** [column_int stmt n] @return the int32 in column [n] of the result of the
+    last step of statement [stmt]. Avoids having to manually convert from
+    an [int64] in a [Data.INT].
+
+    @raise RangeError if [n] is out of range.
+    @raise RangeError if the integer cannot be represented by an int32 value.
+    @raise Invalid_argument if the [n]th column is not an integer value.
+    @raise SqliteError if the statement is invalid.
+*)
+
 val column_blob : stmt -> int -> string option
 (** [column_blob stmt n] @return [Some bytes] in column [n] of the
     result of the last step of statement [stmt], or [None] if NULL.
@@ -406,9 +413,9 @@ val column_blob : stmt -> int -> string option
     @raise SqliteError if the statement is invalid.
 *)
 
-val column : stmt -> int -> Data.t
-(** [column stmt n] @return the data in column [n] of the
-    result of the last step of statement [stmt].
+val column_bytes : stmt -> int -> bytes option
+(** [column_blob stmt n] @return [Some bytes] in column [n] of the
+    result of the last step of statement [stmt], or [None] if NULL.
 
     @raise RangeError if [n] is out of range.
     @raise SqliteError if the statement is invalid.
@@ -430,8 +437,7 @@ val column_decltype : stmt -> int -> string option
     @raise SqliteError if the statement is invalid.
 *)
 
-
-(** {2 Binding data to the query} *)
+(** {3 Binding data to the statement} *)
 
 val bind : stmt -> int -> Data.t -> Rc.t
 (** [bind stmt n data] binds the value [data] to the free variable at
@@ -441,6 +447,80 @@ val bind : stmt -> int -> Data.t -> Rc.t
     @return the return code of this operation.
 
     @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val bind_bool : stmt -> int -> bool -> Rc.t
+(** [bind_bool stmt n b] binds the boolean [b] to the [n]th parameter of
+    the statement [stmt] without having to manually convert it to an
+    [int64] for use with [Data.INT]. [true] is turned into 1, [false] into 0.
+
+    @return the return code of this operation.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val bind_int : stmt -> int -> int -> Rc.t
+(** [bind_int stmt n i] binds the integer [i] to the [n]th parameter of
+    the statement [stmt] without having to manually convert it to an
+    [int64] for use with [Data.INT].
+
+    @return the return code of this operation.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val bind_int32 : stmt -> int -> int32 -> Rc.t
+(** [bind_int32 stmt n i32] binds the 32-bit integer [i32] to the [n]th
+    parameter of the statement [stmt] without having to manually convert
+    it to an [int64] for use with [Data.INT].
+
+    @return the return code of this operation.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val bind_blob : stmt -> int -> bytes -> Rc.t
+(** [bind_blob stmt n data] binds the byte sequence [data] to the
+    [n]th parameter of the statement [stmt].
+
+    @return the return code of this operation.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val bind_values : stmt -> Data.t list -> Rc.t
+(** [bind_values stmt lst] binds the Nth element of [lst] to the Nth
+    parameter of the statement.
+
+    @return the return code of the first binding that fails, or [Rc.OK].
+
+    @raise RangeError if there aren't at least as many parameters as
+           there are elements of the list.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val bind_name : stmt -> string -> Data.t -> Rc.t
+(** [bind_name stmt name data] binds the value [data] to the named
+    parameter [name] of statement [stmt].
+
+    @return the return code of this operation.
+
+    @raise Not_found if [name] does not exist.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val bind_names : stmt -> (string * Data.t) list -> Rc.t
+(** [bind_name stmt lst] binds the [(name, data)] pairs in [lst] to
+    the parameters of statement [stmt].
+
+    @return the return code of the first binding that fails, or [Rc.OK].
+
+    @raise Not_found if a [name] does not exist.
     @raise SqliteError if the statement is invalid.
 *)
 
@@ -477,8 +557,48 @@ val clear_bindings : stmt -> Rc.t
     @raise SqliteError if the statement is invalid.
 *)
 
+(** {3 Executing statements} *)
 
-(** {2 Stepwise query convenience functions} *)
+val step : stmt -> Rc.t
+(** [step stmt] performs one step of the query associated with
+    SQL-statement [stmt].
+
+    @return the return code of this operation.
+
+    @raise SqliteError if the step could not be executed.
+*)
+
+val reset : stmt -> Rc.t
+(** [reset stmt] resets the statement [stmt], e.g. to restart the query,
+    perhaps with different bindings.
+
+    @return the return code of this operation.
+
+    @raise SqliteError if the statement could not be reset.
+*)
+
+val iter : stmt -> (Data.t array -> unit) -> Rc.t
+(** [iter stmt f] will call [f] once per row returned by
+    stepping through [stmt]. The statement is automatically reset afterwards.
+
+    @return [Rc.Ok] on success or another return code on error.
+
+    @raise SqliteError if the statement is invalid.
+*)
+
+val fold : stmt -> ('a -> Data.t array -> 'a) -> 'a -> (Rc.t * 'a)
+(** [fold stmt kons knil] folds over the rows returned by [stmt]. The
+    statement is automatically reset afterwards.
+
+    @return A pair of [(rc, val)] where [val] is the last value returned
+            by [kons] after being called on a row. [rc] is [Rc.OK] if all
+            rows were processed, otherwise an error code.
+
+    @raise SqliteError if the statement is invalid.
+*)
+
+
+(** {3 Stepwise query convenience functions} *)
 
 val row_blobs : stmt -> row
 (** [row_blobs stmt] @return the row returned by the last query step performed
@@ -549,15 +669,6 @@ val create_fun3 : db -> string -> (Data.t -> Data.t -> Data.t-> Data.t) -> unit
 val delete_function : db -> string -> unit
 (** [delete_function db name] deletes function with name [name] from
     database handle [db].
-
-    @raise SqliteError if an invalid database handle is passed.
-*)
-
-val busy_timeout : db -> int -> unit
-(** [busy_timeout db ms] sets a busy handler that sleeps for a
-    specified amount of time when a table is locked.  The handler will
-    sleep multiple times until at least [ms] milliseconds of sleeping
-    have accumulated.
 
     @raise SqliteError if an invalid database handle is passed.
 *)
@@ -652,3 +763,18 @@ module Backup : sig
   (** [pagecount backup] returns the total number of pages in the source
       database of [backup]. *)
 end
+
+(** {2 Utility functions} *)
+
+val busy_timeout : db -> int -> unit
+(** [busy_timeout db ms] sets a busy handler that sleeps for a
+    specified amount of time when a table is locked.  The handler will
+    sleep multiple times until at least [ms] milliseconds of sleeping
+    have accumulated.
+
+    @raise SqliteError if an invalid database handle is passed.
+*)
+
+val sleep : int -> int
+(** [sleep ms] sleeps at least [ms] milliseconds.  @return the number of
+    milliseconds of sleep actually requested from the operating system. *)
