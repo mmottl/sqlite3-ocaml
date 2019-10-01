@@ -515,8 +515,7 @@ CAMLprim value caml_sqlite3_open(
          database. */
       snprintf(msg, sizeof msg, "%s", sqlite3_errmsg(db));
       my_sqlite3_close(db);
-    }
-    else {
+    } else {
       strcpy(msg, "<unknown_error>");
     }
     raise_sqlite3_Error("error opening database: %s", msg);
