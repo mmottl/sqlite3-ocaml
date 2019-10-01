@@ -46,10 +46,13 @@ exception RangeError of int * int
     entry of the returned tuple is the specified index, the second is
     the limit which was violated. *)
 
+exception DataTypeError of string
+(** [DataTypeError msg] is raised when you attempt to convert a
+    [Data.t] structure to an object via an invalid conversion. *)
+
 exception SqliteError of string
 (** [SqliteError err_msg] is raised after calling [Rc.check] on a return code
     that does not indicate success. *)
-
 
 (** {2 Types} *)
 
@@ -151,14 +154,89 @@ module Data : sig
     | TEXT of string
     | BLOB of string
 
-  val to_string : t -> string
-  (** [to_string data] converts [data] to a string.  Both [NONE] and
-      [NULL] are converted to the empty string. *)
+  val opt_text : string option -> t
+  (** [opt_text value] converts [value] to a [Data.t] [TEXT] value,
+      converting [None] to SQLite [NULL]. *)
+
+  val opt_int : int option -> t
+  (** [opt_int value] converts [value] to a [Data.t] [INT] value,
+      converting [None] to SQLite [NULL]. *)
+
+  val opt_int64 : int64 option -> t
+  (** [opt_int64 value] converts [value] to a [Data.t] [INT] value,
+      converting [None] to SQLite [NULL]. *)
+
+  val opt_float : float option -> t
+  (** [opt_float value] converts [value] to a [Data.t] [FLOAT] value,
+      converting [None] to SQLite [NULL]. *)
+
+  val opt_bool : bool option -> t
+  (** [opt_bool value] converts [value] to a [Data.t] [INT] value,
+      converting [None] to SQLite [NULL]. *)
+
+  val to_string_exn : t -> string
+  (** [to_string_exn data] converts [TEXT] and [BLOB] [data] to a string.
+
+      @raise DataTypeError if [data] is invalid.
+  *)
+
+  val to_int_exn : t -> int
+  (** [to_int_exn data] converts [INT] [data] to an int.
+
+      @raise DataTypeError if [data] is invalid.
+      @raise Failure if the integer conversion over- or underflows.
+  *)
+
+  val to_int64_exn : t -> int64
+  (** [to_int64_exn data] converts [INT] [data] to an int64.
+
+      @raise DataTypeError if [data] is invalid.
+  *)
+
+  val to_float_exn : t -> float
+  (** [to_float_exn data] converts [FLOAT] [data] to a float.
+
+      @raise DataTypeError if [data] is invalid.
+  *)
+
+  val to_bool_exn : t -> bool
+  (** [to_bool_exn data] converts [INT] [data] to a bool.
+
+      @raise DataTypeError if [data] is invalid.
+  *)
+
+  val to_string : t -> string option
+  (** [to_string data] converts [data] to [Some string] or
+      [None] if it is not a valid conversion. This method
+      also converts data of type BLOB to a string. *)
+
+  val to_int : t -> int option
+  (** [to_int data] converts [data] to [Some int] or
+      [None] if it is not a valid conversion.
+
+      @raise Failure if the integer conversion over- or underflows.
+  *)
+
+  val to_int64 : t -> int64 option
+  (** [to_int64 data] converts [data] to [Some int64] or
+      [None] if it is not a valid conversion. *)
+
+  val to_float : t -> float option
+  (** [to_float data] converts [data] to [Some float] or
+      [None] if it is not a valid conversion. *)
+
+  val to_bool : t -> bool option
+  (** [to_bool data] converts [data] to [Some bool] or
+      [None] if it is not a valid conversion. *)
+
+  val to_string_coerce : t -> string
+  (** [to_string_coerce data] coerces [data] to a string, using coercion
+      on ints, NULLs, floats, and other data types. *)
 
   val to_string_debug : t -> string
   (** [to_string_debug data] converts [data] to a string including the
-      data constructor.  The contents of blobs will not be printed,
-      only its length.  Useful for debugging. *)
+      data constructor.  The contents of blobs will not be printed, only
+      its length.  Useful for debugging. *)
 end
 
 
@@ -212,7 +290,7 @@ val db_close : db -> bool
 *)
 
 val enable_load_extension : db -> bool -> bool
-(** [enable_load_extension db onoff] enable/disable the sqlite3 load
+(** [enable_load_extension db onoff] enable/disable the SQLite3 load
     extension.  @return [false] if the operation fails, [true]
     otherwise. *)
 
@@ -409,6 +487,56 @@ val column_blob : stmt -> int -> string option
 val column : stmt -> int -> Data.t
 (** [column stmt n] @return the data in column [n] of the
     result of the last step of statement [stmt].
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_to_string : stmt -> int -> string option
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt] as a string,
+    or [None] if the value is null or if the column cannot
+    be converted.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_to_int : stmt -> int -> int option
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt] as a int,
+    or [None] if the value is null or if the column cannot
+    be converted.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_to_int64 : stmt -> int -> int64 option
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt] as a int64,
+    or [None] if the value is null or if the column cannot
+    be converted.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_to_float : stmt -> int -> float option
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt] as a float,
+    or [None] if the value is null or if the column cannot
+    be converted.
+
+    @raise RangeError if [n] is out of range.
+    @raise SqliteError if the statement is invalid.
+*)
+
+val column_to_bool : stmt -> int -> bool option
+(** [column stmt n] @return the data in column [n] of the
+    result of the last step of statement [stmt] as a bool,
+    or [None] if the value is null or if the column cannot
+    be converted.
 
     @raise RangeError if [n] is out of range.
     @raise SqliteError if the statement is invalid.
