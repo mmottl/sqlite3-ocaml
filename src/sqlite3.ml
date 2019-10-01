@@ -108,7 +108,7 @@ module Rc = struct
   let check = function
     | OK | DONE -> ()
     | err -> raise (SqliteError (to_string err))
-end
+end  (* Rc *)
 
 module Data = struct
   type t =
@@ -210,8 +210,7 @@ module Data = struct
     | INT i -> Int64.to_string i
     | FLOAT f -> string_of_float f
     | TEXT t | BLOB t -> t
-
-end
+end  (* Data *)
 
 type header = string
 type headers = header array
@@ -225,20 +224,20 @@ module Mode = struct
     | None -> Read_write_create
     | Some `READONLY -> Read_only
     | Some `NO_CREATE -> Read_write
-end
+end  (* Mode *)
 
 module Mut = struct
   type t = NOTHING | NO | FULL
 
   let lift = function None -> NOTHING | Some `NO -> NO | Some `FULL -> FULL
-end
+end  (* Mut *)
 
 module Cache = struct
   type t = NOTHING | SHARED | PRIVATE
 
   let lift =
     function None -> NOTHING | Some `SHARED -> SHARED | Some `PRIVATE -> PRIVATE
-end
+end  (* Cache *)
 
 external db_open :
   mode : Mode.t -> uri : bool -> memory : bool ->
@@ -395,7 +394,7 @@ module Aggregate = struct
   let create_fun3 db name ~init ~step ~final =
     create_function db name 3 init
       (fun acc args -> step acc args.(0) args.(1) args.(2)) final
-end
+end  (* Aggregate *)
 
 module Backup = struct
   type t
@@ -416,7 +415,7 @@ module Backup = struct
   external pagecount : t -> (int [@untagged])
     = "caml_sqlite3_backup_pagecount_bc" "caml_sqlite3_backup_pagecount"
     [@@noalloc]
-end
+end  (* Backup *)
 
 (* Initialisation *)
 
