@@ -119,7 +119,19 @@ module Data = struct
     | TEXT of string
     | BLOB of string
 
-  (* Debug print method *)
+  let opt_text = function Some s -> TEXT s | None -> NULL
+  let opt_int = function Some n -> INT (Int64.of_int n) | None -> NULL
+  let opt_int64 = function Some n -> INT n | None -> NULL
+  let opt_float = function Some n -> FLOAT n | None -> NULL
+
+  let opt_bool = function
+    | Some false -> INT Int64.zero
+    | Some true -> INT Int64.one
+    | None -> NULL
+
+
+  (* Exception-based type conversion *)
+
   let to_string_debug = function
     | NONE -> "NONE"
     | NULL -> "NULL"
@@ -128,87 +140,59 @@ module Data = struct
     | TEXT t -> sprintf "TEXT <%S>" t
     | BLOB b -> sprintf "BLOB <%d>" (String.length b)
 
-  (* Convert values to Data.t *)
-  let from_string (value: string option): t =
-    match value with
-    | Some s -> TEXT s
-    | None -> NULL
+  let data_type_error tp data =
+    let got = to_string_debug data in
+    raise (DataTypeError (Printf.sprintf "Expected %s but got %s" tp got))
 
-  let from_int (value: int option): t =
-    match value with
-    | Some i -> INT (Int64.of_int i)
-    | None -> NULL
+  let to_string_exn = function
+    | TEXT s | BLOB s -> s
+    | data -> data_type_error "TEXT or BLOB" data
 
-  let from_int64 (value: int64 option): t =
-    match value with
-    | Some i -> INT i
-    | None -> NULL
+  let min_int_as_int64 = Int64.of_int min_int
+  let max_int_as_int64 = Int64.of_int max_int
 
-  let from_float (value: float option): t =
-    match value with
-    | Some f -> FLOAT f
-    | None -> NULL
+  let safe_get_int n =
+    if n > max_int_as_int64 then
+      failwith (Printf.sprintf "Sqlite3.Data.safe_get_int: overflow: %Ld" n)
+    else if n < min_int_as_int64 then
+      failwith (Printf.sprintf "Sqlite3.Data.safe_get_int: underflow: %Ld" n)
+    else Int64.to_int n
 
-  let from_bool (value: bool option): t =
-    match value with
-    | Some false -> INT (Int64.of_int 0)
-    | Some true -> INT (Int64.of_int 1)
-    | None -> NULL
+  let to_int_exn = function
+    | INT n -> safe_get_int n
+    | data -> data_type_error "INT" data
 
-  (* exception-based type conversion *)
-  let to_string_exn (value: t): string =
-    match value with
-    | TEXT s -> s
-    | _ -> raise (DataTypeError (
-      Printf.sprintf "Expected string, but was %s" 
-        (to_string_debug value)))
+  let to_int64_exn = function
+    | INT n -> n
+    | data -> data_type_error "INT" data
 
-  let to_int_exn (value: t): int =
-    match value with
-    | INT i -> Int64.to_int i
-    | _ -> raise (DataTypeError (
-      Printf.sprintf "Expected int, but was %s" 
-        (to_string_debug value)))
+  let to_float_exn = function
+    | FLOAT n -> n
+    | data -> data_type_error "FLOAT" data
 
-  let to_int64_exn (value: t): int64 =
-    match value with
-    | INT i -> i
-    | _ -> raise (DataTypeError (
-      Printf.sprintf "Expected int64, but was %s" 
-        (to_string_debug value)))
-
-  let to_float_exn (value: t): float =
-    match value with
-    | FLOAT f -> f
-    | _ -> raise (DataTypeError (
-      Printf.sprintf "Expected float, but was %s" 
-        (to_string_debug value)))
-
-  let to_bool_exn (value: t): bool =
-    match value with
+  let to_bool_exn = function
     | INT 0L -> false
     | INT 1L -> true
-    | _ -> raise (DataTypeError (
-      Printf.sprintf "Expected bool, but was %s" 
-        (to_string_debug value)))
+    | data -> data_type_error "INT 0L/1L" data
 
-  (* option-based type conversion *)
-  let to_string (value: t): string option =
-    try Some (to_string_exn value) with DataTypeError _ -> None
-  let to_int (value: t): int option =
-    try Some (to_int_exn value) with DataTypeError _ -> None
-  let to_int64 (value: t): int64 option =
-    try Some (to_int64_exn value) with DataTypeError _ -> None
-  let to_float (value: t): float option =
-    try Some (to_float_exn value) with DataTypeError _ -> None
-  let to_bool (value: t): bool option =
-    try Some (to_bool_exn value) with DataTypeError _ -> None
+
+  (* Option-based type conversion *)
+
+  let to_string = function TEXT s | BLOB s -> Some s | _ -> None
+  let to_int = function INT n -> Some (safe_get_int n) | _ -> None
+  let to_int64 = function INT n -> Some n | _ -> None
+  let to_float = function FLOAT n -> Some n | _ -> None
+
+  let to_bool = function
+    | INT 0L -> Some false
+    | INT 1L -> Some true
+    | _ -> None
 
   (* Simplified string coercion *)
   let to_string_coerce = function
     | NONE | NULL -> ""
-    | INT i -> Int64.to_string i
-    | FLOAT f -> string_of_float f
+    | INT n -> Int64.to_string n
+    | FLOAT n -> Float.to_string n
     | TEXT t | BLOB t -> t
 end  (* Data *)
 

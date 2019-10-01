@@ -154,25 +154,25 @@ module Data : sig
     | TEXT of string
     | BLOB of string
 
-  val from_string : string option -> t
-  (** [from_string value] converts [value] to a `Data.t`, 
-      converting `None` to sqlite `NULL`. *)
+  val opt_text : string option -> t
+  (** [opt_text value] converts [value] to a [Data.t] [TEXT] value,
+      converting [None] to SQLite [NULL]. *)
 
-  val from_int : int option -> t
-  (** [from_int value] converts [value] to a `Data.t`, 
-      converting `None` to sqlite `NULL`. *)
+  val opt_int : int option -> t
+  (** [opt_int value] converts [value] to a [Data.t] [INT] value,
+      converting [None] to SQLite [NULL]. *)
 
-  val from_int64 : int64 option -> t
-  (** [from_int64 value] converts [value] to a `Data.t`, 
-      converting `None` to sqlite `NULL`. *)
+  val opt_int64 : int64 option -> t
+  (** [opt_int64 value] converts [value] to a [Data.t] [INT] value,
+      converting [None] to SQLite [NULL]. *)
 
-  val from_float : float option -> t
-  (** [from_float value] converts [value] to a `Data.t`, 
-      converting `None` to sqlite `NULL`. *)
+  val opt_float : float option -> t
+  (** [opt_float value] converts [value] to a [Data.t] [FLOAT] value,
+      converting [None] to SQLite [NULL]. *)
 
-  val from_bool : bool option -> t
-  (** [from_bool value] converts [value] to a `Data.t`, 
-      converting `None` to sqlite `NULL`. *)
+  val opt_bool : bool option -> t
+  (** [opt_bool value] converts [value] to a [Data.t] [INT] value,
+      converting [None] to SQLite [NULL]. *)
 
   val to_string_exn : t -> string
   (** [to_string_exn data] converts [TEXT] and [BLOB] [data] to a string.
@@ -230,7 +230,7 @@ module Data : sig
       [None] if it is not a valid conversion. *)
 
   val to_string_coerce : t -> string
-  (** [to_string_unsafe data] coerces [data] to a string, using coercion
+  (** [to_string_coerce data] coerces [data] to a string, using coercion
       on ints, NULLs, floats, and other data types. *)
 
   val to_string_debug : t -> string
