@@ -26,6 +26,9 @@ let stepbystep_wrong s =
   done
 
 let%test "test_stmt" =
+  (* Force test_exec test first *)
+  let () = Test_exec.dep in
+
   let db = db_open "t" in
 
   (* Test the finalization... *)
