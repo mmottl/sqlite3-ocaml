@@ -193,9 +193,9 @@ static inline void maybe_raise_user_exception(int rc)
 
 /* Exceptions */
 
-static value *caml_sqlite3_InternalError = NULL;
-static value *caml_sqlite3_Error = NULL;
-static value *caml_sqlite3_RangeError = NULL;
+static const value *caml_sqlite3_InternalError = NULL;
+static const value *caml_sqlite3_Error = NULL;
+static const value *caml_sqlite3_RangeError = NULL;
 
 static inline void raise_with_two_args(value v_tag, value v_arg1, value v_arg2)
 {
