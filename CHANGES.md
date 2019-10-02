@@ -8,6 +8,10 @@
 
   Thanks to Ted Spence <tspence@fb.com> for these contributions!
 
+  * Improved closing behavior of database using new SQLite3 API.
+
+  Thanks to Shawn <shawnw.mobile@gmail.com> for this contribution!
+
 
 ### 4.4.1 (2018-10-25)
 
