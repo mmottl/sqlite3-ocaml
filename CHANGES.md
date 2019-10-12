@@ -1,10 +1,17 @@
-### 4.5.0 (2019-07-25)
+### 5.0.0 (2019-10-11)
+
+  * Breaking change:
+
+      * Data.to_string is now Data.to_string_coerce to more clearly reflect
+        that non-string data will be converted to strings.
 
   * Improved testing framework using `ppx_inline_test`
 
   * Added Sqlite3.Rc.check for easier return code checking.
 
   * Added Sqlite3.prepare_or_reset for reusing prepared statements in loops.
+
+  * Added more data conversion functions, also for column data for convenience.
 
   Thanks to Ted Spence <tspence@fb.com> for these contributions!
 
