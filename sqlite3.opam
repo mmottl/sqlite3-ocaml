@@ -18,7 +18,7 @@ build: [
 
 depends: [
   "ocaml" {>= "4.08"}
-  "dune" {build & >= "1.11.0"}
+  "dune" {>= "1.11.0"}
   "base" {build}
   "stdio" {build}
   "conf-sqlite3" {build}
