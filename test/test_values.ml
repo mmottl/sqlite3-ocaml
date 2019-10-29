@@ -22,7 +22,7 @@ let%test "test_values" =
   in
 
   (* Construct database and statements *)
-  let db = db_open "test_values" in
+  let db = db_open "t_values" in
   let rc = exec db schema in
   Printf.printf "Created schema: %s" (Rc.to_string rc);
   let insert_stmt = prepare db insert_sql in

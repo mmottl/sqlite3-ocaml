@@ -1,3 +1,4 @@
+open Printf
 open Sqlite3
 
 let column_decltype s i =
@@ -25,11 +26,19 @@ let stepbystep_wrong s =
     done
   done
 
-let%test "test_stmt" =
-  (* Force test_exec test first *)
-  let () = Test_exec.dep in
+let mk_tbl db id =
+  let sql =
+    sprintf "CREATE TABLE tbl%d (a varchar(1), b INTEGER, c FLOAT)" id
+  in
+  Rc.check (exec db sql);
+  let sql = sprintf "INSERT INTO tbl%d VALUES ('a', 3, 3.14)" id in
+  Rc.check (exec db sql)
 
-  let db = db_open "t" in
+let%test "test_stmt" =
+  let db = db_open "t_stmt" in
+
+  mk_tbl db 0;
+  mk_tbl db 1;
 
   (* Test the finalization... *)
   for _i = 0 to 100 do

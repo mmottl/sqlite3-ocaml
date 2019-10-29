@@ -4,7 +4,7 @@ open Sqlite3
 exception Dummy
 
 let%test "test_exec" =
-  let db = db_open "t" in
+  let db = db_open "t_exec" in
   for i = 0 to 10 do
     try
       let sql =
@@ -46,5 +46,3 @@ let%test "test_exec" =
     with xcp -> print_endline (Printexc.to_string xcp)
   done;
   true
-
-let dep = ()
