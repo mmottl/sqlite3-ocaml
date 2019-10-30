@@ -2,14 +2,14 @@
 
   * Breaking change:
 
-      * Data.to_string is now Data.to_string_coerce to more clearly reflect
+      * `Data.to_string` is now `Data.to_string_coerce` to more clearly reflect
         that non-string data will be converted to strings.
 
-  * Improved testing framework using `ppx_inline_test`
+  * Improved testing framework using `ppx_inline_test`.
 
-  * Added Sqlite3.Rc.check for easier return code checking.
+  * Added `Sqlite3.Rc.check` for easier return code checking.
 
-  * Added Sqlite3.prepare_or_reset for reusing prepared statements in loops.
+  * Added `Sqlite3.prepare_or_reset` for reusing prepared statements in loops.
 
   * Added more data conversion functions, also for column data for convenience.
 
@@ -18,6 +18,12 @@
   * Improved closing behavior of database using new SQLite3 API.
 
   Thanks to Shawn <shawnw.mobile@gmail.com> for this contribution!
+
+  * Each test case now has its own database for parallel testing.
+
+  * Switched from `caml_alloc_custom` to `caml_alloc_custom_mem`.
+
+  * Switched to OPAM file generation via `dune-project`
 
 
 ### 4.4.1 (2018-10-25)
