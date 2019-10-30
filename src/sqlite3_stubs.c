@@ -524,8 +524,13 @@ CAMLprim value caml_sqlite3_open(
       "open returned neither a database nor an error");
   /* "open" succeded */
   {
-    db_wrap *dbw = caml_stat_alloc(sizeof(db_wrap));
-    value v_res = caml_alloc_custom(&db_wrap_ops, sizeof(db_wrap *), 1, 1000);
+    size_t db_wrap_size = sizeof(db_wrap);
+    db_wrap *dbw = caml_stat_alloc(db_wrap_size);
+    value v_res;
+    int mem, hiwtr;
+    int rc = sqlite3_db_status(db, SQLITE_DBSTATUS_CACHE_USED, &mem, &hiwtr, 0);
+    mem = db_wrap_size + (rc ? 8192 : mem);
+    v_res = caml_alloc_custom_mem(&db_wrap_ops, sizeof(db_wrap *), mem);
     dbw->db = db;
     dbw->rc = SQLITE_OK;
     dbw->ref_count = 1;
@@ -863,32 +868,33 @@ static struct custom_operations stmt_wrap_ops = {
   custom_fixed_length_default
 };
 
-static inline value alloc_stmt(db_wrap *dbw)
-{
-  stmt_wrap *stmtw = caml_stat_alloc(sizeof(stmt_wrap));
-  value v_stmt =
-    caml_alloc_custom(&stmt_wrap_ops, sizeof(stmt_wrap *), 1, 1000);
-  stmtw->db_wrap = dbw;
-  dbw->ref_count++;
-  stmtw->stmt = NULL;
-  stmtw->sql = NULL;
-  Sqlite3_stmtw_val(v_stmt) = stmtw;
-  return v_stmt;
-}
-
-static inline void prepare_it(
-  db_wrap *dbw, value v_stmt, const char *sql, int sql_len, char *loc)
+static inline value prepare_it(
+  db_wrap *dbw, const char *sql, int sql_len, char *loc)
 {
   int rc;
-  stmt_wrap *stmtw = Sqlite3_stmtw_val(v_stmt);
+  stmt_wrap *stmtw = caml_stat_alloc(sizeof(stmt_wrap));
+  stmtw->db_wrap = dbw;
+  dbw->ref_count++;
   stmtw->sql = caml_stat_alloc(sql_len + 1);
   memcpy(stmtw->sql, sql, sql_len);
   stmtw->sql[sql_len] = '\0';
   stmtw->sql_len = sql_len;
   rc = my_sqlite3_prepare(dbw->db, stmtw->sql, sql_len,
                           &(stmtw->stmt), (const char **) &(stmtw->tail));
-  if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, loc);
-  if (!stmtw->stmt) raise_sqlite3_Error("No code compiled from %s", sql);
+  if (rc != SQLITE_OK || !stmtw->stmt) {
+    caml_stat_free(stmtw->sql);
+    caml_stat_free(stmtw);
+    if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, loc);
+    raise_sqlite3_Error("No code compiled from %s", sql);
+  } else {
+    size_t mem =
+      sizeof(stmt_wrap) + sql_len + 1 +
+      sqlite3_stmt_status(stmtw->stmt, SQLITE_STMTSTATUS_MEMUSED, 0);
+    value v_stmt =
+      caml_alloc_custom_mem(&stmt_wrap_ops, sizeof(stmt_wrap *), mem);
+    Sqlite3_stmtw_val(v_stmt) = stmtw;
+    return v_stmt;
+  }
 }
 
 CAMLprim value caml_sqlite3_stmt_finalize(value v_stmt)
@@ -907,14 +913,11 @@ CAMLprim value caml_sqlite3_stmt_reset(value v_stmt)
 
 CAMLprim value caml_sqlite3_prepare(value v_db, value v_sql)
 {
-  CAMLparam2(v_db, v_sql);
-  char *loc = "prepare";
+  CAMLparam1(v_db);
+  char *loc = "prepare", *sql = String_val(v_sql);
   db_wrap *dbw = Sqlite3_val(v_db);
-  value v_stmt;
   check_db(dbw, loc);
-  v_stmt = alloc_stmt(dbw);
-  prepare_it(dbw, v_stmt, String_val(v_sql), caml_string_length(v_sql), loc);
-  CAMLreturn(v_stmt);
+  CAMLreturn(prepare_it(dbw, sql, caml_string_length(v_sql), loc));
 }
 
 CAMLprim value caml_sqlite3_prepare_tail(value v_stmt)
@@ -924,10 +927,8 @@ CAMLprim value caml_sqlite3_prepare_tail(value v_stmt)
   stmt_wrap *stmtw = Sqlite3_stmtw_val(v_stmt);
   if (stmtw->sql && stmtw->tail && *(stmtw->tail)) {
     db_wrap *dbw = stmtw->db_wrap;
-    value v_new_stmt = alloc_stmt(dbw);
     int tail_len = stmtw->sql_len - (stmtw->tail - stmtw->sql);
-    prepare_it(dbw, v_new_stmt, stmtw->tail, tail_len, loc);
-    CAMLreturn(Val_Some(v_new_stmt));
+    CAMLreturn(Val_Some(prepare_it(dbw, stmtw->tail, tail_len, loc)));
   }
   else CAMLreturn(Val_None);
 }
