@@ -2,7 +2,7 @@ open Printf
 open Sqlite3
 
 let%test "test_fun" =
-  let db = db_open "t" in
+  let db = db_open "t_fun" in
   create_fun2 db "REGEX" (fun s rex ->
     match rex, s with
     | Data.TEXT rex, Data.BLOB s

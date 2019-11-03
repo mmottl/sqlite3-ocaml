@@ -30,6 +30,7 @@ open Printf
 exception InternalError of string
 exception Error of string
 exception RangeError of int * int
+exception DataTypeError of string
 exception SqliteError of string
 
 type db
@@ -107,7 +108,7 @@ module Rc = struct
   let check = function
     | OK | DONE -> ()
     | err -> raise (SqliteError (to_string err))
-end
+end  (* Rc *)
 
 module Data = struct
   type t =
@@ -118,11 +119,18 @@ module Data = struct
     | TEXT of string
     | BLOB of string
 
-  let to_string = function
-    | NONE | NULL -> ""
-    | INT i -> Int64.to_string i
-    | FLOAT f -> string_of_float f
-    | TEXT t | BLOB t -> t
+  let opt_text = function Some s -> TEXT s | None -> NULL
+  let opt_int = function Some n -> INT (Int64.of_int n) | None -> NULL
+  let opt_int64 = function Some n -> INT n | None -> NULL
+  let opt_float = function Some n -> FLOAT n | None -> NULL
+
+  let opt_bool = function
+    | Some false -> INT Int64.zero
+    | Some true -> INT Int64.one
+    | None -> NULL
+
+
+  (* Exception-based type conversion *)
 
   let to_string_debug = function
     | NONE -> "NONE"
@@ -131,7 +139,62 @@ module Data = struct
     | FLOAT f -> sprintf "FLOAT <%f>" f
     | TEXT t -> sprintf "TEXT <%S>" t
     | BLOB b -> sprintf "BLOB <%d>" (String.length b)
-end
+
+  let data_type_error tp data =
+    let got = to_string_debug data in
+    raise (DataTypeError (Printf.sprintf "Expected %s but got %s" tp got))
+
+  let to_string_exn = function
+    | TEXT s | BLOB s -> s
+    | data -> data_type_error "TEXT or BLOB" data
+
+  let min_int_as_int64 = Int64.of_int min_int
+  let max_int_as_int64 = Int64.of_int max_int
+
+  let safe_get_int n =
+    if n > max_int_as_int64 then
+      failwith (Printf.sprintf "Sqlite3.Data.safe_get_int: overflow: %Ld" n)
+    else if n < min_int_as_int64 then
+      failwith (Printf.sprintf "Sqlite3.Data.safe_get_int: underflow: %Ld" n)
+    else Int64.to_int n
+
+  let to_int_exn = function
+    | INT n -> safe_get_int n
+    | data -> data_type_error "INT" data
+
+  let to_int64_exn = function
+    | INT n -> n
+    | data -> data_type_error "INT" data
+
+  let to_float_exn = function
+    | FLOAT n -> n
+    | data -> data_type_error "FLOAT" data
+
+  let to_bool_exn = function
+    | INT 0L -> false
+    | INT 1L -> true
+    | data -> data_type_error "INT 0L/1L" data
+
+
+  (* Option-based type conversion *)
+
+  let to_string = function TEXT s | BLOB s -> Some s | _ -> None
+  let to_int = function INT n -> Some (safe_get_int n) | _ -> None
+  let to_int64 = function INT n -> Some n | _ -> None
+  let to_float = function FLOAT n -> Some n | _ -> None
+
+  let to_bool = function
+    | INT 0L -> Some false
+    | INT 1L -> Some true
+    | _ -> None
+
+  (* Simplified string coercion *)
+  let to_string_coerce = function
+    | NONE | NULL -> ""
+    | INT n -> Int64.to_string n
+    | FLOAT n -> Float.to_string n
+    | TEXT t | BLOB t -> t
+end  (* Data *)
 
 type header = string
 type headers = header array
@@ -145,20 +208,20 @@ module Mode = struct
     | None -> Read_write_create
     | Some `READONLY -> Read_only
     | Some `NO_CREATE -> Read_write
-end
+end  (* Mode *)
 
 module Mut = struct
   type t = NOTHING | NO | FULL
 
   let lift = function None -> NOTHING | Some `NO -> NO | Some `FULL -> FULL
-end
+end  (* Mut *)
 
 module Cache = struct
   type t = NOTHING | SHARED | PRIVATE
 
   let lift =
     function None -> NOTHING | Some `SHARED -> SHARED | Some `PRIVATE -> PRIVATE
-end
+end  (* Cache *)
 
 external db_open :
   mode : Mode.t -> uri : bool -> memory : bool ->
@@ -255,6 +318,12 @@ let column_int32 stmt n =
     raise (RangeError (n, Int32.to_int Int32.min_int))
   | Data.INT i -> Int64.to_int32 i
   | _ -> raise (Invalid_argument "not an integer value")
+
+let column_to_string stmt num = column stmt num |> Data.to_string
+let column_to_int stmt num = column stmt num |> Data.to_int
+let column_to_int64 stmt num = column stmt num |> Data.to_int64
+let column_to_float stmt num = column stmt num |> Data.to_float
+let column_to_bool stmt num = column stmt num |> Data.to_bool
 
 external column_name : stmt -> (int [@untagged]) -> string
   = "caml_sqlite3_column_name_bc" "caml_sqlite3_column_name"
@@ -381,7 +450,7 @@ module Aggregate = struct
   let create_fun3 db name ~init ~step ~final =
     create_function db name 3 init
       (fun acc args -> step acc args.(0) args.(1) args.(2)) final
-end
+end  (* Aggregate *)
 
 module Backup = struct
   type t
@@ -402,7 +471,7 @@ module Backup = struct
   external pagecount : t -> (int [@untagged])
     = "caml_sqlite3_backup_pagecount_bc" "caml_sqlite3_backup_pagecount"
     [@@noalloc]
-end
+end  (* Backup *)
 
 (* Initialisation *)
 

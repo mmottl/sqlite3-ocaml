@@ -1,3 +1,4 @@
+open Printf
 open Sqlite3
 
 let assert_ok rc = assert (rc = Rc.OK)
@@ -13,7 +14,7 @@ let stepbystep s =
           Printf.printf "%s column[%d] %s = %s\n%!"
             (column_decltype s i) i
             (column_name s i)
-            (Data.to_string c)) r))
+            (Data.to_string_coerce c)) r))
 
 let stepbystep_wrong s =
   while step s = Rc.ROW do
@@ -21,12 +22,23 @@ let stepbystep_wrong s =
       Printf.printf "%s column[%d] %s = %s\n%!"
         (column_decltype s i) i
         (column_name s i)
-        (Data.to_string (column s i))
+        (Data.to_string_coerce (column s i))
     done
   done
 
+let mk_tbl db id =
+  let sql =
+    sprintf "CREATE TABLE tbl%d (a varchar(1), b INTEGER, c FLOAT)" id
+  in
+  Rc.check (exec db sql);
+  let sql = sprintf "INSERT INTO tbl%d VALUES ('a', 3, 3.14)" id in
+  Rc.check (exec db sql)
+
 let%test "test_stmt" =
-  let db = db_open "t" in
+  let db = db_open "t_stmt" in
+
+  mk_tbl db 0;
+  mk_tbl db 1;
 
   assert_ok(exec db "DROP TABLE IF EXISTS test0");
   assert_ok(exec db "DROP TABLE IF EXISTS test1");

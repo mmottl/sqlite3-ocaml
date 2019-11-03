@@ -1,7 +1,7 @@
 open Sqlite3
 
 let%test "test_agg" =
-  let db = db_open "t" in
+  let db = db_open "t_agg" in
   Aggregate.create_fun2 db "STRREPEAT" ~init:[] ~step:(fun l s i  ->
     match s, i with
     | Data.TEXT s, Data.INT i ->

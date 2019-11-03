@@ -6,7 +6,7 @@ exception Dummy
 let assert_ok rc = assert(rc = Rc.OK)
 
 let%test "test_exec" =
-  let db = db_open "t" in
+  let db = db_open "t_exec" in
   for i = 0 to 10 do
     try
       let drop = sprintf "DROP TABLE IF EXISTS tbl%d" i

@@ -4,7 +4,7 @@ exception This_function_always_fails
 
 (* Tests our ability to raise an exception from a user-defined function *)
 let%test "test_error" =
-  let db = db_open "t" in
+  let db = db_open "t_error" in
   create_fun0 db "MYERROR" (fun () -> raise This_function_always_fails);
   let first_test =
     try

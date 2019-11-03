@@ -2,7 +2,7 @@ open Sqlite3
 
 let%test "test_db" =
   for _ = 1 to 1000 do
-    let db = db_open "t" in
+    let db = db_open "t_db" in
     Gc.full_major ();
     let _ = db_close db in
     ()
