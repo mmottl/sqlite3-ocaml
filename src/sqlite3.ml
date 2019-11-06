@@ -223,6 +223,12 @@ module Cache = struct
     function None -> NOTHING | Some `SHARED -> SHARED | Some `PRIVATE -> PRIVATE
 end  (* Cache *)
 
+external sqlite_version : unit -> int
+  = "caml_sqlite3_version_bc" "caml_sqlite3_version"
+
+external sqlite_version_info : unit -> string
+  = "caml_sqlite3_version_str_bc" "caml_sqlite3_version_str"
+
 external db_open :
   mode : Mode.t -> uri : bool -> memory : bool ->
   mutex : Mut.t -> cache : Cache.t ->
@@ -358,26 +364,45 @@ external delete_function : db -> string -> unit = "caml_sqlite3_delete_function"
 module Aggregate = struct
   external create_function :
     db -> string -> (int [@untagged]) ->
-    'a -> ('a -> Data.t array -> 'a) -> ('a -> Data.t) -> unit =
+    'a -> ('a -> Data.t array -> 'a) -> ('a -> Data.t array -> 'a) option ->
+    ('a -> Data.t) option -> ('a -> Data.t) -> unit =
     "caml_sqlite3_create_aggregate_function_bc"
     "caml_sqlite3_create_aggregate_function"
 
-  let create_funN db name ~init ~step ~final =
-    create_function db name (-1) init step final
+  let create_funN ?inverse ?value db name ~init ~step ~final =
+    create_function db name (-1) init step inverse value final
 
-  let create_fun0 db name ~init ~step ~final =
-    create_function db name 0 init (fun acc _ -> step acc) final
+  let create_fun0 ?inverse ?value db name ~init ~step ~final =
+    create_function db name 0 init
+      (fun acc _ -> step acc)
+      (match inverse with
+       | Some inv -> Some (fun acc _ -> inv acc)
+       | None -> None)
+      value final
 
-  let create_fun1 db name ~init ~step ~final =
-    create_function db name 1 init (fun acc args -> step acc args.(0)) final
+  let create_fun1 ?inverse ?value db name ~init ~step ~final =
+    create_function db name 1 init
+      (fun acc args -> step acc args.(0))
+      (match inverse with
+       | Some inv -> Some (fun acc args -> inv acc args.(0))
+       | None -> None)
+      value final
 
-  let create_fun2 db name ~init ~step ~final =
+  let create_fun2 ?inverse ?value db name ~init ~step ~final =
     create_function db name 2 init
-      (fun acc args -> step acc args.(0) args.(1)) final
+      (fun acc args -> step acc args.(0) args.(1))
+      (match inverse with
+       | Some inv -> Some (fun acc args -> inv acc args.(0) args.(1))
+       | None -> None)
+      value final
 
-  let create_fun3 db name ~init ~step ~final =
+  let create_fun3 ?inverse ?value db name ~init ~step ~final =
     create_function db name 3 init
-      (fun acc args -> step acc args.(0) args.(1) args.(2)) final
+      (fun acc args -> step acc args.(0) args.(1) args.(2))
+      (match inverse with
+       | Some inv -> Some (fun acc args -> inv acc args.(0) args.(1) args.(2))
+       | None -> None)
+      value final
 end  (* Aggregate *)
 
 module Backup = struct

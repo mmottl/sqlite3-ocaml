@@ -461,6 +461,26 @@ static inline int get_open_flags(
 }
 #endif
 
+CAMLprim value caml_sqlite3_version(value __unused v_dummy) {
+  return Val_int(sqlite3_libversion_number());
+}
+
+CAMLprim value caml_sqlite3_version_bc(value __unused *argv,
+                                       int __unused argn)
+{
+  return Val_int(sqlite3_libversion_number());
+}
+
+CAMLprim value caml_sqlite3_version_str(value __unused v_dummy) {
+  return caml_copy_string(sqlite3_libversion());
+}
+
+CAMLprim value caml_sqlite3_version_str_bc(value __unused *argv,
+                                           int __unused argn)
+{
+  return caml_copy_string(sqlite3_libversion());
+}
+
 CAMLprim value caml_sqlite3_open(
   value v_mode, value v_uri, value v_memory,
   value v_mutex, value v_cache, value v_vfs_opt, value v_file)
@@ -1253,7 +1273,7 @@ static inline void set_sqlite3_result(sqlite3_context *ctx, value v_res)
   }
 }
 
-static inline void
+static void
 caml_sqlite3_user_function(sqlite3_context *ctx, int argc, sqlite3_value **argv)
 {
   user_function *data = sqlite3_user_data(ctx);
@@ -1267,7 +1287,7 @@ caml_sqlite3_user_function(sqlite3_context *ctx, int argc, sqlite3_value **argv)
 
 typedef struct agg_ctx { int initialized; value v_acc; } agg_ctx;
 
-static inline void caml_sqlite3_user_function_step(
+static void caml_sqlite3_user_function_step(
   sqlite3_context *ctx, int argc, sqlite3_value **argv)
 {
   value v_args, v_res;
@@ -1289,13 +1309,49 @@ static inline void caml_sqlite3_user_function_step(
   caml_enter_blocking_section();
 }
 
-static inline void caml_sqlite3_user_function_final(sqlite3_context *ctx)
+#if SQLITE_VERSION_NUMBER >= 3025000
+static void caml_sqlite3_user_function_inverse(
+  sqlite3_context *ctx, int argc, sqlite3_value **argv)
+{
+  value v_args, v_res;
+  user_function *data = sqlite3_user_data(ctx);
+  agg_ctx *agg_ctx = sqlite3_aggregate_context(ctx, sizeof(agg_ctx));
+  caml_leave_blocking_section();
+    if (!agg_ctx->initialized) {
+      agg_ctx->v_acc = Field(data->v_fun, 1);
+      /* Not a generational global root, because it is hard to imagine
+         that there will ever be more than at most a few instances
+         (quite probably only one in most cases). */
+      caml_register_global_root(&agg_ctx->v_acc);
+      agg_ctx->initialized = 1;
+    }
+    v_args = caml_sqlite3_wrap_values(argc, argv);
+    v_res = caml_callback2_exn(Field(Field(data->v_fun, 3), 0),
+                               agg_ctx->v_acc, v_args);
+    if (Is_exception_result(v_res)) exception_result(ctx, v_res);
+    else agg_ctx->v_acc = v_res;
+  caml_enter_blocking_section();
+}
+
+static void caml_sqlite3_user_function_value(sqlite3_context *ctx)
 {
   user_function *data = sqlite3_user_data(ctx);
   agg_ctx *agg_ctx = sqlite3_aggregate_context(ctx, sizeof(agg_ctx));
   value v_res;
   caml_leave_blocking_section();
-    v_res = caml_callback_exn(Field(data->v_fun, 3), agg_ctx->v_acc);
+  v_res = caml_callback_exn(Field(Field(data->v_fun, 4), 0), agg_ctx->v_acc);
+    set_sqlite3_result(ctx, v_res);
+  caml_enter_blocking_section();
+}
+#endif
+
+static void caml_sqlite3_user_function_final(sqlite3_context *ctx)
+{
+  user_function *data = sqlite3_user_data(ctx);
+  agg_ctx *agg_ctx = sqlite3_aggregate_context(ctx, sizeof(agg_ctx));
+  value v_res;
+  caml_leave_blocking_section();
+    v_res = caml_callback_exn(Field(data->v_fun, 5), agg_ctx->v_acc);
     set_sqlite3_result(ctx, v_res);
     caml_remove_global_root(&agg_ctx->v_acc);
   caml_enter_blocking_section();
@@ -1343,14 +1399,16 @@ static inline user_function * register_scalar_user_function(
 
 static inline user_function * register_aggregate_user_function(
   db_wrap *db_data, value v_name,
-  value v_init, value v_step, value v_final)
+  value v_init, value v_step, value v_inverse, value v_value, value v_final)
 {
   /* Assume parameters are already protected */
-  value v_cell = caml_alloc_small(4, 0);
+  value v_cell = caml_alloc_small(6, 0);
   Field(v_cell, 0) = v_name;
   Field(v_cell, 1) = v_init;
   Field(v_cell, 2) = v_step;
-  Field(v_cell, 3) = v_final;
+  Field(v_cell, 3) = v_inverse;
+  Field(v_cell, 4) = v_value;
+  Field(v_cell, 5) = v_final;
   return register_user_function(db_data, v_cell);
 }
 
@@ -1381,19 +1439,34 @@ CAMLprim value caml_sqlite3_create_function_bc(
 
 CAMLprim value caml_sqlite3_create_aggregate_function(
   value v_db, value v_name, intnat n_args,
-  value v_init, value v_stepfn, value v_finalfn)
+  value v_init, value v_stepfn, value v_inversefn, value v_valuefn,
+  value v_finalfn)
 {
-  CAMLparam4(v_db, v_name, v_stepfn, v_finalfn);
+  CAMLparam5(v_db, v_name, v_stepfn, v_inversefn, v_valuefn);
+  CAMLxparam1(v_finalfn);
   user_function *param;
   int rc;
   db_wrap *dbw = Sqlite3_val(v_db);
   check_db(dbw, "create_aggregate_function");
   param =
-    register_aggregate_user_function(dbw, v_name, v_init, v_stepfn, v_finalfn);
+    register_aggregate_user_function(dbw, v_name, v_init, v_stepfn,
+                                     v_inversefn, v_valuefn, v_finalfn);
+#if SQLITE_VERSION_NUMBER >= 3025000
+  rc = sqlite3_create_window_function(dbw->db, String_val(v_name),
+                                      n_args, SQLITE_UTF8, param,
+                                      caml_sqlite3_user_function_step,
+                                      caml_sqlite3_user_function_final,
+                                      v_valuefn == Val_None ? NULL :
+                                      caml_sqlite3_user_function_value,
+                                      v_inversefn == Val_None ? NULL :
+                                      caml_sqlite3_user_function_inverse,
+                                      NULL);
+#else
   rc = sqlite3_create_function(dbw->db, String_val(v_name),
                                n_args, SQLITE_UTF8, param,
                                NULL, caml_sqlite3_user_function_step,
                                caml_sqlite3_user_function_final);
+#endif
   if (rc != SQLITE_OK) {
     unregister_user_function(dbw, v_name);
     raise_sqlite3_current(dbw->db, "create_aggregate_function");
@@ -1405,8 +1478,9 @@ CAMLprim value caml_sqlite3_create_aggregate_function_bc(
   value *argv, int __unused argn)
 {
   return
-    caml_sqlite3_create_aggregate_function(
-      argv[0], argv[1], Int_val(argv[2]), argv[3], argv[4], argv[5]);
+    caml_sqlite3_create_aggregate_function(argv[0], argv[1], Int_val(argv[2]),
+                                           argv[3], argv[4], argv[5], argv[6],
+                                           argv[8]);
 }
 
 CAMLprim value caml_sqlite3_delete_function(value v_db, value v_name)

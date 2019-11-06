@@ -54,6 +54,17 @@ exception SqliteError of string
 (** [SqliteError err_msg] is raised after calling [Rc.check] on a return code
     that does not indicate success. *)
 
+(** {2 Library Information} *)
+
+val sqlite_version: unit -> int
+(** [sqlite_version ()] returns the version of the sqlite library
+   being used, in format [3XXXYYY] where [XXX] is the minor version
+   and [YYY] is the patch level. For example, [3030001] for 3.30.1. *)
+
+val sqlite_version_info: unit -> string
+(** [sqlite_version_info ()] returns the version of the sqlite library
+   being used in a human-readable string. *)
+
 (** {2 Types} *)
 
 type db
@@ -691,8 +702,25 @@ val busy_timeout : db -> int -> unit
 *)
 
 module Aggregate : sig
+  (** Create user-defined aggregate and window functions.
+
+      Aggregate functions provide the [step] function, which is called
+     once per value being added to the aggregate, and the [final]
+     function is called once to return the final value.
+
+      To make a window function (Requires Sqlite3 3.25 or newer; on
+     older versions a normal aggregate function is created), the
+     additional [inverse] function, which removes a value from the
+     window, and [value], which can be called many times and returns
+     the current computed value of the window, must both be included.
+
+*)
+
   val create_fun0 :
-    db -> string ->
+    ?inverse : ('a -> 'a) ->
+    ?value: ('a -> Data.t) ->
+    db ->
+    string ->
     init : 'a ->
     step : ('a -> 'a) ->
     final : ('a -> Data.t) -> unit
@@ -704,7 +732,10 @@ module Aggregate : sig
   *)
 
   val create_fun1 :
-    db -> string ->
+    ?inverse : ('a -> Data.t -> 'a) ->
+    ?value: ('a -> Data.t) ->
+    db ->
+    string ->
     init : 'a ->
     step : ('a -> Data.t -> 'a) ->
     final : ('a -> Data.t) -> unit
@@ -716,7 +747,10 @@ module Aggregate : sig
   *)
 
   val create_fun2 :
-    db -> string ->
+    ?inverse:('a-> Data.t -> Data.t -> 'a) ->
+    ?value:('a -> Data.t) ->
+    db ->
+    string ->
     init : 'a ->
     step : ('a -> Data.t -> Data.t -> 'a) ->
     final : ('a -> Data.t) -> unit
@@ -728,7 +762,10 @@ module Aggregate : sig
   *)
 
   val create_fun3 :
-    db -> string ->
+    ?inverse : ('a -> Data.t -> Data.t -> Data.t -> 'a) ->
+    ?value: ('a -> Data.t) ->
+    db ->
+    string ->
     init : 'a ->
     step : ('a -> Data.t -> Data.t -> Data.t -> 'a) ->
     final : ('a -> Data.t) -> unit
@@ -740,7 +777,10 @@ module Aggregate : sig
   *)
 
   val create_funN :
-    db -> string ->
+    ?inverse : ('a -> Data.t array -> 'a) ->
+    ?value: ('a -> Data.t) ->
+    db ->
+    string ->
     init : 'a ->
     step : ('a -> Data.t array -> 'a) ->
     final : ('a -> Data.t) -> unit
