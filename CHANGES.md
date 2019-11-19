@@ -7,23 +7,28 @@
 
   * Improved testing framework using `ppx_inline_test`.
 
-  * Added `Sqlite3.Rc.check` for easier return code checking.
+  * Added `Sqlite3.Rc.check` and `Sqlite3.Rc.is_success` for easier return
+    code checking.
 
   * Added `Sqlite3.prepare_or_reset` for reusing prepared statements in loops.
 
-  * Added more data conversion functions, also for column data for convenience.
+  * Added `Sqlite3.iter` and `Sqlite3.fold` for more convenient handling of
+    row data.
 
-  Thanks to Ted Spence <tspence@fb.com> for these contributions!
+  * Added more data conversion functions, also for direct access to column data.
+
+  * Added more data binding functions.
 
   * Improved closing behavior of database using new SQLite3 API.
-
-  Thanks to Shawn <shawnw.mobile@gmail.com> for this contribution!
 
   * Each test case now has its own database for parallel testing.
 
   * Switched from `caml_alloc_custom` to `caml_alloc_custom_mem`.
 
-  * Switched to OPAM file generation via `dune-project`
+  * Switched to OPAM file generation via `dune-project`.
+
+  Thanks to Ted Spence <tspence@fb.com> and Shawn <shawnw.mobile@gmail.com>
+  for their work on many of these contributions!
 
 
 ### 4.4.1 (2018-10-25)
