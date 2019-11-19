@@ -1,11 +1,11 @@
-### 5.0.0 (2019-10-11)
+### 5.0.0 (2019-11-18)
 
   * Breaking change:
 
       * `Data.to_string` is now `Data.to_string_coerce` to more clearly reflect
         that non-string data will be converted to strings.
 
-  * Improved testing framework using `ppx_inline_test`.
+  * Added support for SQLite3 window functions.
 
   * Added `Sqlite3.Rc.check` and `Sqlite3.Rc.is_success` for easier return
     code checking.
@@ -21,13 +21,15 @@
 
   * Improved closing behavior of database using new SQLite3 API.
 
+  * Improved testing framework using `ppx_inline_test`.
+
   * Each test case now has its own database for parallel testing.
 
   * Switched from `caml_alloc_custom` to `caml_alloc_custom_mem`.
 
   * Switched to OPAM file generation via `dune-project`.
 
-  Thanks to Ted Spence <tspence@fb.com> and Shawn <shawnw.mobile@gmail.com>
+  Thanks to Shawn <shawnw.mobile@gmail.com> and Ted Spence <tspence@fb.com>
   for their work on many of these contributions!
 
 

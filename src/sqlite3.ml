@@ -264,11 +264,8 @@ module Cache = struct
     function None -> NOTHING | Some `SHARED -> SHARED | Some `PRIVATE -> PRIVATE
 end  (* Cache *)
 
-external sqlite_version : unit -> int
-  = "caml_sqlite3_version_bc" "caml_sqlite3_version"
-
-external sqlite_version_info : unit -> string
-  = "caml_sqlite3_version_str_bc" "caml_sqlite3_version_str"
+external sqlite_version : unit -> int = "caml_sqlite3_version"
+external sqlite_version_info : unit -> string = "caml_sqlite3_version_info"
 
 external db_open :
   mode : Mode.t -> uri : bool -> memory : bool ->

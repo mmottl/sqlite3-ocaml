@@ -54,16 +54,18 @@ exception SqliteError of string
 (** [SqliteError err_msg] is raised after calling [Rc.check] on a return code
     that does not indicate success. *)
 
+
 (** {2 Library Information} *)
 
 val sqlite_version: unit -> int
-(** [sqlite_version ()] returns the version of the sqlite library
-   being used, in format [3XXXYYY] where [XXX] is the minor version
-   and [YYY] is the patch level. For example, [3030001] for 3.30.1. *)
+(** [sqlite_version ()] @return the version of the SQLite3 library
+    being used, in format [3XXXYYY] where [XXX] is the minor version and
+    [YYY] is the patch level.  For example, [3030001] for 3.30.1. *)
 
 val sqlite_version_info: unit -> string
-(** [sqlite_version_info ()] returns the version of the sqlite library
-   being used in a human-readable string. *)
+(** [sqlite_version_info ()] @return the version of the SQLite3 library
+    being used in a human-readable string. *)
+
 
 (** {2 Types} *)
 
@@ -885,88 +887,92 @@ module Aggregate : sig
   (** Create user-defined aggregate and window functions.
 
       Aggregate functions provide the [step] function, which is called
-     once per value being added to the aggregate, and the [final]
-     function is called once to return the final value.
+      once per value being added to the aggregate, and the [final]
+      function is called once to return the final value.
 
-      To make a window function (Requires Sqlite3 3.25 or newer; on
-     older versions a normal aggregate function is created), the
-     additional [inverse] function, which removes a value from the
-     window, and [value], which can be called many times and returns
-     the current computed value of the window, must both be included.
-
-*)
+      To make a window function (requires SQLite3 3.25 or newer; on
+      older versions a normal aggregate function is created), the
+      additional [inverse] function, which removes a value from the
+      window, and [value], which can be called many times and returns
+      the current computed value of the window, must both be included.
+  *)
 
   val create_fun0 :
     ?inverse : ('a -> 'a) ->
-    ?value: ('a -> Data.t) ->
+    ?value : ('a -> Data.t) ->
     db ->
     string ->
     init : 'a ->
     step : ('a -> 'a) ->
     final : ('a -> Data.t) -> unit
-  (** [create_fun0 db name ~init ~step ~final] registers the step and
-      finalizer functions under name [name] with database handle [db].
-      This function has arity [0].
+  (** [create_fun0 ?inverse ?value db name ~init ~step ~final] registers the
+      step and finalizer functions and optional inverse and value functions
+      under name [name] with database handle [db].  This function has arity
+      [0].
 
       @raise SqliteError if an invalid database handle is passed.
   *)
 
   val create_fun1 :
     ?inverse : ('a -> Data.t -> 'a) ->
-    ?value: ('a -> Data.t) ->
+    ?value : ('a -> Data.t) ->
     db ->
     string ->
     init : 'a ->
     step : ('a -> Data.t -> 'a) ->
     final : ('a -> Data.t) -> unit
-  (** [create_fun1 db name ~init ~step ~final] registers the step and
-      finalizer functions under name [name] with database handle [db].
-      This function has arity [1].
+  (** [create_fun1 ?inverse ?value db name ~init ~step ~final] registers the
+      step and finalizer functions and optional inverse and value functions
+      under name [name] with database handle [db].  This function has arity
+      [1].
 
       @raise SqliteError if an invalid database handle is passed.
   *)
 
   val create_fun2 :
-    ?inverse:('a-> Data.t -> Data.t -> 'a) ->
-    ?value:('a -> Data.t) ->
+    ?inverse : ('a-> Data.t -> Data.t -> 'a) ->
+    ?value : ('a -> Data.t) ->
     db ->
     string ->
     init : 'a ->
     step : ('a -> Data.t -> Data.t -> 'a) ->
     final : ('a -> Data.t) -> unit
-  (** [create_fun2 db name ~init ~step ~final] registers the step and
-      finalizer functions under name [name] with database handle [db].
-      This function has arity [2].
+  (** [create_fun2 ?inverse ?value db name ~init ~step ~final] registers the
+      step and finalizer functions and optional inverse and value functions
+      under name [name] with database handle [db].  This function has arity
+      [2].
 
       @raise SqliteError if an invalid database handle is passed.
   *)
 
   val create_fun3 :
     ?inverse : ('a -> Data.t -> Data.t -> Data.t -> 'a) ->
-    ?value: ('a -> Data.t) ->
+    ?value : ('a -> Data.t) ->
     db ->
     string ->
     init : 'a ->
     step : ('a -> Data.t -> Data.t -> Data.t -> 'a) ->
     final : ('a -> Data.t) -> unit
-  (** [create_fun3 db name ~init ~step ~final] registers the step and
-      finalizer functions under name [name] with database handle [db].
-      This function has arity [3].
+  (** [create_fun3 ?inverse ?value db name ~init ~step ~final] registers the
+      step and finalizer functions and optional inverse and value functions
+      under name [name] with database handle [db].  This function has arity
+      [3].
 
       @raise SqliteError if an invalid database handle is passed.
   *)
 
   val create_funN :
     ?inverse : ('a -> Data.t array -> 'a) ->
-    ?value: ('a -> Data.t) ->
+    ?value : ('a -> Data.t) ->
     db ->
     string ->
     init : 'a ->
     step : ('a -> Data.t array -> 'a) ->
     final : ('a -> Data.t) -> unit
-  (** [create_funN db name ~init ~step ~final] registers the step and
-      finalizer functions under name [name] with database handle [db].
-      This function has arity [N].
+  (** [create_funN ?inverse ?value db name ~init ~step ~final] registers the
+      step and finalizer functions and optional inverse and value functions
+      under name [name] with database handle [db].  This function has arity
+      [N].
 
       @raise SqliteError if an invalid database handle is passed.
   *)
