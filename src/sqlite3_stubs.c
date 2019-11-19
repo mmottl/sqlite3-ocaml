@@ -973,6 +973,8 @@ CAMLprim value caml_sqlite3_recompile(value v_stmt)
   CAMLreturn(Val_unit);
 }
 
+/* bind_parameter_count */
+
 CAMLprim intnat caml_sqlite3_bind_parameter_count(value v_stmt)
 {
   sqlite3_stmt *stmt = safe_get_stmtw("bind_parameter_count", v_stmt)->stmt;
@@ -984,18 +986,22 @@ CAMLprim value caml_sqlite3_bind_parameter_count_bc(value v_stmt)
   return Val_int(caml_sqlite3_bind_parameter_count(v_stmt));
 }
 
-CAMLprim value caml_sqlite3_bind_parameter_name(value v_stmt, intnat i)
+/* bind_parameter_name */
+
+CAMLprim value caml_sqlite3_bind_parameter_name(value v_stmt, intnat pos)
 {
   CAMLparam1(v_stmt);
   sqlite3_stmt *stmt = safe_get_stmtw("bind_parameter_name", v_stmt)->stmt;
-  range_check(i - 1, sqlite3_bind_parameter_count(stmt));
-  CAMLreturn(Val_string_option(sqlite3_bind_parameter_name(stmt, i)));
+  range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
+  CAMLreturn(Val_string_option(sqlite3_bind_parameter_name(stmt, pos)));
 }
 
-CAMLprim value caml_sqlite3_bind_parameter_name_bc(value v_stmt, value v_index)
+CAMLprim value caml_sqlite3_bind_parameter_name_bc(value v_stmt, value v_pos)
 {
-  return caml_sqlite3_bind_parameter_name(v_stmt, Int_val(v_index));
+  return caml_sqlite3_bind_parameter_name(v_stmt, Int_val(v_pos));
 }
+
+/* bind_parameter_index */
 
 CAMLprim intnat caml_sqlite3_bind_parameter_index(value v_stmt, value v_name)
 {
@@ -1011,27 +1017,108 @@ CAMLprim value caml_sqlite3_bind_parameter_index_bc(value v_stmt, value v_name)
   return Val_int(caml_sqlite3_bind_parameter_index(v_stmt, v_name));
 }
 
-CAMLprim value caml_sqlite3_bind(value v_stmt, intnat i, value v_data)
+/* bind_blob */
+
+CAMLprim value caml_sqlite3_bind_blob(value v_stmt, intnat pos, value v_str)
+{
+  sqlite3_stmt *stmt = safe_get_stmtw("bind_blob", v_stmt)->stmt;
+  range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
+  return
+    Val_rc(
+      sqlite3_bind_blob(
+        stmt, pos, String_val(v_str), caml_string_length(v_str),
+        SQLITE_TRANSIENT));
+}
+
+CAMLprim value caml_sqlite3_bind_blob_bc(value v_stmt, value v_pos, value v_str)
+{
+  return caml_sqlite3_bind_blob(v_stmt, Int_val(v_pos), v_str);
+}
+
+/* bind_double */
+
+CAMLprim value caml_sqlite3_bind_double(value v_stmt, intnat pos, double n)
+{
+  sqlite3_stmt *stmt = safe_get_stmtw("bind_double", v_stmt)->stmt;
+  range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
+  return Val_rc(sqlite3_bind_double(stmt, pos, n));
+}
+
+CAMLprim value caml_sqlite3_bind_double_bc(value v_stmt, value v_pos, value v_n)
+{
+  return caml_sqlite3_bind_double(v_stmt, Int_val(v_pos), Double_val(v_n));
+}
+
+/* bind_int32 */
+
+CAMLprim value caml_sqlite3_bind_int32(value v_stmt, intnat pos, int32_t n)
+{
+  sqlite3_stmt *stmt = safe_get_stmtw("bind_int32", v_stmt)->stmt;
+  range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
+  return Val_rc(sqlite3_bind_int(stmt, pos, n));
+}
+
+CAMLprim value caml_sqlite3_bind_int32_bc(value v_stmt, value v_pos, value v_n)
+{
+  return caml_sqlite3_bind_int32(v_stmt, Int_val(v_pos), Int32_val(v_n));
+}
+
+/* bind_int64 */
+
+CAMLprim value caml_sqlite3_bind_int64(value v_stmt, intnat pos, int64_t n)
+{
+  sqlite3_stmt *stmt = safe_get_stmtw("bind_int64", v_stmt)->stmt;
+  range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
+  return Val_rc(sqlite3_bind_int64(stmt, pos, n));
+}
+
+CAMLprim value caml_sqlite3_bind_int64_bc(value v_stmt, value v_pos, value v_n)
+{
+  return caml_sqlite3_bind_int64(v_stmt, Int_val(v_pos), Int64_val(v_n));
+}
+
+/* bind_text */
+
+CAMLprim value caml_sqlite3_bind_text(value v_stmt, intnat pos, value v_str)
+{
+  sqlite3_stmt *stmt = safe_get_stmtw("bind_text", v_stmt)->stmt;
+  range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
+  return
+    Val_rc(
+      sqlite3_bind_text(
+        stmt, pos, String_val(v_str), caml_string_length(v_str),
+        SQLITE_TRANSIENT));
+}
+
+CAMLprim value caml_sqlite3_bind_text_bc(value v_stmt, value v_pos, value v_str)
+{
+  return caml_sqlite3_bind_text(v_stmt, Int_val(v_pos), v_str);
+}
+
+/* bind */
+
+CAMLprim value caml_sqlite3_bind(value v_stmt, intnat pos, value v_data)
 {
   sqlite3_stmt *stmt = safe_get_stmtw("bind", v_stmt)->stmt;
-  range_check(i - 1, sqlite3_bind_parameter_count(stmt));
+  range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
   if (Is_long(v_data)) {
     switch Int_val(v_data) {
-      case 1 : return Val_rc(sqlite3_bind_null(stmt, i));
+      case 1 : return Val_rc(sqlite3_bind_null(stmt, pos));
       default : return Val_rc(SQLITE_ERROR);
     }
   } else {
     value v_field = Field(v_data, 0);
     switch (Tag_val(v_data)) {
-      case 0 : return Val_rc(sqlite3_bind_int64(stmt, i, Int64_val(v_field)));
-      case 1 : return Val_rc(sqlite3_bind_double(stmt, i, Double_val(v_field)));
+      case 0 : return Val_rc(sqlite3_bind_int64(stmt, pos, Int64_val(v_field)));
+      case 1 :
+        return Val_rc(sqlite3_bind_double(stmt, pos, Double_val(v_field)));
       case 2 :
-        return Val_rc(sqlite3_bind_text(stmt, i,
+        return Val_rc(sqlite3_bind_text(stmt, pos,
                                         String_val(v_field),
                                         caml_string_length(v_field),
                                         SQLITE_TRANSIENT));
       case 3 :
-        return Val_rc(sqlite3_bind_blob(stmt, i,
+        return Val_rc(sqlite3_bind_blob(stmt, pos,
                                         String_val(v_field),
                                         caml_string_length(v_field),
                                         SQLITE_TRANSIENT));
@@ -1040,10 +1127,12 @@ CAMLprim value caml_sqlite3_bind(value v_stmt, intnat i, value v_data)
   return Val_rc(SQLITE_ERROR);
 }
 
-CAMLprim value caml_sqlite3_bind_bc(value v_stmt, value v_index, value v_data)
+CAMLprim value caml_sqlite3_bind_bc(value v_stmt, value v_pos, value v_data)
 {
-  return caml_sqlite3_bind(v_stmt, Int_val(v_index), v_data);
+  return caml_sqlite3_bind(v_stmt, Int_val(v_pos), v_data);
 }
+
+/* clear_bindings */
 
 CAMLprim value caml_sqlite3_clear_bindings(value v_stmt)
 {
@@ -1051,30 +1140,30 @@ CAMLprim value caml_sqlite3_clear_bindings(value v_stmt)
   return Val_rc(sqlite3_clear_bindings(stmt));
 }
 
-CAMLprim value caml_sqlite3_column_name(value v_stmt, intnat i)
+CAMLprim value caml_sqlite3_column_name(value v_stmt, intnat pos)
 {
   CAMLparam1(v_stmt);
   sqlite3_stmt *stmt = safe_get_stmtw("column_name", v_stmt)->stmt;
-  range_check(i, sqlite3_column_count(stmt));
-  CAMLreturn(caml_copy_string(sqlite3_column_name(stmt, i)));
+  range_check(pos, sqlite3_column_count(stmt));
+  CAMLreturn(caml_copy_string(sqlite3_column_name(stmt, pos)));
 }
 
-CAMLprim value caml_sqlite3_column_name_bc(value v_stmt, value v_index)
+CAMLprim value caml_sqlite3_column_name_bc(value v_stmt, value v_pos)
 {
-  return caml_sqlite3_column_name(v_stmt, Int_val(v_index));
+  return caml_sqlite3_column_name(v_stmt, Int_val(v_pos));
 }
 
-CAMLprim value caml_sqlite3_column_decltype(value v_stmt, intnat i)
+CAMLprim value caml_sqlite3_column_decltype(value v_stmt, intnat pos)
 {
   CAMLparam1(v_stmt);
   sqlite3_stmt *stmt = safe_get_stmtw("column_decltype", v_stmt)->stmt;
-  range_check(i, sqlite3_column_count(stmt));
-  CAMLreturn(Val_string_option(sqlite3_column_decltype(stmt, i)));
+  range_check(pos, sqlite3_column_count(stmt));
+  CAMLreturn(Val_string_option(sqlite3_column_decltype(stmt, pos)));
 }
 
-CAMLprim value caml_sqlite3_column_decltype_bc(value v_stmt, value v_index)
+CAMLprim value caml_sqlite3_column_decltype_bc(value v_stmt, value v_pos)
 {
-  return caml_sqlite3_column_decltype(v_stmt, Int_val(v_index));
+  return caml_sqlite3_column_decltype(v_stmt, Int_val(v_pos));
 }
 
 CAMLprim value caml_sqlite3_step(value v_stmt)
@@ -1088,6 +1177,8 @@ CAMLprim value caml_sqlite3_step(value v_stmt)
   CAMLreturn(Val_rc(rc));
 }
 
+/* data_count */
+
 CAMLprim intnat caml_sqlite3_data_count(value v_stmt)
 {
   sqlite3_stmt *stmt = safe_get_stmtw("data_count", v_stmt)->stmt;
@@ -1098,6 +1189,8 @@ CAMLprim value caml_sqlite3_data_count_bc(value v_stmt)
 {
   return Val_int(caml_sqlite3_data_count(v_stmt));
 }
+
+/* column_count */
 
 CAMLprim intnat caml_sqlite3_column_count(value v_stmt)
 {
@@ -1110,56 +1203,120 @@ CAMLprim value caml_sqlite3_column_count_bc(value v_stmt)
   return Val_int(caml_sqlite3_column_count(v_stmt));
 }
 
-CAMLprim value caml_sqlite3_column_blob(value v_stmt, intnat i)
+/* column_blob */
+
+CAMLprim value caml_sqlite3_column_blob(value v_stmt, intnat pos)
 {
   CAMLparam1(v_stmt);
+  int len;
+  value v_str;
   sqlite3_stmt *stmt = safe_get_stmtw("column_blob", v_stmt)->stmt;
-  range_check(i, sqlite3_column_count(stmt));
-  if (sqlite3_column_type(stmt, i) == SQLITE_NULL) CAMLreturn(Val_None);
-  else {
-    const void *blob = sqlite3_column_blob(stmt, i);
-    int len = sqlite3_column_bytes(stmt, i);
-    value v_str = caml_alloc_string(len);
-    memcpy(String_val(v_str), blob, len);
-    CAMLreturn(Val_Some(v_str));
-  }
+  range_check(pos, sqlite3_column_count(stmt));
+  len = sqlite3_column_bytes(stmt, pos);
+  v_str = caml_alloc_string(len);
+  memcpy(String_val(v_str), sqlite3_column_blob(stmt, pos), len);
+  CAMLreturn(v_str);
 }
 
-CAMLprim value caml_sqlite3_column_blob_bc(value v_stmt, value v_index)
+CAMLprim value caml_sqlite3_column_blob_bc(value v_stmt, value v_pos)
 {
-  return caml_sqlite3_column_blob(v_stmt, Int_val(v_index));
+  return caml_sqlite3_column_blob(v_stmt, Int_val(v_pos));
 }
 
-CAMLprim value caml_sqlite3_column(value v_stmt, intnat i)
+/* column_double */
+
+CAMLprim double caml_sqlite3_column_double(value v_stmt, intnat pos)
+{
+  sqlite3_stmt *stmt = safe_get_stmtw("column_double", v_stmt)->stmt;
+  range_check(pos, sqlite3_column_count(stmt));
+  return sqlite3_column_double(stmt, pos);
+}
+
+CAMLprim value caml_sqlite3_column_double_bc(value v_stmt, value v_pos)
+{
+  return caml_copy_double(caml_sqlite3_column_double(v_stmt, Int_val(v_pos)));
+}
+
+/* column_int32 */
+
+CAMLprim int32_t caml_sqlite3_column_int32(value v_stmt, intnat pos)
+{
+  sqlite3_stmt *stmt = safe_get_stmtw("column_int32", v_stmt)->stmt;
+  range_check(pos, sqlite3_column_count(stmt));
+  return sqlite3_column_int(stmt, pos);
+}
+
+CAMLprim value caml_sqlite3_column_int32_bc(value v_stmt, value v_pos)
+{
+  return caml_copy_int32(caml_sqlite3_column_int32(v_stmt, Int_val(v_pos)));
+}
+
+/* column_int64 */
+
+CAMLprim int64_t caml_sqlite3_column_int64(value v_stmt, intnat pos)
+{
+  sqlite3_stmt *stmt = safe_get_stmtw("column_int64", v_stmt)->stmt;
+  range_check(pos, sqlite3_column_count(stmt));
+  return sqlite3_column_int64(stmt, pos);
+}
+
+CAMLprim value caml_sqlite3_column_int64_bc(value v_stmt, value v_pos)
+{
+  return caml_copy_int64(caml_sqlite3_column_int64(v_stmt, Int_val(v_pos)));
+}
+
+/* column_text */
+
+CAMLprim value caml_sqlite3_column_text(value v_stmt, intnat pos)
+{
+  CAMLparam1(v_stmt);
+  int len;
+  value v_str;
+  sqlite3_stmt *stmt = safe_get_stmtw("column_text", v_stmt)->stmt;
+  range_check(pos, sqlite3_column_count(stmt));
+  len = sqlite3_column_bytes(stmt, pos);
+  v_str = caml_alloc_string(len);
+  memcpy(String_val(v_str), sqlite3_column_text(stmt, pos), len);
+  CAMLreturn(v_str);
+}
+
+CAMLprim value caml_sqlite3_column_text_bc(value v_stmt, value v_pos)
+{
+  return caml_sqlite3_column_text(v_stmt, Int_val(v_pos));
+}
+
+/* column */
+
+CAMLprim value caml_sqlite3_column(value v_stmt, intnat pos)
 {
   CAMLparam1(v_stmt);
   CAMLlocal1(v_tmp);
   value v_res;
   sqlite3_stmt *stmt = safe_get_stmtw("column", v_stmt)->stmt;
   int len;
-  range_check(i, sqlite3_column_count(stmt));
-  switch (sqlite3_column_type(stmt, i)) {
+  range_check(pos, sqlite3_column_count(stmt));
+  switch (sqlite3_column_type(stmt, pos)) {
     case SQLITE_INTEGER :
-      v_tmp = caml_copy_int64(sqlite3_column_int64(stmt, i));
+      v_tmp = caml_copy_int64(sqlite3_column_int64(stmt, pos));
       v_res = caml_alloc_small(1, 0);
       Field(v_res, 0) = v_tmp;
       break;
     case SQLITE_FLOAT :
-      v_tmp = caml_copy_double(sqlite3_column_double(stmt, i));
+      v_tmp = caml_copy_double(sqlite3_column_double(stmt, pos));
       v_res = caml_alloc_small(1, 1);
       Field(v_res, 0) = v_tmp;
       break;
     case SQLITE3_TEXT :
-      len = sqlite3_column_bytes(stmt, i);
+      len = sqlite3_column_bytes(stmt, pos);
       v_tmp = caml_alloc_string(len);
-      memcpy(String_val(v_tmp), (char *) sqlite3_column_text(stmt, i), len);
+      memcpy(String_val(v_tmp), (char *) sqlite3_column_text(stmt, pos), len);
       v_res = caml_alloc_small(1, 2);
       Field(v_res, 0) = v_tmp;
       break;
     case SQLITE_BLOB :
-      len = sqlite3_column_bytes(stmt, i);
+      len = sqlite3_column_bytes(stmt, pos);
       v_tmp = caml_alloc_string(len);
-      memcpy(String_val(v_tmp), (char *) sqlite3_column_blob(stmt, i), len);
+      memcpy(String_val(v_tmp), (char *) sqlite3_column_blob(stmt, pos), len);
       v_res = caml_alloc_small(1, 3);
       Field(v_res, 0) = v_tmp;
       break;
@@ -1167,14 +1324,14 @@ CAMLprim value caml_sqlite3_column(value v_stmt, intnat i)
       v_res = Val_int(1);
       break;
     default:
-      v_res = Val_None;
+      v_res = Val_int(0);
   }
   CAMLreturn(v_res);
 }
 
-CAMLprim value caml_sqlite3_column_bc(value v_stmt, value v_index)
+CAMLprim value caml_sqlite3_column_bc(value v_stmt, value v_pos)
 {
-  return caml_sqlite3_column(v_stmt, Int_val(v_index));
+  return caml_sqlite3_column(v_stmt, Int_val(v_pos));
 }
 
 CAMLprim intnat caml_sqlite3_sleep(intnat duration)
