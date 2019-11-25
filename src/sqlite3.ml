@@ -233,7 +233,7 @@ module Data = struct
   let to_string_coerce = function
     | NONE | NULL -> ""
     | INT n -> Int64.to_string n
-    | FLOAT n -> Float.to_string n
+    | FLOAT n -> string_of_float n
     | TEXT t | BLOB t -> t
 end  (* Data *)
 

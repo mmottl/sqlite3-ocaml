@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <caml/version.h>
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/fail.h>
@@ -420,7 +421,9 @@ static struct custom_operations db_wrap_ops = {
   custom_serialize_default,
   custom_deserialize_default,
   custom_compare_ext_default,
-  custom_fixed_length_default
+#if (OCAML_VERSION_MAJOR >= 4 && OCAML_VERSION_MINOR >= 8)
+    custom_fixed_length_default,
+#endif
 };
 
 #ifdef SQLITE_HAS_OPEN_V2
@@ -540,7 +543,11 @@ CAMLprim value caml_sqlite3_open(
     int mem, hiwtr;
     int rc = sqlite3_db_status(db, SQLITE_DBSTATUS_CACHE_USED, &mem, &hiwtr, 0);
     mem = db_wrap_size + (rc ? 8192 : mem);
+#if (OCAML_VERSION_MAJOR >= 4 && OCAML_VERSION_MINOR >= 8)
     v_res = caml_alloc_custom_mem(&db_wrap_ops, sizeof(db_wrap *), mem);
+#else
+    v_res = caml_alloc_custom(&db_wrap_ops, sizeof(db_wrap *), 1, 1000);
+#endif
     dbw->db = db;
     dbw->rc = SQLITE_OK;
     dbw->ref_count = 1;
@@ -875,7 +882,9 @@ static struct custom_operations stmt_wrap_ops = {
   custom_serialize_default,
   custom_deserialize_default,
   custom_compare_ext_default,
+#if (OCAML_VERSION_MAJOR >= 4 && OCAML_VERSION_MINOR >= 8)
   custom_fixed_length_default
+#endif
 };
 
 static inline value prepare_it(
@@ -897,11 +906,16 @@ static inline value prepare_it(
     if (rc != SQLITE_OK) raise_sqlite3_current(dbw->db, loc);
     raise_sqlite3_Error("No code compiled from %s", sql);
   } else {
+#if (OCAML_VERSION_MAJOR >= 4 && OCAML_VERSION_MINOR >= 8)
     size_t mem =
       sizeof(stmt_wrap) + sql_len + 1 +
       sqlite3_stmt_status(stmtw->stmt, SQLITE_STMTSTATUS_MEMUSED, 0);
     value v_stmt =
       caml_alloc_custom_mem(&stmt_wrap_ops, sizeof(stmt_wrap *), mem);
+#else
+    value v_stmt =
+      caml_alloc_custom(&stmt_wrap_ops, sizeof(stmt_wrap *), 1, 1000);
+#endif
     Sqlite3_stmtw_val(v_stmt) = stmtw;
     return v_stmt;
   }
