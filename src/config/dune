@@ -1,4 +1,3 @@
 (executables
-  (names discover)
-  (libraries base stdio dune.configurator)
-)
+ (names discover)
+ (libraries dune.configurator))

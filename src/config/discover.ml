@@ -1,47 +1,69 @@
-open Base
-open Stdio
+let exn_protect ~finally x ~f =
+  try
+    let y = f x in
+    finally x;
+    y
+  with e ->
+    finally x;
+    raise e
 
 let read_lines_from_cmd ~max_lines cmd =
   let ic =
     try Unix.open_process_in cmd
     with exc ->
-      eprintf "read_lines_from_cmd: could not open cmd: '%s'" cmd;
+      Printf.eprintf "read_lines_from_cmd: could not open cmd: '%s'" cmd;
       raise exc
   in
-  Exn.protectx ic ~finally:In_channel.close ~f:(fun ic ->
+  exn_protect ic ~finally:close_in_noerr ~f:(fun ic ->
     let rec loop n lines =
       if n <= 0 then List.rev lines
       else
-        match In_channel.input_line ic with
-        | Some line -> loop (n - 1) (line :: lines)
-        | None ->
-            eprintf "read_lines_from_cmd: failed reading line %d, cmd: '%s'"
+        match input_line ic with
+        | line -> loop (n - 1) (line :: lines)
+        | exception _ ->
+            Printf.eprintf "read_lines_from_cmd: failed reading line %d, cmd: '%s'"
               (max_lines - n + 1) cmd;
             raise End_of_file
     in
     loop max_lines [])
 
+let opt_map ~default ~f x = match x with
+  | Some y -> f y
+  | None -> default
+let opt_is_some = function Some _ -> true | _ -> false
+let getenv_opt s = try Some (Sys.getenv s) with _ -> None
+
 let pkg_export =
   let has_brewcheck =
-    try ignore (Caml.Sys.getenv "SQLITE3_OCAML_BREWCHECK"); true
-    with _ -> false
+    opt_is_some (getenv_opt "SQLITE3_OCAML_BREWCHECK")
   in
   if not has_brewcheck then ""
   else
     let cmd = "brew ls sqlite | grep pkgconfig" in
     match read_lines_from_cmd ~max_lines:1 cmd with
-    | [fullpath] when String.(fullpath <> "") ->
-        let path = Caml.Filename.dirname fullpath in
+    | [fullpath] when not (String.equal fullpath "") ->
+        let path = Filename.dirname fullpath in
         Printf.sprintf "PKG_CONFIG_PATH=%s" path
     | _ -> ""
 
-let split_ws str = List.filter (String.split ~on:' ' str) ~f:(String.(<>) "")
+let split_ws str =
+  let l = ref [] in
+  let i = ref 0 in
+  while !i < String.length str do
+    let j = String.index_from str !i ' ' in
+    if !i=j then incr i
+    else (
+      l := String.sub str !i (j- !i) :: !l;
+      i := j+1;
+    )
+  done;
+  List.rev !l
 
 let () =
   let module C = Configurator.V1 in
   C.main ~name:"sqlite3" (fun c ->
     let is_macosx =
-      Option.value_map (C.ocaml_config_var c "system") ~default:false
+      opt_map (C.ocaml_config_var c "system") ~default:false
         ~f:(function "macosx" -> true | _ -> false)
     in
     let cflags =
@@ -51,8 +73,8 @@ let () =
           let cflags = split_ws cflags in
           if
             is_macosx ||
-            Option.is_some (
-              Caml.Sys.getenv_opt "SQLITE3_DISABLE_LOADABLE_EXTENSIONS")
+            opt_is_some (
+              getenv_opt "SQLITE3_DISABLE_LOADABLE_EXTENSIONS")
           then "-DSQLITE3_DISABLE_LOADABLE_EXTENSIONS" :: cflags
           else cflags
       | _ -> failwith "pkg-config failed to return cflags"
