@@ -29,6 +29,9 @@
 
   * Switched to OPAM file generation via `dune-project`.
 
+  * Improved compatibility with older OCaml versions.  Thanks to Simon Cruanes
+    for this patch!
+
   Thanks to Shawn <shawnw.mobile@gmail.com> and Ted Spence <tspence@fb.com>
   for their work on many of these contributions!
 
