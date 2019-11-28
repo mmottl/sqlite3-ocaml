@@ -1,11 +1,17 @@
-let exn_protect ~finally x ~f =
-  try
-    let y = f x in
-    finally x;
-    y
-  with e ->
-    finally x;
-    raise e
+exception Finally_raised of exn
+
+let protect ~(finally : unit -> unit) work =
+  let finally_no_exn () =
+    try finally () with e ->
+      let bt = Printexc.get_raw_backtrace () in
+      Printexc.raise_with_backtrace (Finally_raised e) bt
+  in
+  match work () with
+  | result -> finally_no_exn () ; result
+  | exception work_exn ->
+      let work_bt = Printexc.get_raw_backtrace () in
+      finally_no_exn () ;
+      Printexc.raise_with_backtrace work_exn work_bt
 
 let read_lines_from_cmd ~max_lines cmd =
   let ic =
@@ -14,29 +20,29 @@ let read_lines_from_cmd ~max_lines cmd =
       Printf.eprintf "read_lines_from_cmd: could not open cmd: '%s'" cmd;
       raise exc
   in
-  exn_protect ic ~finally:close_in_noerr ~f:(fun ic ->
+  protect ~finally:(fun () -> close_in_noerr ic) (fun () ->
     let rec loop n lines =
       if n <= 0 then List.rev lines
       else
         match input_line ic with
         | line -> loop (n - 1) (line :: lines)
         | exception _ ->
-            Printf.eprintf "read_lines_from_cmd: failed reading line %d, cmd: '%s'"
+            Printf.eprintf
+              "read_lines_from_cmd: failed reading line %d, cmd: '%s'"
               (max_lines - n + 1) cmd;
             raise End_of_file
     in
     loop max_lines [])
 
-let opt_map ~default ~f x = match x with
+let opt_map ~default ~f = function
   | Some y -> f y
   | None -> default
+
 let opt_is_some = function Some _ -> true | _ -> false
 let getenv_opt s = try Some (Sys.getenv s) with _ -> None
 
 let pkg_export =
-  let has_brewcheck =
-    opt_is_some (getenv_opt "SQLITE3_OCAML_BREWCHECK")
-  in
+  let has_brewcheck = opt_is_some (getenv_opt "SQLITE3_OCAML_BREWCHECK") in
   if not has_brewcheck then ""
   else
     let cmd = "brew ls sqlite | grep pkgconfig" in
@@ -47,17 +53,18 @@ let pkg_export =
     | _ -> ""
 
 let split_ws str =
-  let l = ref [] in
+  let lst = ref [] in
   let i = ref 0 in
-  while !i < String.length str do
-    let j = String.index_from str !i ' ' in
-    if !i=j then incr i
-    else (
-      l := String.sub str !i (j- !i) :: !l;
-      i := j+1;
-    )
+  let len = String.length str in
+  while !i < len do
+    let j = try String.index_from str !i ' ' with Not_found -> len in
+    if !i = j then incr i
+    else begin
+      lst := String.sub str !i (j - !i) :: !lst;
+      i := j + 1;
+    end
   done;
-  List.rev !l
+  List.rev !lst
 
 let () =
   let module C = Configurator.V1 in
