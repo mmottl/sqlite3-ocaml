@@ -19,8 +19,9 @@ SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
 
 #### Examples
 
-The `test`-directory in this distribution contains a few simple examples
-for testing various features of this library.
+The `test`-directory in this distribution contains a few simple examples for
+testing various features of this library.  The tests can be run by executing
+`dune runtest`.
 
 #### Build issues
 
