@@ -1,3 +1,8 @@
+### ?.?.? (????-??-??)
+
+  * Added missing :with-test declaration in Dune project file.
+
+
 ### 5.0.0 (2019-12-01)
 
   * Breaking change:
