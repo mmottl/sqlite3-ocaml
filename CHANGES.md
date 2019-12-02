@@ -1,6 +1,8 @@
-### ?.?.? (????-??-??)
+### 5.0.1 (2019-12-01)
 
   * Added missing :with-test declaration in Dune project file.
+
+  * Improved portability to older SQLite3 versions.
 
 
 ### 5.0.0 (2019-12-01)
