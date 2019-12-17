@@ -27,8 +27,6 @@ database engine with outstanding performance for many use cases.")
     (dune (>= 1.11))
     dune-configurator
     (conf-sqlite3 :build)
-    (base :build)
-    (stdio :build)
     (ppx_inline_test :with-test)
   )
   (tags (clib:sqlite3 clib:pthread))
