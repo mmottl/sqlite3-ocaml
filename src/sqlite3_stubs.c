@@ -1217,8 +1217,7 @@ CAMLprim value caml_sqlite3_column_blob(value v_stmt, intnat pos)
   sqlite3_stmt *stmt = safe_get_stmtw("column_blob", v_stmt)->stmt;
   range_check(pos, sqlite3_column_count(stmt));
   len = sqlite3_column_bytes(stmt, pos);
-  v_str = caml_alloc_string(len);
-  memcpy(String_val(v_str), sqlite3_column_blob(stmt, pos), len);
+  v_str = caml_alloc_initialized_string(len, sqlite3_column_blob(stmt, pos));
   CAMLreturn(v_str);
 }
 
@@ -1279,8 +1278,8 @@ CAMLprim value caml_sqlite3_column_text(value v_stmt, intnat pos)
   sqlite3_stmt *stmt = safe_get_stmtw("column_text", v_stmt)->stmt;
   range_check(pos, sqlite3_column_count(stmt));
   len = sqlite3_column_bytes(stmt, pos);
-  v_str = caml_alloc_string(len);
-  memcpy(String_val(v_str), sqlite3_column_text(stmt, pos), len);
+  v_str =
+    caml_alloc_initialized_string(len, (char *) sqlite3_column_text(stmt, pos));
   CAMLreturn(v_str);
 }
 
@@ -1312,15 +1311,16 @@ CAMLprim value caml_sqlite3_column(value v_stmt, intnat pos)
       break;
     case SQLITE3_TEXT :
       len = sqlite3_column_bytes(stmt, pos);
-      v_tmp = caml_alloc_string(len);
-      memcpy(String_val(v_tmp), (char *) sqlite3_column_text(stmt, pos), len);
+      v_tmp =
+        caml_alloc_initialized_string(
+          len, (char *) sqlite3_column_text(stmt, pos));
       v_res = caml_alloc_small(1, 2);
       Field(v_res, 0) = v_tmp;
       break;
     case SQLITE_BLOB :
       len = sqlite3_column_bytes(stmt, pos);
-      v_tmp = caml_alloc_string(len);
-      memcpy(String_val(v_tmp), (char *) sqlite3_column_blob(stmt, pos), len);
+      v_tmp =
+        caml_alloc_initialized_string(len, sqlite3_column_blob(stmt, pos));
       v_res = caml_alloc_small(1, 3);
       Field(v_res, 0) = v_tmp;
       break;
@@ -1380,15 +1380,15 @@ static inline value caml_sqlite3_wrap_values(int argc, sqlite3_value **args)
           break;
         case SQLITE3_TEXT :
           len = sqlite3_value_bytes(arg);
-          v_tmp = caml_alloc_string(len);
-          memcpy(String_val(v_tmp), (char *) sqlite3_value_text(arg), len);
+          v_tmp =
+            caml_alloc_initialized_string(
+              len, (char *) sqlite3_value_text(arg));
           v_res = caml_alloc_small(1, 2);
           Field(v_res, 0) = v_tmp;
           break;
         case SQLITE_BLOB :
           len = sqlite3_value_bytes(arg);
-          v_tmp = caml_alloc_string(len);
-          memcpy(String_val(v_tmp), (char *) sqlite3_value_blob(arg), len);
+          v_tmp = caml_alloc_initialized_string(len, sqlite3_value_blob(arg));
           v_res = caml_alloc_small(1, 3);
           Field(v_res, 0) = v_tmp;
           break;
