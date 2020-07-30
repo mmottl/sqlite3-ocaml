@@ -40,16 +40,11 @@
 #include <sqlite3.h>
 
 #if __GNUC__ >= 3
-# define inline inline __attribute__ ((always_inline))
 # if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__DragonFly) && !__APPLE__
-# define __unused __attribute__ ((unused))
+#  define __unused __attribute__ ((unused))
 # endif
 #else
 # define __unused
-# ifdef inline
-#  undef inline
-# endif
-# define inline
 #endif
 
 #if SQLITE_VERSION_NUMBER >= 3003007 && !SQLITE3_DISABLE_LOADABLE_EXTENSIONS
