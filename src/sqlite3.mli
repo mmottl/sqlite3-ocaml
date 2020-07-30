@@ -373,9 +373,9 @@ val exec : db -> ?cb : (row -> headers -> unit) -> string -> Rc.t
 (** [exec db ?cb sql] performs SQL-operation [sql] on database [db].
     If the operation contains query statements, then the callback function
     [cb] will be called for each matching row.  The first parameter of
-    the callback is the contents of the row, the second paramater are the
-    headers of the columns associated with the row.  Exceptions raised
-    within the callback will abort the execution and escape {!exec}.
+    the callback contains the contents of the row, the second parameter
+    contains the headers of the columns associated with the row.  Exceptions
+    raised within the callback will abort the execution and escape {!exec}.
 
     @return the return code of the operation.
 
