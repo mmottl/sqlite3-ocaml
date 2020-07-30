@@ -255,14 +255,14 @@ static void raise_sqlite3_misuse_db(db_wrap *dbw, const char *fmt, ...)
   raise_sqlite3_Error("%s", buf);
 }
 
-static inline void raise_sqlite3_current(sqlite3 *db, char *loc)
+static inline void raise_sqlite3_current(sqlite3 *db, const char *loc)
 {
   const char *what = sqlite3_errmsg(db);
   if (!what) what = "<No error>";
   raise_sqlite3_Error("Sqlite3.%s: %s", loc, what);
 }
 
-static inline void check_db(db_wrap *dbw, char *loc)
+static inline void check_db(db_wrap *dbw, const char *loc)
 {
   if (!dbw->db)
     raise_sqlite3_misuse_db(dbw, "Sqlite3.%s called with closed database", loc);
@@ -883,7 +883,7 @@ static struct custom_operations stmt_wrap_ops = {
 };
 
 static inline value prepare_it(
-  db_wrap *dbw, const char *sql, int sql_len, char *loc)
+  db_wrap *dbw, const char *sql, int sql_len, const char *loc)
 {
   int rc;
   stmt_wrap *stmtw = caml_stat_alloc(sizeof(stmt_wrap));
@@ -933,7 +933,7 @@ CAMLprim value caml_sqlite3_stmt_reset(value v_stmt)
 CAMLprim value caml_sqlite3_prepare(value v_db, value v_sql)
 {
   CAMLparam1(v_db);
-  char *loc = "prepare", *sql = String_val(v_sql);
+  const char *loc = "prepare", *sql = String_val(v_sql);
   db_wrap *dbw = Sqlite3_val(v_db);
   check_db(dbw, loc);
   CAMLreturn(prepare_it(dbw, sql, caml_string_length(v_sql), loc));
@@ -1005,7 +1005,7 @@ CAMLprim value caml_sqlite3_bind_parameter_name_bc(value v_stmt, value v_pos)
 CAMLprim intnat caml_sqlite3_bind_parameter_index(value v_stmt, value v_name)
 {
   sqlite3_stmt *stmt = safe_get_stmtw("bind_parameter_index", v_stmt)->stmt;
-  char *parm_name = String_val(v_name);
+  const char *parm_name = String_val(v_name);
   int index = sqlite3_bind_parameter_index(stmt, parm_name);
   if (!index) caml_raise_not_found();
   return index;
@@ -1492,7 +1492,7 @@ MK_USER_FUNCTION_VALUE_FINAL(final, Field(data->v_fun, 5),
 static inline void unregister_user_function(db_wrap *db_data, value v_name)
 {
   user_function *prev = NULL, *link = db_data->user_functions;
-  char *name = String_val(v_name);
+  const char *name = String_val(v_name);
 
   while (link != NULL) {
     if (strcmp(String_val(Field(link->v_fun, 0)), name) == 0) {
