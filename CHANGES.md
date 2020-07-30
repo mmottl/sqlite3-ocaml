@@ -1,3 +1,17 @@
+### 5.0.2 (2020-07-30)
+
+  * Added missing `dune-configurator` dependency.
+
+  * Removed redundant build dependencies.
+
+  * Use `caml_alloc_initialized_string` wherever possible.
+
+  * Fixed documentation typos and wording.
+
+  * Added support for const char strings in stubs due to stricter handling
+    in newer OCaml runtimes.  This eliminates C-compiler warnings.
+
+
 ### 5.0.1 (2019-12-01)
 
   * Added missing :with-test declaration in Dune project file.
