@@ -1,3 +1,8 @@
+### ?.?.? (???-??-??)
+
+  * Fixed incorrect required minimum OCaml version (now 4.06).
+
+
 ### 5.0.2 (2020-07-30)
 
   * Added missing `dune-configurator` dependency.
