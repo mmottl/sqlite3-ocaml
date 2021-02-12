@@ -10,7 +10,7 @@ authors: [
   "Markus Mottl <markus.mottl@gmail.com>"
   "Christian Szegedy <csdontspam@metamatix.com>"
 ]
-license: "Expat"
+license: "MIT"
 tags: ["clib:sqlite3" "clib:pthread"]
 homepage: "https://mmottl.github.io/sqlite3-ocaml"
 doc: "https://mmottl.github.io/sqlite3-ocaml/api"

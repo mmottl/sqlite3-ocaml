@@ -4,7 +4,7 @@
 (generate_opam_files true)
 
 (source (github mmottl/sqlite3-ocaml))
-(license Expat)
+(license MIT)
 (homepage "https://mmottl.github.io/sqlite3-ocaml")
 (documentation "https://mmottl.github.io/sqlite3-ocaml/api")
 
