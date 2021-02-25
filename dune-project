@@ -23,7 +23,7 @@ sqlite3-ocaml is an OCaml library with bindings to the SQLite3 client API.
 Sqlite3 is a self-contained, serverless, zero-configuration, transactional SQL
 database engine with outstanding performance for many use cases.")
   (depends
-    (ocaml (>= 4.06))
+    (ocaml (>= 4.12))
     dune-configurator
     (conf-sqlite3 :build)
     (ppx_inline_test :with-test)
