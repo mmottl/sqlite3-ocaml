@@ -1,6 +1,8 @@
 ### ?.?.? (???-??-??)
 
-  * Fixed incorrect required minimum OCaml version (now 4.06).
+  * Fixed missing GC registration of init values in aggregate functions.
+
+  * Fixed incorrect required minimum OCaml version (now 4.12).
 
 
 ### 5.0.2 (2020-07-30)

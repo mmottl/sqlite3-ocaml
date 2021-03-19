@@ -1558,8 +1558,8 @@ CAMLprim value caml_sqlite3_create_aggregate_function(
   value v_init, value v_stepfn, value v_inversefn, value v_valuefn,
   value v_finalfn)
 {
-  CAMLparam5(v_db, v_name, v_stepfn, v_inversefn, v_valuefn);
-  CAMLxparam1(v_finalfn);
+  CAMLparam5(v_db, v_name, v_init, v_stepfn, v_inversefn);
+  CAMLxparam2(v_valuefn, v_finalfn);
   user_function *param;
   int rc;
   db_wrap *dbw = Sqlite3_val(v_db);
