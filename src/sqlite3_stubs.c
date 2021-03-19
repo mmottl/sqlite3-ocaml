@@ -1457,9 +1457,14 @@ static void caml_sqlite3_user_function_##NAME(sqlite3_context *ctx) \
   agg_ctx *agg_ctx = sqlite3_aggregate_context(ctx, sizeof(agg_ctx)); \
   value v_res; \
   caml_leave_blocking_section(); \
-    v_res = caml_callback_exn(GET_FUN, agg_ctx->v_acc); \
-    set_sqlite3_result(ctx, v_res); \
-    REMOVE_ROOT; \
+    if (!agg_ctx->initialized) { \
+      v_res = caml_callback_exn(GET_FUN, Field(data->v_fun, 1)); \
+      set_sqlite3_result(ctx, v_res); \
+    } else { \
+      v_res = caml_callback_exn(GET_FUN, agg_ctx->v_acc); \
+      set_sqlite3_result(ctx, v_res); \
+      REMOVE_ROOT; \
+    } \
   caml_enter_blocking_section(); \
 }
 

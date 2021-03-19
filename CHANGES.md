@@ -2,6 +2,8 @@
 
   * Fixed missing GC registration of init values in aggregate functions.
 
+  * Fixed call to final aggregate function when no step function was called.
+
   * Fixed incorrect required minimum OCaml version (now 4.12).
 
 
