@@ -1,4 +1,4 @@
-### ?.?.? (???-??-??)
+### 5.0.3 (2021-03-18)
 
   * Fixed missing GC registration of init values in aggregate functions.
 
