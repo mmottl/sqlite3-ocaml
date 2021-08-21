@@ -348,7 +348,7 @@ val ( let& ) : db -> (db -> 'a) -> 'a
     database [db] is safely closed at the end of the scope, even if there is an
     exception somewhere in the scope.
 
-    @raise Failure if the database could not be closed successfully. *)
+    @raise Fun.Finally_raised if the database could not be closed successfully. *)
 
 val enable_load_extension : db -> bool -> bool
 (** [enable_load_extension db onoff] enable/disable the SQLite3 load
