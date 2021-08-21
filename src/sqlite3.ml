@@ -281,6 +281,12 @@ let db_open ?mode ?(uri = false) ?(memory = false) ?mutex ?cache ?vfs name =
 
 external db_close : db -> bool = "caml_sqlite3_close"
 
+let ( let& ) db f =
+  let close_or_exn () =
+    if not (db_close db) then failwith "Could not close database"
+  in
+  Fun.protect ~finally:close_or_exn (fun () -> f db)
+
 external errcode : db -> Rc.t = "caml_sqlite3_errcode"
 external errmsg : db -> string = "caml_sqlite3_errmsg"
 

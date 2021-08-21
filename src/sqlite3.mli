@@ -343,6 +343,13 @@ val db_close : db -> bool
     @raise SqliteError if an invalid database handle is passed.
 *)
 
+val ( let& ) : db -> (db -> 'a) -> 'a
+(** [let& db = db_open "..." in ...scope that uses db...] ensures that the
+    database [db] is safely closed at the end of the scope, even if there is an
+    exception somewhere in the scope.
+
+    @raise Failure if the database could not be closed successfully. *)
+
 val enable_load_extension : db -> bool -> bool
 (** [enable_load_extension db onoff] enable/disable the SQLite3 load
     extension.  @return [false] if the operation fails, [true]
