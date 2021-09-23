@@ -283,7 +283,8 @@ external db_close : db -> bool = "caml_sqlite3_close"
 
 let ( let& ) db f =
   let close_or_exn () =
-    if not (db_close db) then failwith "Could not close database"
+    if not (db_close db) then
+      failwith "Sqlite3.( let& ): could not close database"
   in
   Fun.protect ~finally:close_or_exn (fun () -> f db)
 
