@@ -1,3 +1,10 @@
+### 5.1.0 (2021-09-22)
+
+  * Added let&-operator for implicit closing of an opened database.
+
+    Thanks to Yawar Amin <yawar.amin@gmail.com> for this contribution!
+
+
 ### 5.0.3 (2021-03-18)
 
   * Fixed missing GC registration of init values in aggregate functions.
