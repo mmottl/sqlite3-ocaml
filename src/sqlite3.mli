@@ -160,6 +160,199 @@ module Rc : sig
 end  (* Rc *)
 
 
+(** {2 Extended return codes} *)
+
+module Erc : sig
+
+  type ok =
+    | UNREFINED
+    | LOAD_PERMANENTLY
+    | SYMLINK
+
+  type error =
+    | UNREFINED
+    | MISSING_COLLSEQ
+    | RETRY
+    | SNAPSHOT
+
+  type internal =
+    | UNREFINED
+
+  type perm =
+    | UNREFINED
+
+  type abort =
+    | UNREFINED
+    | ROLLBACK
+
+  type busy =
+    | UNREFINED
+    | RECOVERY
+    | SNAPSHOT
+
+  type locked =
+    | UNREFINED
+    | LOCKED_SHAREDCACHE
+    | LOCKED_VTAB
+
+  type nomem =
+    | UNREFINED
+
+  type readonly =
+    | UNREFINED
+    | RECOVERY
+    | CANTLOCK
+    | ROLLBACK
+    | DBMOVED
+    | CANTINIT
+    | DIRECTORY
+
+  type interrupt =
+    | UNREFINED
+
+  type ioerr =
+    | UNREFINED
+    | READ
+    | SHORT_READ
+    | WRITE
+    | FSYNC
+    | DIR_FSYNC
+    | TRUNCATE
+    | FSTAT
+    | UNLOCK
+    | RDLOCK
+    | DELETE
+    | BLOCKED
+    | NOMEM
+    | ACCESS
+    | CHECKRESERVEDLOCK
+    | LOCK
+    | CLOSE
+    | DIR_CLOSE
+    | SHMOPEN
+    | SHMSIZE
+    | SHMLOCK
+    | SHMMAP
+    | SEEK
+    | DELETE_NOENT
+    | MMAP
+    | GETTEMPPATH
+    | CONVPATH
+    | VNODE
+    | AUTH
+    | BEGIN_ATOMIC
+    | COMMIT_ATOMIC
+    | ROLLBACK_ATOMIC
+
+  type corrupt =
+    | UNREFINED
+    | VTAB
+    | SEQUENCE
+
+  type notfound =
+    | UNREFINED
+
+  type full =
+    | UNREFINED
+
+  type cantopen =
+    | UNREFINED
+    | NOTEMPDIR
+    | ISDIR
+    | FULLPATH
+    | CONVPATH
+    | DIRTYWAL
+    | SYMLINK
+
+  type protocol =
+    | UNREFINED
+
+  type empty =
+    | UNREFINED
+
+  type schema =
+    | UNREFINED
+
+  type toobig =
+    | UNREFINED
+
+  type constraint_ =
+    | UNREFINED
+    | CHECK
+    | COMMITHOOK
+    | FOREIGNKEY
+    | FUNCTION
+    | NOTNULL
+    | PRIMARYKEY
+    | TRIGGER
+    | UNIQUE
+    | VTAB
+    | ROWID
+    | PINNED
+
+  type mismatch =
+    | UNREFINED
+
+  type misuse =
+    | UNREFINED
+
+  type nofls =
+    | UNREFINED
+
+  type auth =
+    | UNREFINED
+    | USER
+
+  type format =
+    | UNREFINED
+
+  type range =
+    | UNREFINED
+
+  type notadb =
+    | UNREFINED
+
+  type row =
+    | UNREFINED
+
+  type done_ =
+    | UNREFINED
+
+  type t =
+    | OK of ok
+    | ERROR of error
+    | INTERNAL of internal
+    | PERM of perm
+    | ABORT of abort
+    | BUSY of busy
+    | LOCKED of locked
+    | NOMEM of nomem
+    | READONLY of readonly
+    | INTERRUPT of interrupt
+    | IOERR of ioerr
+    | CORRUPT of corrupt
+    | NOTFOUND of notfound
+    | FULL of full
+    | CANTOPEN of cantopen
+    | PROTOCOL of protocol
+    | EMPTY of empty
+    | SCHEMA of schema
+    | TOOBIG of toobig
+    | CONSTRAINT of constraint_
+    | MISMATCH of mismatch
+    | MISUSE of misuse
+    | NOFLS of nofls
+    | AUTH of auth
+    | FORMAT of format
+    | RANGE of range
+    | NOTADB of notadb
+    | ROW of row
+    | DONE of done_
+    | UNKNOWN of int
+
+end  (* Erc *)
+
+
 (** {2 Column data types} *)
 
 module Data : sig
@@ -369,6 +562,18 @@ val errmsg : db -> string
 
     @raise SqliteError if an invalid database handle is passed.
 *)
+
+val extended_errcode : db -> Erc.t
+(** [extended_errcode db] @return the extended error code of the last operation
+    on the database [db].
+
+    @raise SqliteError if an invalid database handle is passed. *)
+
+val extended_errcode_int : db -> int
+(** [extended_errcode_int db] @return the extended error code of the last
+    operation on the database [db] as an integer.
+
+    @raise SqliteError if an invalid database handle is passed. *)
 
 val last_insert_rowid : db -> int64
 (** [last_insert_rowid db] @return the index of the row inserted by

@@ -315,6 +315,41 @@ static inline value Val_rc(int rc)
   return v_res;
 }
 
+static inline value Val_erc(int erc)
+{
+  int rc0 = erc & 0xff;
+  int rc1 = erc >> 8;
+  value v_res;
+  int rc1_max = 0;
+  switch (rc0) {
+    case SQLITE_ERROR: rc1_max = 3; break;
+    case SQLITE_IOERR: rc1_max = 31; break;
+    case SQLITE_LOCKED: rc1_max = 2; break;
+    case SQLITE_BUSY: rc1_max = 2; break;
+    case SQLITE_CANTOPEN: rc1_max = 6; break;
+    case SQLITE_CORRUPT: rc1_max = 2; break;
+    case SQLITE_READONLY: rc1_max = 6; break;
+    case SQLITE_ABORT: if (rc1 == 2) rc1 = 1; rc1_max = 1; break;
+    case SQLITE_CONSTRAINT: rc1_max = 11; break;
+    case SQLITE_AUTH: rc1_max = 1; break;
+    case SQLITE_OK: rc1_max = 2; break;
+    case SQLITE_ROW: rc0 = 27; break;
+    case SQLITE_DONE: rc0 = 28; break;
+    default: break;
+  }
+  if (rc0 <= 28 && rc1 <= rc1_max) {
+    CAMLparam0();
+    CAMLlocal1(v_tmp);
+    v_tmp = caml_alloc_small(1, rc1);
+    v_res = caml_alloc_small(2, rc0);
+    Field(v_res, 1) = v_tmp;
+    CAMLreturn(v_res);
+  } else {
+    v_res = caml_alloc_small(2, 29);
+    Field(v_res, 0) = Val_int(erc);
+    return v_res;
+  }
+}
 
 /* Copying rows */
 
@@ -578,6 +613,20 @@ CAMLprim value caml_sqlite3_errcode(value v_db)
   db_wrap *dbw = Sqlite3_val(v_db);
   check_db(dbw, "errcode");
   return Val_rc(sqlite3_errcode(dbw->db));
+}
+
+CAMLprim value caml_sqlite3_extended_errcode(value v_db)
+{
+  db_wrap *dbw = Sqlite3_val(v_db);
+  check_db(dbw, "extended_errcode");
+  return Val_erc(sqlite3_extended_errcode(dbw->db));
+}
+
+CAMLprim value caml_sqlite3_extended_errcode_int(value v_db)
+{
+  db_wrap *dbw = Sqlite3_val(v_db);
+  check_db(dbw, "extended_errcode");
+  return Val_int(sqlite3_extended_errcode(dbw->db));
 }
 
 CAMLprim value caml_sqlite3_errmsg(value v_db)
