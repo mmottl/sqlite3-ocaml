@@ -580,6 +580,13 @@ CAMLprim value caml_sqlite3_errcode(value v_db)
   return Val_rc(sqlite3_errcode(dbw->db));
 }
 
+CAMLprim value caml_sqlite3_extended_errcode_int(value v_db)
+{
+  db_wrap *dbw = Sqlite3_val(v_db);
+  check_db(dbw, "extended_errcode");
+  return Val_int(sqlite3_extended_errcode(dbw->db));
+}
+
 CAMLprim value caml_sqlite3_errmsg(value v_db)
 {
   db_wrap *dbw = Sqlite3_val(v_db);

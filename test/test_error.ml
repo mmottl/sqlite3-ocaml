@@ -24,4 +24,27 @@ let%test "test_error" =
       false
     with SqliteError _ -> print_endline "Ok"; true
   in
-  (first_test && second_test)
+
+  (* Check the extended error code. *)
+  exec db "CREATE TABLE erc1 (x INTEGER UNIQUE NOT NULL CHECK (x > 0))"
+    |> Rc.check;
+  exec db "CREATE TABLE erc2 (x INTEGER PRIMARY KEY, y REFERENCES erc1(x))"
+    |> Rc.check;
+  let erc_test expected_erc q =
+    let _ = exec db q in
+    let erc = extended_errcode_int db in
+    if erc = expected_erc then begin
+      print_endline "Ok";
+      true
+    end else begin
+      Printf.eprintf "Expected extended error code %d for %S, got %d.\n%!"
+        expected_erc q erc;
+      false
+    end
+  in
+
+  (first_test && second_test
+    && erc_test 1299 "INSERT INTO erc1 (x) VALUES (NULL)"
+    && erc_test  275 "INSERT INTO erc1 (x) VALUES (0)"
+    && erc_test 2067 "INSERT INTO erc1 (x) VALUES (1), (1)"
+    && erc_test 1555 "INSERT INTO erc2 (x) VALUES (1), (1)")
