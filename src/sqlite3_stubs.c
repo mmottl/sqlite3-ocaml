@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <sqlite3.h>
+
 #include <caml/version.h>
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -36,8 +38,6 @@
 #include <caml/callback.h>
 #include <caml/custom.h>
 #include <caml/signals.h>
-
-#include <sqlite3.h>
 
 #if __GNUC__ >= 3
 # if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__DragonFly) && !__APPLE__
