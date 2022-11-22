@@ -1674,7 +1674,7 @@ CAMLprim value caml_sqlite3_backup_init(
 
   if (NULL == res) raise_sqlite3_current(dst->db, "backup_init");
 
-  v_res = caml_alloc(sizeof(sqlite3_backup *), 0);
+  v_res = caml_alloc(1, 0);
   Sqlite3_backup_val(v_res) = res;
 
   CAMLreturn(v_res);
