@@ -180,7 +180,6 @@ static inline void maybe_raise_user_exception(int rc)
 
 #define Sqlite3_val(x) (*((db_wrap **) Data_custom_val(x)))
 #define Sqlite3_stmtw_val(x) (*((stmt_wrap **) Data_custom_val(x)))
-#define Sqlite3_backup_val(x) (*((sqlite3_backup **) Data_custom_val(x)))
 
 
 /* Exceptions */
@@ -1643,6 +1642,7 @@ CAMLprim value caml_sqlite3_changes_bc(value v_db)
 
 
 /* Backup functionality */
+#define Sqlite3_backup_val(x) (*((sqlite3_backup **) Data_abstract_val(x)))
 
 CAMLprim value caml_sqlite3_backup_init(
     value v_dst, value v_dst_name, value v_src, value v_src_name)
@@ -1674,7 +1674,7 @@ CAMLprim value caml_sqlite3_backup_init(
 
   if (NULL == res) raise_sqlite3_current(dst->db, "backup_init");
 
-  v_res = caml_alloc(1, 0);
+  v_res = caml_alloc(1, Abstract_tag);
   Sqlite3_backup_val(v_res) = res;
 
   CAMLreturn(v_res);
