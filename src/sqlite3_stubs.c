@@ -401,7 +401,7 @@ static struct custom_operations db_wrap_ops = {
   custom_deserialize_default,
   custom_compare_ext_default,
 #if (OCAML_VERSION_MAJOR >= 4 && OCAML_VERSION_MINOR >= 8)
-    custom_fixed_length_default,
+  custom_fixed_length_default,
 #endif
 };
 
