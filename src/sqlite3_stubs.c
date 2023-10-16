@@ -1085,7 +1085,7 @@ CAMLprim value caml_sqlite3_bind(value v_stmt, intnat pos, value v_data)
   sqlite3_stmt *stmt = safe_get_stmtw("bind", v_stmt)->stmt;
   range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
   if (Is_long(v_data)) {
-    switch Int_val(v_data) {
+    switch (Int_val(v_data)) {
       case 1 : return Val_rc(sqlite3_bind_null(stmt, pos));
       default : return Val_rc(SQLITE_ERROR);
     }
