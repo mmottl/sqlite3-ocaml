@@ -66,9 +66,23 @@ let split_ws str =
   done;
   List.rev !lst
 
+let add_compiler_args ~is_msvc ~cflags ~libs =
+  let module C = Configurator.V1 in
+  match is_msvc with
+  | true -> {
+      C.Pkg_config.cflags = cflags @ ["/O2"];
+      libs }
+  | false -> {
+      C.Pkg_config.cflags = cflags @ ["-O2"; "-fPIC"; "-DPIC"];
+      libs = libs @ ["-lpthread"] }
+
 let () =
   let module C = Configurator.V1 in
   C.main ~name:"sqlite3" (fun c ->
+    let is_msvc =
+      opt_map (C.ocaml_config_var c "ccomp_type") ~default:false
+        ~f:(function "msvc" -> true | _ -> false)
+    in
     let is_macosx =
       opt_map (C.ocaml_config_var c "system") ~default:false
         ~f:(function "macosx" -> true | _ -> false)
@@ -92,6 +106,6 @@ let () =
       | [libs] -> split_ws libs
       | _ -> failwith "pkg-config failed to return libs"
     in
-    let conf = { C.Pkg_config.cflags; libs } in
+    let conf = add_compiler_args ~is_msvc ~cflags ~libs in
     C.Flags.write_sexp "c_flags.sexp" conf.cflags;
     C.Flags.write_sexp "c_library_flags.sexp" conf.libs)
