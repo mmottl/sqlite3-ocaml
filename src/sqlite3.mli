@@ -370,6 +370,12 @@ val errmsg : db -> string
     @raise SqliteError if an invalid database handle is passed.
 *)
 
+val extended_errcode_int : db -> int
+(** [extended_errcode_int db] @return the extended error code of the last
+    operation on the database [db] as an integer.
+
+    @raise SqliteError if an invalid database handle is passed. *)
+
 val last_insert_rowid : db -> int64
 (** [last_insert_rowid db] @return the index of the row inserted by
     the last operation on database [db].
