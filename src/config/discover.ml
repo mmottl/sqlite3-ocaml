@@ -73,8 +73,18 @@ let () =
       opt_map (C.ocaml_config_var c "system") ~default:false
         ~f:(function "macosx" -> true | _ -> false)
     in
+    let is_mingw =
+      opt_map (C.ocaml_config_var c "system") ~default:false
+        ~f:(function "mingw" | "mingw64" -> true | _ -> false)
+    in
+    let personality =
+      opt_map (C.ocaml_config_var c "target") ~default:""
+        ~f:(fun target -> "--personality=" ^ target)
+    in
     let cflags =
-      let cmd = pkg_export ^ " pkg-config --cflags sqlite3" in
+      let cmd = pkg_export ^
+        (if is_mingw then " pkgconf " ^ personality else " pkg-config") ^
+        " --cflags sqlite3" in
       match read_lines_from_cmd ~max_lines:1 cmd with
       | [cflags] ->
           let cflags = split_ws cflags in
@@ -87,7 +97,9 @@ let () =
       | _ -> failwith "pkg-config failed to return cflags"
     in
     let libs =
-      let cmd = pkg_export ^ " pkg-config --libs sqlite3" in
+      let cmd = pkg_export ^
+        (if is_mingw then " pkgconf " ^ personality else " pkg-config") ^
+        " --libs sqlite3" in
       match read_lines_from_cmd ~max_lines:1 cmd with
       | [libs] -> split_ws libs
       | _ -> failwith "pkg-config failed to return libs"
