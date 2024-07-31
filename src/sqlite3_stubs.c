@@ -374,13 +374,10 @@ static inline void db_wrap_finalize_gc(value v_dbw) {
 }
 
 static struct custom_operations db_wrap_ops = {
-    "sqlite3_ocaml_db_wrap",     db_wrap_finalize_gc,
-    custom_compare_default,      custom_hash_default,
-    custom_serialize_default,    custom_deserialize_default,
-    custom_compare_ext_default,
-#if (OCAML_VERSION_MAJOR >= 4 && OCAML_VERSION_MINOR >= 8)
-    custom_fixed_length_default,
-#endif
+    "sqlite3_ocaml_db_wrap",    db_wrap_finalize_gc,
+    custom_compare_default,     custom_hash_default,
+    custom_serialize_default,   custom_deserialize_default,
+    custom_compare_ext_default, custom_fixed_length_default,
 };
 
 #ifdef SQLITE_HAS_OPEN_V2
@@ -833,11 +830,7 @@ static struct custom_operations stmt_wrap_ops = {
     "sqlite3_ocaml_stmt_wrap",  stmt_wrap_finalize_gc,
     custom_compare_default,     custom_hash_default,
     custom_serialize_default,   custom_deserialize_default,
-    custom_compare_ext_default,
-#if (OCAML_VERSION_MAJOR >= 4 && OCAML_VERSION_MINOR >= 8)
-    custom_fixed_length_default
-#endif
-};
+    custom_compare_ext_default, custom_fixed_length_default};
 
 static inline value prepare_it(db_wrap *dbw, const char *sql, int sql_len,
                                const char *loc) {
