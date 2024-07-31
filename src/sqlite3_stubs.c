@@ -504,8 +504,7 @@ CAMLprim value caml_sqlite3_open(value v_mode, value v_uri, value v_memory,
     size_t db_wrap_size = sizeof(db_wrap);
     db_wrap *dbw = caml_stat_alloc(db_wrap_size);
     value v_res;
-#if (OCAML_VERSION_MAJOR >= 4 && OCAML_VERSION_MINOR >= 8 &&                   \
-     SQLITE_DBSTATUS_CACHE_USED)
+#if SQLITE_DBSTATUS_CACHE_USED
     int mem, hiwtr;
     int rc = sqlite3_db_status(db, SQLITE_DBSTATUS_CACHE_USED, &mem, &hiwtr, 0);
     mem = db_wrap_size + (rc ? 8192 : mem);
@@ -851,8 +850,7 @@ static inline value prepare_it(db_wrap *dbw, const char *sql, int sql_len,
       raise_sqlite3_current(dbw->db, loc);
     raise_sqlite3_Error("No code compiled from %s", sql);
   } else {
-#if (OCAML_VERSION_MAJOR >= 4 && OCAML_VERSION_MINOR >= 8 &&                   \
-     SQLITE_STMTSTATUS_MEMUSED)
+#if SQLITE_STMTSTATUS_MEMUSED
     size_t mem = sizeof(stmt_wrap) + sql_len + 1 +
                  sqlite3_stmt_status(stmtw->stmt, SQLITE_STMTSTATUS_MEMUSED, 0);
     value v_stmt =
