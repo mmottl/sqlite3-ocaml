@@ -1,18 +1,17 @@
-The MIT License (MIT)
-=====================
+# The MIT License (MIT)
 
-Copyright (c) 2010- Markus Mottl <markus.mottl@gmail.com>
+© 2010- Markus Mottl <markus.mottl@gmail.com>
 
-Copyright (c) 2005 Christian Szegedy <csdontspam871@metamatix.org>
+© 2005 Christian Szegedy <csdontspam871@metamatix.org>
 
-Copyright (c) 2007 Jane Street Holding, LLC
-                   250 Vesey Street
-                   New York, NY 10281
-                   USA
-                   Email: <opensource@janestreet.com>
-                   Author: Markus Mottl <markus.mottl@gmail.com>
+© 2007 Jane Street Holding, LLC
+250 Vesey Street
+New York, NY 10281
+USA
+Email: <opensource@janestreet.com>
+Author: Markus Mottl <markus.mottl@gmail.com>
 
-Copyright (c) 2007 Enrico Tassi <gareuselesinge@virgilio.it>
+© 2007 Enrico Tassi <gareuselesinge@virgilio.it>
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
