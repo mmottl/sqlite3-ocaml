@@ -11,7 +11,9 @@ let%test "test_error" =
       let res = exec db "SELECT MYERROR();" in
       prerr_endline ("Should have thrown an error: " ^ Rc.to_string res);
       false
-    with This_function_always_fails -> print_endline "Ok"; true
+    with This_function_always_fails ->
+      print_endline "Ok";
+      true
   in
 
   (* This pattern shows typical usage *)
@@ -22,6 +24,8 @@ let%test "test_error" =
       exec db "THIS SHOULD THROW AN EXCEPTION;; BECAUSE IT IS NOT VALID;;"
       |> Rc.check;
       false
-    with SqliteError _ -> print_endline "Ok"; true
+    with SqliteError _ ->
+      print_endline "Ok";
+      true
   in
-  (first_test && second_test)
+  first_test && second_test

@@ -3,7 +3,7 @@ open Sqlite3
 
 exception Dummy
 
-let assert_ok rc = assert(rc = Rc.OK)
+let assert_ok rc = assert (rc = Rc.OK)
 
 let%test "test_exec" =
   let db = db_open "t_exec" in
@@ -14,10 +14,12 @@ let%test "test_exec" =
         sprintf "CREATE TABLE tbl%d (a varchar(1), b INTEGER, c FLOAT)" i
       in
       printf "%d %s\n%!" i sql;
-      assert_ok(exec db drop);
+      assert_ok (exec db drop);
       match exec db sql ~cb:(fun _ _ -> print_endline "???") with
       | Rc.OK -> ()
-      | _ -> printf "Failed: %s\n" (errmsg db); assert false
+      | _ ->
+          printf "Failed: %s\n" (errmsg db);
+          assert false
     with xcp -> print_endline (Printexc.to_string xcp)
   done;
   for i = 0 to 3 do
@@ -43,7 +45,9 @@ let%test "test_exec" =
     try
       print_endline "TESTING!";
       match
-        exec db sql ~cb:(fun _ _ -> print_endline "FOUND!"; raise Dummy)
+        exec db sql ~cb:(fun _ _ ->
+            print_endline "FOUND!";
+            raise Dummy)
       with
       | Rc.OK -> print_endline "OK"
       | _ -> assert false

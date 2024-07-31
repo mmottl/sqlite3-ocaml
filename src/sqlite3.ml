@@ -78,8 +78,8 @@ module Rc = struct
     | ERROR -> "ERROR"
     | INTERNAL -> "INTERNAL"
     | PERM -> "PERM"
-    | ABORT  -> "ABORT"
-    | BUSY  -> "BUSY"
+    | ABORT -> "ABORT"
+    | BUSY -> "BUSY"
     | LOCKED -> "LOCKED"
     | NOMEM -> "NOMEM"
     | READONLY -> "READONLY"
@@ -107,7 +107,7 @@ module Rc = struct
 
   let is_success = function OK | DONE -> true | _ -> false
   let check rc = if not (is_success rc) then raise (SqliteError (to_string rc))
-end  (* Rc *)
+end
 
 module Data = struct
   type t =
@@ -133,7 +133,6 @@ module Data = struct
     | Some false -> INT Int64.zero
     | Some true -> INT Int64.one
     | None -> NULL
-
 
   (* Exception-based type conversion *)
 
@@ -169,11 +168,11 @@ module Data = struct
 
   let safe_get_nativeint n =
     if n > max_nativeint_as_int64 then
-      failwith (
-        Printf.sprintf "Sqlite3.Data.safe_get_nativeint: overflow: %Ld" n)
+      failwith
+        (Printf.sprintf "Sqlite3.Data.safe_get_nativeint: overflow: %Ld" n)
     else if n < min_nativeint_as_int64 then
-      failwith (
-        Printf.sprintf "Sqlite3.Data.safe_get_nativeint: underflow: %Ld" n)
+      failwith
+        (Printf.sprintf "Sqlite3.Data.safe_get_nativeint: underflow: %Ld" n)
     else Int64.to_nativeint n
 
   let safe_get_int32 n =
@@ -195,9 +194,7 @@ module Data = struct
     | INT n -> safe_get_int32 n
     | data -> data_type_error "INT" data
 
-  let to_int64_exn = function
-    | INT n -> n
-    | data -> data_type_error "INT" data
+  let to_int64_exn = function INT n -> n | data -> data_type_error "INT" data
 
   let to_float_exn = function
     | FLOAT n -> n
@@ -213,7 +210,6 @@ module Data = struct
   let to_bool_exn = function
     | INT n -> bool_of_int64 n
     | data -> data_type_error "INT 0L/1L" data
-
 
   (* Option-based type conversion *)
 
@@ -235,7 +231,7 @@ module Data = struct
     | INT n -> Int64.to_string n
     | FLOAT n -> string_of_float n
     | TEXT t | BLOB t -> t
-end  (* Data *)
+end
 
 type header = string
 type headers = header array
@@ -249,29 +245,35 @@ module Mode = struct
     | None -> Read_write_create
     | Some `READONLY -> Read_only
     | Some `NO_CREATE -> Read_write
-end  (* Mode *)
+end
 
 module Mut = struct
   type t = NOTHING | NO | FULL
 
   let lift = function None -> NOTHING | Some `NO -> NO | Some `FULL -> FULL
-end  (* Mut *)
+end
 
 module Cache = struct
   type t = NOTHING | SHARED | PRIVATE
 
-  let lift =
-    function None -> NOTHING | Some `SHARED -> SHARED | Some `PRIVATE -> PRIVATE
-end  (* Cache *)
+  let lift = function
+    | None -> NOTHING
+    | Some `SHARED -> SHARED
+    | Some `PRIVATE -> PRIVATE
+end
 
 external sqlite_version : unit -> int = "caml_sqlite3_version"
 external sqlite_version_info : unit -> string = "caml_sqlite3_version_info"
 
 external db_open :
-  mode : Mode.t -> uri : bool -> memory : bool ->
-  mutex : Mut.t -> cache : Cache.t ->
-  ?vfs : string -> string -> db
-  = "caml_sqlite3_open_bc" "caml_sqlite3_open"
+  mode:Mode.t ->
+  uri:bool ->
+  memory:bool ->
+  mutex:Mut.t ->
+  cache:Cache.t ->
+  ?vfs:string ->
+  string ->
+  db = "caml_sqlite3_open_bc" "caml_sqlite3_open"
 
 let db_open ?mode ?(uri = false) ?(memory = false) ?mutex ?cache ?vfs name =
   let mode = Mode.lift mode in
@@ -291,115 +293,114 @@ let ( let& ) db f =
 external errcode : db -> Rc.t = "caml_sqlite3_errcode"
 external errmsg : db -> string = "caml_sqlite3_errmsg"
 
-external last_insert_rowid : db -> (int64 [@unboxed])
+external last_insert_rowid : db -> (int64[@unboxed])
   = "caml_sqlite3_last_insert_rowid_bc" "caml_sqlite3_last_insert_rowid"
-  [@@noalloc]
+[@@noalloc]
 
 external exec :
-  db -> ?cb : (string option array -> headers -> unit) -> string -> Rc.t
+  db -> ?cb:(string option array -> headers -> unit) -> string -> Rc.t
   = "caml_sqlite3_exec"
 
 external exec_no_headers :
-  db -> cb : (string option array -> unit) -> string -> Rc.t
+  db -> cb:(string option array -> unit) -> string -> Rc.t
   = "caml_sqlite3_exec_no_headers"
 
 external exec_not_null :
-  db -> cb : (string array -> headers -> unit) -> string -> Rc.t
+  db -> cb:(string array -> headers -> unit) -> string -> Rc.t
   = "caml_sqlite3_exec_not_null"
 
 external exec_not_null_no_headers :
-  db -> cb : (string array -> unit) -> string -> Rc.t
+  db -> cb:(string array -> unit) -> string -> Rc.t
   = "caml_sqlite3_exec_not_null_no_headers"
 
-external changes : db -> (int [@untagged])
+external changes : db -> (int[@untagged])
   = "caml_sqlite3_changes_bc" "caml_sqlite3_changes"
 
 external prepare : db -> string -> stmt = "caml_sqlite3_prepare"
 external prepare_tail : stmt -> stmt option = "caml_sqlite3_prepare_tail"
 external recompile : stmt -> unit = "caml_sqlite3_recompile"
-
 external step : stmt -> Rc.t = "caml_sqlite3_step"
 external reset : stmt -> Rc.t = "caml_sqlite3_stmt_reset"
 
 let prepare_or_reset db opt_stmt_ref sql =
   match !opt_stmt_ref with
-  | Some stmt -> reset stmt |> Rc.check; stmt
+  | Some stmt ->
+      reset stmt |> Rc.check;
+      stmt
   | None ->
       let stmt = prepare db sql in
       opt_stmt_ref := Some stmt;
       stmt
 
-external sleep : (int [@untagged]) -> (int [@untagged])
+external sleep : (int[@untagged]) -> (int[@untagged])
   = "caml_sqlite3_sleep_bc" "caml_sqlite3_sleep"
 
 external finalize : stmt -> Rc.t = "caml_sqlite3_stmt_finalize"
 
-external data_count : stmt -> (int [@untagged])
+external data_count : stmt -> (int[@untagged])
   = "caml_sqlite3_data_count_bc" "caml_sqlite3_data_count"
 
-external column_count : stmt -> (int [@untagged])
+external column_count : stmt -> (int[@untagged])
   = "caml_sqlite3_column_count_bc" "caml_sqlite3_column_count"
 
-external column_blob : stmt -> (int [@untagged]) -> string
+external column_blob : stmt -> (int[@untagged]) -> string
   = "caml_sqlite3_column_blob_bc" "caml_sqlite3_column_blob"
 
-external column_double : stmt -> (int [@untagged]) -> (float [@unboxed])
+external column_double : stmt -> (int[@untagged]) -> (float[@unboxed])
   = "caml_sqlite3_column_double_bc" "caml_sqlite3_column_double"
 
-external column_int32 : stmt -> (int [@untagged]) -> (int32 [@unboxed])
+external column_int32 : stmt -> (int[@untagged]) -> (int32[@unboxed])
   = "caml_sqlite3_column_int32_bc" "caml_sqlite3_column_int32"
 
-external column_int64 : stmt -> (int [@untagged]) -> (int64 [@unboxed])
+external column_int64 : stmt -> (int[@untagged]) -> (int64[@unboxed])
   = "caml_sqlite3_column_int64_bc" "caml_sqlite3_column_int64"
 
 let column_int stmt pos = Data.safe_get_int (column_int64 stmt pos)
 let column_nativeint stmt pos = Data.safe_get_nativeint (column_int64 stmt pos)
 
-external column_text : stmt -> (int [@untagged]) -> string
+external column_text : stmt -> (int[@untagged]) -> string
   = "caml_sqlite3_column_text_bc" "caml_sqlite3_column_text"
 
 let column_bool stmt pos = Data.bool_of_int64 (column_int64 stmt pos)
 
-external column : stmt -> (int [@untagged]) -> Data.t
+external column : stmt -> (int[@untagged]) -> Data.t
   = "caml_sqlite3_column_bc" "caml_sqlite3_column"
 
-external column_name : stmt -> (int [@untagged]) -> string
+external column_name : stmt -> (int[@untagged]) -> string
   = "caml_sqlite3_column_name_bc" "caml_sqlite3_column_name"
 
-external column_decltype : stmt -> (int [@untagged]) -> string option
+external column_decltype : stmt -> (int[@untagged]) -> string option
   = "caml_sqlite3_column_decltype_bc" "caml_sqlite3_column_decltype"
 
-external bind : stmt -> (int [@untagged]) -> Data.t -> Rc.t
+external bind : stmt -> (int[@untagged]) -> Data.t -> Rc.t
   = "caml_sqlite3_bind_bc" "caml_sqlite3_bind"
 
-external bind_parameter_count : stmt -> (int [@untagged])
+external bind_parameter_count : stmt -> (int[@untagged])
   = "caml_sqlite3_bind_parameter_count_bc" "caml_sqlite3_bind_parameter_count"
 
-external bind_parameter_name :
-  stmt -> (int [@untagged]) -> string option
+external bind_parameter_name : stmt -> (int[@untagged]) -> string option
   = "caml_sqlite3_bind_parameter_name_bc" "caml_sqlite3_bind_parameter_name"
 
-external bind_parameter_index :
-  stmt -> string -> (int [@untagged])
+external bind_parameter_index : stmt -> string -> (int[@untagged])
   = "caml_sqlite3_bind_parameter_index_bc" "caml_sqlite3_bind_parameter_index"
 
-external bind_blob : stmt -> (int [@untagged]) -> string -> Rc.t
+external bind_blob : stmt -> (int[@untagged]) -> string -> Rc.t
   = "caml_sqlite3_bind_blob_bc" "caml_sqlite3_bind_blob"
 
-external bind_double : stmt -> (int [@untagged]) -> (float [@unboxed]) -> Rc.t
+external bind_double : stmt -> (int[@untagged]) -> (float[@unboxed]) -> Rc.t
   = "caml_sqlite3_bind_double_bc" "caml_sqlite3_bind_double"
 
-external bind_int32 : stmt -> (int [@untagged]) -> (int32 [@unboxed]) -> Rc.t
+external bind_int32 : stmt -> (int[@untagged]) -> (int32[@unboxed]) -> Rc.t
   = "caml_sqlite3_bind_int32_bc" "caml_sqlite3_bind_int32"
 
-external bind_int64 : stmt -> (int [@untagged]) -> (int64 [@unboxed]) -> Rc.t
+external bind_int64 : stmt -> (int[@untagged]) -> (int64[@unboxed]) -> Rc.t
   = "caml_sqlite3_bind_int64_bc" "caml_sqlite3_bind_int64"
 
 let bind_int stmt pos n = bind_int64 stmt pos (Int64.of_int n)
 let bind_nativeint stmt pos n = bind_int64 stmt pos (Int64.of_nativeint n)
 let bind_bool stmt pos b = bind_int64 stmt pos (Data.int64_of_bool b)
 
-external bind_text : stmt -> (int [@untagged]) -> string -> Rc.t
+external bind_text : stmt -> (int[@untagged]) -> string -> Rc.t
   = "caml_sqlite3_bind_text_bc" "caml_sqlite3_bind_text"
 
 let bind_name stmt name data = bind stmt (bind_parameter_index stmt name) data
@@ -424,11 +425,11 @@ let bind_values stmt lst =
 
 external clear_bindings : stmt -> Rc.t = "caml_sqlite3_clear_bindings"
 
-external busy_timeout : db -> (int [@untagged]) -> unit
+external busy_timeout : db -> (int[@untagged]) -> unit
   = "caml_sqlite3_busy_timeout_bc" "caml_sqlite3_busy_timeout"
 
-external enable_load_extension :
-  db -> bool -> bool = "caml_sqlite3_enable_load_extension"
+external enable_load_extension : db -> bool -> bool
+  = "caml_sqlite3_enable_load_extension"
 
 let row_blobs stmt = Array.init (data_count stmt) (column_blob stmt)
 let row_data stmt = Array.init (data_count stmt) (column stmt)
@@ -436,14 +437,14 @@ let row_names stmt = Array.init (data_count stmt) (column_name stmt)
 let row_decltypes stmt = Array.init (data_count stmt) (column_decltype stmt)
 
 let attempt_reset stmt rc =
-  match reset stmt with
-  | Rc.OK -> rc
-  | reset_rc -> reset_rc
+  match reset stmt with Rc.OK -> rc | reset_rc -> reset_rc
 
 let iter stmt ~f =
   let rec loop () =
     match step stmt with
-    | Rc.ROW -> f (row_data stmt); loop ()
+    | Rc.ROW ->
+        f (row_data stmt);
+        loop ()
     | rc -> attempt_reset stmt rc
   in
   loop ()
@@ -452,14 +453,14 @@ let fold stmt ~f ~init =
   let rec loop acc =
     match step stmt with
     | Rc.ROW -> loop (f acc (row_data stmt))
-    | rc -> attempt_reset stmt rc, acc
+    | rc -> (attempt_reset stmt rc, acc)
   in
   loop init
 
 (* Function registration *)
 
 external create_function :
-  db -> string -> (int [@untagged]) -> (Data.t array -> Data.t) -> unit
+  db -> string -> (int[@untagged]) -> (Data.t array -> Data.t) -> unit
   = "caml_sqlite3_create_function_bc" "caml_sqlite3_create_function"
 
 let create_funN db name f = create_function db name (-1) f
@@ -476,11 +477,17 @@ external delete_function : db -> string -> unit = "caml_sqlite3_delete_function"
 
 module Aggregate = struct
   external create_function :
-    db -> string -> (int [@untagged]) ->
-    'a -> ('a -> Data.t array -> 'a) -> ('a -> Data.t array -> 'a) option ->
-    ('a -> Data.t) option -> ('a -> Data.t) -> unit =
-    "caml_sqlite3_create_aggregate_function_bc"
-    "caml_sqlite3_create_aggregate_function"
+    db ->
+    string ->
+    (int[@untagged]) ->
+    'a ->
+    ('a -> Data.t array -> 'a) ->
+    ('a -> Data.t array -> 'a) option ->
+    ('a -> Data.t) option ->
+    ('a -> Data.t) ->
+    unit
+    = "caml_sqlite3_create_aggregate_function_bc"
+      "caml_sqlite3_create_aggregate_function"
 
   let create_funN ?inverse ?value db name ~init ~step ~final =
     create_function db name (-1) init step inverse value final
@@ -489,55 +496,54 @@ module Aggregate = struct
     create_function db name 0 init
       (fun acc _ -> step acc)
       (match inverse with
-       | Some inv -> Some (fun acc _ -> inv acc)
-       | None -> None)
+      | Some inv -> Some (fun acc _ -> inv acc)
+      | None -> None)
       value final
 
   let create_fun1 ?inverse ?value db name ~init ~step ~final =
     create_function db name 1 init
       (fun acc args -> step acc args.(0))
       (match inverse with
-       | Some inv -> Some (fun acc args -> inv acc args.(0))
-       | None -> None)
+      | Some inv -> Some (fun acc args -> inv acc args.(0))
+      | None -> None)
       value final
 
   let create_fun2 ?inverse ?value db name ~init ~step ~final =
     create_function db name 2 init
       (fun acc args -> step acc args.(0) args.(1))
       (match inverse with
-       | Some inv -> Some (fun acc args -> inv acc args.(0) args.(1))
-       | None -> None)
+      | Some inv -> Some (fun acc args -> inv acc args.(0) args.(1))
+      | None -> None)
       value final
 
   let create_fun3 ?inverse ?value db name ~init ~step ~final =
     create_function db name 3 init
       (fun acc args -> step acc args.(0) args.(1) args.(2))
       (match inverse with
-       | Some inv -> Some (fun acc args -> inv acc args.(0) args.(1) args.(2))
-       | None -> None)
+      | Some inv -> Some (fun acc args -> inv acc args.(0) args.(1) args.(2))
+      | None -> None)
       value final
-end  (* Aggregate *)
+end
 
 module Backup = struct
   type t
 
-  external init :
-    dst : db -> dst_name : string ->
-    src : db -> src_name : string -> t = "caml_sqlite3_backup_init"
+  external init : dst:db -> dst_name:string -> src:db -> src_name:string -> t
+    = "caml_sqlite3_backup_init"
 
-  external step : t -> (int [@untagged]) -> Rc.t
+  external step : t -> (int[@untagged]) -> Rc.t
     = "caml_sqlite3_backup_step_bc" "caml_sqlite3_backup_step"
 
   external finish : t -> Rc.t = "caml_sqlite3_backup_finish"
 
-  external remaining : t -> (int [@untagged])
+  external remaining : t -> (int[@untagged])
     = "caml_sqlite3_backup_remaining_bc" "caml_sqlite3_backup_remaining"
-    [@@noalloc]
+  [@@noalloc]
 
-  external pagecount : t -> (int [@untagged])
+  external pagecount : t -> (int[@untagged])
     = "caml_sqlite3_backup_pagecount_bc" "caml_sqlite3_backup_pagecount"
-    [@@noalloc]
-end  (* Backup *)
+  [@@noalloc]
+end
 
 (* Initialisation *)
 

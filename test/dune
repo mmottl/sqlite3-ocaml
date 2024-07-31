@@ -1,6 +1,6 @@
 (library
-  (name sqlite3_test)
-  (inline_tests)
-  (libraries str sqlite3)
-  (preprocess (pps ppx_inline_test))
-)
+ (name sqlite3_test)
+ (inline_tests)
+ (libraries str sqlite3)
+ (preprocess
+  (pps ppx_inline_test)))

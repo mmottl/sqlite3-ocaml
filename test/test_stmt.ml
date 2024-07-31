@@ -5,23 +5,21 @@ let assert_ok rc = assert (rc = Rc.OK)
 let assert_done rc = assert (rc = Rc.DONE)
 
 let column_decltype s i =
-  match column_decltype s i with
-  | None -> "<NONE>"
-  | Some str -> str
+  match column_decltype s i with None -> "<NONE>" | Some str -> str
 
 let stepbystep s =
-  assert_done (iter s ~f:(function r ->
-    Array.iteri (fun i c ->
-      printf "%s column[%d] %s = %s\n%!"
-        (column_decltype s i) i
-        (column_name s i)
-        (Data.to_string_coerce c)) r))
+  assert_done
+    (iter s ~f:(function r ->
+         Array.iteri
+           (fun i c ->
+             printf "%s column[%d] %s = %s\n%!" (column_decltype s i) i
+               (column_name s i) (Data.to_string_coerce c))
+           r))
 
 let stepbystep_wrong s =
   while step s = Rc.ROW do
     for i = 0 to data_count s do
-      printf "%s column[%d] %s = %s\n%!"
-        (column_decltype s i) i
+      printf "%s column[%d] %s = %s\n%!" (column_decltype s i) i
         (column_name s i)
         (Data.to_string_coerce (column s i))
     done
@@ -79,8 +77,7 @@ let%test "test_stmt" =
     let sql = sprintf "SELECT * FROM test0; SELECT * FROM test1;" in
     let stmt = prepare db sql in
     assert_ok (finalize stmt);
-    try ignore (prepare_tail stmt)
-    with _xcp -> ()
+    try ignore (prepare_tail stmt) with _xcp -> ()
   done;
 
   let sql = sprintf "SELECT * FROM test0; SELECT * FROM test0;" in
@@ -89,26 +86,24 @@ let%test "test_stmt" =
   stepbystep stmt;
   print_endline "B-------------------------------------------";
   (match prepare_tail stmt with
-   | Some s -> stepbystep s
-   | None -> failwith "Tail not found!");
+  | Some s -> stepbystep s
+  | None -> failwith "Tail not found!");
   assert_ok (reset stmt);
   print_endline "C-------------------------------------------";
   stepbystep stmt;
   print_endline "D-------------------------------------------";
   (match prepare_tail stmt with
-   | Some s -> stepbystep s
-   | None -> failwith "Tail not found!");
+  | Some s -> stepbystep s
+  | None -> failwith "Tail not found!");
   (match prepare_tail stmt with
-   | Some s -> stepbystep s
-   | None -> failwith "Tail not found!");
+  | Some s -> stepbystep s
+  | None -> failwith "Tail not found!");
   print_endline "E-------------------------------------------";
-  begin
-    try
-      match prepare_tail stmt with
-      | Some s -> stepbystep_wrong s
-      | None -> failwith "Tail not found!"
-    with xcp -> printf "Ok: %s\n" (Printexc.to_string xcp)
-  end;
+  (try
+     match prepare_tail stmt with
+     | Some s -> stepbystep_wrong s
+     | None -> failwith "Tail not found!"
+   with xcp -> printf "Ok: %s\n" (Printexc.to_string xcp));
   assert_ok (finalize stmt);
 
   let stmt = prepare db "SELECT * FROM test0 WHERE a = ? AND b = ?" in
@@ -120,33 +115,30 @@ let%test "test_stmt" =
   assert (step stmt = Rc.ROW);
   assert_ok (finalize stmt);
   let stmt = prepare db "SELECT * FROM test0 WHERE a = :a AND b = :b" in
-  assert_ok (bind_names stmt [ ":a", Data.TEXT "a"; ":b", Data.INT 1L ]);
+  assert_ok (bind_names stmt [ (":a", Data.TEXT "a"); (":b", Data.INT 1L) ]);
   assert (step stmt = Rc.ROW);
   assert_ok (finalize stmt);
   let stmt = prepare db "SELECT * FROM test0 WHERE a = ?" in
-  begin
-    try assert_ok (bind_values stmt [ Data.INT 1L; Data.INT 2L ]) with
-    | RangeError _ -> ()
-    | exn -> raise exn
-  end;
-  begin
-    try assert_ok (bind_name stmt ":a" (Data.INT 3L)) with
-    | Not_found -> ()
-    | exn -> raise exn;
-  end;
+  (try assert_ok (bind_values stmt [ Data.INT 1L; Data.INT 2L ]) with
+  | RangeError _ -> ()
+  | exn -> raise exn);
+  (try assert_ok (bind_name stmt ":a" (Data.INT 3L)) with
+  | Not_found -> ()
+  | exn -> raise exn);
   assert_ok (finalize stmt);
 
   let of_intdata = function Data.INT i -> i | _ -> failwith "Invalid type" in
   let stmt = prepare db "SELECT b FROM test0" in
-  let rc, sum = fold stmt ~init:0L ~f:(fun s b ->
-    Int64.add s (of_intdata b.(0)))
+  let rc, sum =
+    fold stmt ~init:0L ~f:(fun s b -> Int64.add s (of_intdata b.(0)))
   in
   assert_ok (finalize stmt);
   assert_done rc;
   assert (sum = 3L);
   printf "fold: sum of table0(b) is %Ld\n" sum;
 
-  Gc.full_major (); (* Collect any dangling statements *)
+  Gc.full_major ();
 
+  (* Collect any dangling statements *)
   assert (db_close db);
   true
