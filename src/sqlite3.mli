@@ -55,13 +55,16 @@ exception SqliteError of string
 (** {2 Library Information} *)
 
 val sqlite_version : unit -> int
-(** [sqlite_version ()] @return the version of the SQLite3 library
-    being used, in format [3XXXYYY] where [XXX] is the minor version and
-    [YYY] is the patch level.  For example, [3030001] for 3.30.1. *)
+(** [sqlite_version ()]
+    @return
+      the version of the SQLite3 library being used, in format [3XXXYYY] where
+      [XXX] is the minor version and [YYY] is the patch level. For example,
+      [3030001] for 3.30.1. *)
 
 val sqlite_version_info : unit -> string
-(** [sqlite_version_info ()] @return the version of the SQLite3 library
-    being used in a human-readable string. *)
+(** [sqlite_version_info ()]
+    @return
+      the version of the SQLite3 library being used in a human-readable string. *)
 
 (** {2 Types} *)
 
@@ -148,8 +151,9 @@ module Rc : sig
       code indicating success. *)
 
   val is_success : t -> bool
-  (** [is_success rc] @return [true] if [rc] indicates success ([OK] or
-      [DONE]), [false] otherwise. *)
+  (** [is_success rc]
+      @return
+        [true] if [rc] indicates success ([OK] or [DONE]), [false] otherwise. *)
 end
 
 (** {2 Column data types} *)
@@ -330,30 +334,27 @@ val ( let& ) : db -> (db -> 'a) -> 'a
     @raise Fun.Finally_raised if the database could not be closed successfully. *)
 
 val enable_load_extension : db -> bool -> bool
-(** [enable_load_extension db onoff] enable/disable the SQLite3 load
-    extension.  @return [false] if the operation fails, [true]
-    otherwise. *)
+(** [enable_load_extension db onoff] enable/disable the SQLite3 load extension.
+    @return [false] if the operation fails, [true] otherwise. *)
 
 val errcode : db -> Rc.t
-(** [errcode db] @return the error code of the last operation on database
-    [db].
+(** [errcode db]
+    @return the error code of the last operation on database [db].
 
-    @raise SqliteError if an invalid database handle is passed.
-*)
+    @raise SqliteError if an invalid database handle is passed. *)
 
 val errmsg : db -> string
-(** [errmsg db] @return the error message of the last operation on
-    database [db].
+(** [errmsg db]
+    @return the error message of the last operation on database [db].
 
-    @raise SqliteError if an invalid database handle is passed.
-*)
+    @raise SqliteError if an invalid database handle is passed. *)
 
 val last_insert_rowid : db -> int64
-(** [last_insert_rowid db] @return the index of the row inserted by
-    the last operation on database [db].
+(** [last_insert_rowid db]
+    @return
+      the index of the row inserted by the last operation on database [db].
 
-    @raise SqliteError if an invalid database handle is passed.
-*)
+    @raise SqliteError if an invalid database handle is passed. *)
 
 val exec : db -> ?cb:(row -> headers -> unit) -> string -> Rc.t
 (** [exec db ?cb sql] performs SQL-operation [sql] on database [db]. If the
@@ -408,10 +409,10 @@ val exec_not_null_no_headers : db -> cb:(row_not_null -> unit) -> string -> Rc.t
     @raise SqliteError if a row contains NULL. *)
 
 val changes : db -> int
-(** [changes db] @return the number of rows that were changed
-    or inserted or deleted by the most recently completed SQL statement
-    on database [db].
-*)
+(** [changes db]
+    @return
+      the number of rows that were changed or inserted or deleted by the most
+      recently completed SQL statement on database [db]. *)
 
 (** {2 Prepared Statements} *)
 
@@ -438,15 +439,16 @@ val prepare_or_reset : db -> stmt option ref -> string -> stmt
     @raise SqliteError if the statement could not be prepared or reset. *)
 
 val prepare_tail : stmt -> stmt option
-(** [prepare_tail stmt] compile the remaining part of the SQL-statement
-    [stmt] to bytecode.  @return [None] if there was no remaining part,
-    or [Some remaining_part] otherwise.
+(** [prepare_tail stmt] compile the remaining part of the SQL-statement [stmt]
+    to bytecode.
 
-    NOTE: this really uses the C-function [sqlite3_prepare_v2],
-    i.e. avoids the older, deprecated [sqlite3_prepare]-function.
+    NOTE: this really uses the C-function [sqlite3_prepare_v2], i.e. avoids the
+    older, deprecated [sqlite3_prepare]-function.
 
-    @raise SqliteError if the statement could not be prepared.
-*)
+    @return
+      [None] if there was no remaining part, or [Some remaining_part] otherwise.
+
+    @raise SqliteError if the statement could not be prepared. *)
 
 val recompile : stmt -> unit
 (** [recompile stmt] recompiles the SQL-statement associated with [stmt] to
@@ -469,113 +471,121 @@ val finalize : stmt -> Rc.t
 (** {3 Data query} *)
 
 val data_count : stmt -> int
-(** [data_count stmt] @return the number of columns in the result of
-    the last step of statement [stmt].
+(** [data_count stmt]
+    @return
+      the number of columns in the result of the last step of statement [stmt].
 
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_count : stmt -> int
-(** [column_count stmt] @return the number of columns that would be
-    returned by executing statement [stmt].
+(** [column_count stmt]
+    @return
+      the number of columns that would be returned by executing statement
+      [stmt].
 
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column : stmt -> int -> Data.t
-(** [column stmt n] @return the data in column [n] of the
-    result of the last step of statement [stmt].
+(** [column stmt n]
+    @return
+      the data in column [n] of the result of the last step of statement [stmt].
 
     @raise RangeError if [n] is out of range.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_bool : stmt -> int -> bool
-(** [column_bool stmt n] @return the data in column [n] of the
-    result of the last step of statement [stmt] as a [bool].
+(** [column_bool stmt n]
+    @return
+      the data in column [n] of the result of the last step of statement [stmt]
+      as a [bool].
 
     @raise RangeError if [n] is out of range.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_text : stmt -> int -> string
-(** [column_text stmt n] @return the data in column [n] of the
-    result of the last step of statement [stmt] as text (a [string]).
+(** [column_text stmt n]
+    @return
+      the data in column [n] of the result of the last step of statement [stmt]
+      as text (a [string]).
 
     @raise RangeError if [n] is out of range.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_int : stmt -> int -> int
-(** [column_int stmt n] @return the data in column [n] of the
-    result of the last step of statement [stmt] as an [int].
+(** [column_int stmt n]
+    @return
+      the data in column [n] of the result of the last step of statement [stmt]
+      as an [int].
 
     @raise RangeError if [n] is out of range.
     @raise Failure if the integer conversion over- or underflows.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_nativeint : stmt -> int -> nativeint
-(** [column_nativeint stmt n] @return the data in column [n] of the
-    result of the last step of statement [stmt] as a [nativeint].
+(** [column_nativeint stmt n]
+    @return
+      the data in column [n] of the result of the last step of statement [stmt]
+      as a [nativeint].
 
     @raise RangeError if [n] is out of range.
     @raise Failure if the integer conversion over- or underflows.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_int32 : stmt -> int -> int32
-(** [column_int32 stmt n] @return the data in column [n] of the result of
-    the last step of statement [stmt] as an [int32].  Note that this function
-    exactly corresponds to the C-library function [sqlite3_column_int]
-    and does not check for over- or underflow during integer conversions.
+(** [column_int32 stmt n]
+    @return
+      the data in column [n] of the result of the last step of statement [stmt]
+      as an [int32]. Note that this function exactly corresponds to the
+      C-library function [sqlite3_column_int] and does not check for over- or
+      underflow during integer conversions.
 
     @raise RangeError if [n] is out of range.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_int64 : stmt -> int -> int64
-(** [column_int64 stmt n] @return the data in column [n] of the result of
-    the last step of statement [stmt] as an [int64].  Note that this function
-    exactly corresponds to the C-library function [sqlite3_column_int64]
-    and does not check for over- or underflow during integer conversions.
+(** [column_int64 stmt n]
+    @return
+      the data in column [n] of the result of the last step of statement [stmt]
+      as an [int64]. Note that this function exactly corresponds to the
+      C-library function [sqlite3_column_int64] and does not check for over- or
+      underflow during integer conversions.
 
     @raise RangeError if [n] is out of range.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_double : stmt -> int -> float
-(** [column_double stmt n] @return the data in column [n] of the
-    result of the last step of statement [stmt] as a double [float].
+(** [column_double stmt n]
+    @return
+      the data in column [n] of the result of the last step of statement [stmt]
+      as a double [float].
 
     @raise RangeError if [n] is out of range.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_blob : stmt -> int -> string
-(** [column_blob stmt n] @return the blob string in column [n] of the
-    result of the last step of statement [stmt] as a [string].
+(** [column_blob stmt n]
+    @return
+      the blob string in column [n] of the result of the last step of statement
+      [stmt] as a [string].
 
     @raise RangeError if [n] is out of range.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_name : stmt -> int -> header
-(** [column_name stmt n] @return the header of column [n] in the
-    result set of statement [stmt].
+(** [column_name stmt n]
+    @return the header of column [n] in the result set of statement [stmt].
 
     @raise RangeError if [n] is out of range.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val column_decltype : stmt -> int -> string option
-(** [column_decltype stmt n] @return the declared type of the specified
-    column in the result set of statement [stmt] as [Some str] if available,
-    or as [None] otherwise.
+(** [column_decltype stmt n]
+    @return
+      the declared type of the specified column in the result set of statement
+      [stmt] as [Some str] if available, or as [None] otherwise.
 
     @raise RangeError if [n] is out of range.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 (** {3 Binding data to statements} *)
 
@@ -694,28 +704,27 @@ val bind_names : stmt -> (string * Data.t) list -> Rc.t
     @raise SqliteError if the statement is invalid. *)
 
 val bind_parameter_count : stmt -> int
-(** [bind_parameter_count stmt] @return the number of free variables in
-    statement [stmt].
+(** [bind_parameter_count stmt]
+    @return the number of free variables in statement [stmt].
 
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val bind_parameter_name : stmt -> int -> string option
-(** [bind_parameter_name stmt pos] @return [Some parameter_name] of the free
-    variable at position [pos] of statement [stmt], or [None] if it is
-    ordinary ("?").
+(** [bind_parameter_name stmt pos]
+    @return
+      [Some parameter_name] of the free variable at position [pos] of statement
+      [stmt], or [None] if it is ordinary ("?").
 
     @raise RangeError if [pos] is out of range.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val bind_parameter_index : stmt -> string -> int
-(** [bind_parameter_index stmt name] @return the position of the free
-    variable with name [name] in statement [stmt].
+(** [bind_parameter_index stmt name]
+    @return
+      the position of the free variable with name [name] in statement [stmt].
 
     @raise Not_found if [name] was not found.
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val clear_bindings : stmt -> Rc.t
 (** [clear_bindings stmt] resets all bindings associated with prepared statement
@@ -766,32 +775,36 @@ val fold : stmt -> f:('a -> Data.t array -> 'a) -> init:'a -> Rc.t * 'a
 (** {3 Stepwise query convenience functions} *)
 
 val row_blobs : stmt -> string array
-(** [row_blobs stmt] @return the blobs returned by the last query step performed
-    with statement [stmt] (array of blobs).
+(** [row_blobs stmt]
+    @return
+      the blobs returned by the last query step performed with statement [stmt]
+      (array of blobs).
 
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val row_data : stmt -> Data.t array
-(** [row_data stmt] @return all data values in the row returned by the
-    last query step performed with statement [stmt].
+(** [row_data stmt]
+    @return
+      all data values in the row returned by the last query step performed with
+      statement [stmt].
 
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val row_names : stmt -> headers
-(** [row_names stmt] @return all column headers of the row returned by the
-    last query step performed with statement [stmt].
+(** [row_names stmt]
+    @return
+      all column headers of the row returned by the last query step performed
+      with statement [stmt].
 
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 val row_decltypes : stmt -> string option array
-(** [row_decltypes stmt] @return all column type declarations of the
-    row returned by the last query step performed with statement [stmt].
+(** [row_decltypes stmt]
+    @return
+      all column type declarations of the row returned by the last query step
+      performed with statement [stmt].
 
-    @raise SqliteError if the statement is invalid.
-*)
+    @raise SqliteError if the statement is invalid. *)
 
 (** {2 User-defined functions} *)
 
@@ -959,5 +972,7 @@ val busy_timeout : db -> int -> unit
     @raise SqliteError if an invalid database handle is passed. *)
 
 val sleep : int -> int
-(** [sleep ms] sleeps at least [ms] milliseconds.  @return the number of
-    milliseconds of sleep actually requested from the operating system. *)
+(** [sleep ms] sleeps at least [ms] milliseconds.
+    @return
+      the number of milliseconds of sleep actually requested from the operating
+      system. *)
