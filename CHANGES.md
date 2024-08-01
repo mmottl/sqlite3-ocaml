@@ -1,4 +1,8 @@
-## 5.1.0 (2021-09-22)
+### Pending
+
+- Don't use `-lpthread` and non-MSVC flags with MSVC compiler
+
+### 5.1.0 (2021-09-22)
 
 - Added let&-operator for implicit closing of an opened database.
 

@@ -5,10 +5,7 @@
   (names sqlite3_stubs)
   (flags
    (:standard)
-   (:include c_flags.sexp)
-   -O2
-   -fPIC
-   -DPIC))
+   (:include c_flags.sexp)))
  (c_library_flags
   (:include c_library_flags.sexp)))
 
