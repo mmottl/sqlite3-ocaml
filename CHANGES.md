@@ -1,4 +1,4 @@
-## 5.2.0 (2024-07-31)
+## 5.2.0 (2024-08-01)
 
 - Support MSVC compiler (Jonah Beckford)
 
@@ -10,6 +10,20 @@
 - Add Github CI (Yilin Wei)
 
 - Detect pkgconf on Windows/mingw (Mark Elvers, reviewed by Shon Feder)
+
+- Fixed shadowing of `agg_ctx` when using `sizeof`.
+
+- Formatted sources using `ocamlformat` and `clang-format`.
+
+- Fixed switch syntax error flagged by cppcheck.
+
+- Added `.editorconfig`.
+
+- Removed superfluous macro conditions.
+
+- Improved API documentation formatting.
+
+- Improved README, license file, copyright notices, and changelog format.
 
 ## 5.1.0 (2021-09-22)
 
