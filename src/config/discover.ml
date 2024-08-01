@@ -73,10 +73,7 @@ let add_compiler_args ~is_msvc ~cflags ~libs =
   match is_msvc with
   | true -> { C.Pkg_config.cflags = cflags @ [ "/O2" ]; libs }
   | false ->
-      {
-        C.Pkg_config.cflags = cflags @ [ "-O2"; "-fPIC"; "-DPIC" ];
-        libs = libs @ [ "-lpthread" ];
-      }
+      { C.Pkg_config.cflags = cflags @ [ "-O2"; "-fPIC"; "-DPIC" ]; libs }
 
 let () =
   let module C = Configurator.V1 in
