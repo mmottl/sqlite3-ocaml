@@ -1,43 +1,42 @@
-## SQLite3-OCaml - SQLite3 Bindings for OCaml
+# SQLite3-OCaml - SQLite3 Bindings for OCaml
 
-### What is SQLite3-OCaml?
+## What is SQLite3-OCaml?
 
 SQLite3-OCaml is an [OCaml](http://www.ocaml.org) library with bindings to the
 [SQLite3](http://www.sqlite.org) client API. Sqlite3 is a self-contained,
 serverless, zero-configuration, transactional SQL database engine with
-outstanding performance for many use cases.
+outstanding performance.
 
-These bindings are written in a way that enables a friendly coexistence with
-the old (version 2) SQLite and its OCaml wrapper `ocaml-sqlite`.
+The design of these bindings allows for a friendly coexistence with the old
+(version 2) SQLite and its OCaml wrapper `ocaml-sqlite`.
 
-### Usage
+## Usage
 
-The API in file `src/sqlite3.mli` is fully documented. It can also be found
+The API documentation is in file `src/sqlite3.mli` and also here:
 [online](http://mmottl.github.io/sqlite3-ocaml/api/sqlite3).
 
 SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
 
-#### Examples
+### Examples
 
-The `test`-directory in this distribution contains a few simple examples for
-testing various features of this library. The tests can be run by executing
+The `test`-directory in this distribution contains simple examples for
+testing features of this library. You can execute the tests by running:
 `dune runtest`.
 
-#### Build issues
+### Build issues
 
 SQLite3-OCaml depends on `pkg-config` to locate and compile against an
 [SQLite3](http://www.sqlite.org) library.
 
-If the SQLite3 version is greater than or equal to 3.3.7, it is assumed that it
-supports [Run-Time Loadable Extensions](http://www.sqlite.org/loadext.html).
+If the SQLite3 version is greater than or equal to 3.3.7, the assumption is that
+it supports [Run-Time Loadable Extensions](http://www.sqlite.org/loadext.html).
 If this feature has been explicitly disabled in the library, building
-applications will fail with:
+applications will fail with something like:
 
-```
-Undefined symbols for architecture ...:
+```text
+Undefined symbols for architecture …:
   "_sqlite3_enable_load_extension", referenced from:
       _caml_sqlite3_enable_load_extension in libsqlite3_stubs.a(sqlite3_stubs.o)
-     (maybe you meant: _caml_sqlite3_enable_load_extension)
 ```
 
 - You can check if your library is missing loadable extensions by searching
@@ -45,9 +44,9 @@ Undefined symbols for architecture ...:
 
 - If you need to change where `pkg-config` will look for the SQLite3
   library, set the `PKG_CONFIG_PATH` environment variable to the new
-  directory. This can be automated by setting the `SQLITE3_OCAML_BREWCHECK`
-  environment variable. This will instruct the build to see if a _brewed_
-  version of SQLite is installed and route `pkg-config` appropriately.
+  directory. Setting the `SQLITE3_OCAML_BREWCHECK` environment variable
+  automates this. This will instruct the build to check for the installation
+  of a _brewed_ version of SQLite and route `pkg-config` appropriately.
 
 - You can explicitly disable run-time loadable extensions by calling
   `configure` with the flag `--disable-loadable-extensions` or by setting
@@ -58,25 +57,24 @@ Undefined symbols for architecture ...:
   the default there is to disable them. You will have to explicitly enable
   them on that platform.
 
-### Credits
+## Credits
 
 - Mikhail Fedotov wrote ocaml-sqlite for SQLite version 2. His bindings
-  served as a reference for this wrapper, but sqlite3 is written completely
-  from scratch since the C interface changed significantly.
+  served as a reference for this wrapper, but SQLite3 is a complete rewrite.
 
 - Christian Szegedy wrote the initial release for SQLite version 3.
 
 - Markus Mottl rewrote Christian's bindings for Jane Street Holding, LLC to
-  clean up a few things and to make it perform better in multi-threaded
+  clean up some issues and to make it perform better in multi-threaded
   environments.
 
 - Enrico Tassi contributed support for user-defined scalar functions.
 
 - Markus W. Weissmann contributed backup functionality.
 
-### Contact Information and Contributing
+## Contact Information and Contributing
 
-Please submit bugs reports, feature requests, contributions and similar to
-the [GitHub issue tracker](https://github.com/mmottl/sqlite3-ocaml/issues).
+Please submit bugs reports, feature requests, contributions to the
+[GitHub issue tracker](https://github.com/mmottl/sqlite3-ocaml/issues).
 
 Up-to-date information is available at: <https://mmottl.github.io/sqlite3-ocaml>
