@@ -1351,36 +1351,36 @@ typedef struct agg_ctx {
       sqlite3_context *ctx, int argc, sqlite3_value **argv) {                  \
     value v_args, v_res;                                                       \
     user_function *data = sqlite3_user_data(ctx);                              \
-    agg_ctx *agg_ctx = sqlite3_aggregate_context(ctx, sizeof(agg_ctx));        \
+    agg_ctx *actx = sqlite3_aggregate_context(ctx, sizeof(agg_ctx));           \
     caml_leave_blocking_section();                                             \
-    if (!agg_ctx->initialized) {                                               \
-      agg_ctx->v_acc = Field(data->v_fun, 1);                                  \
+    if (!actx->initialized) {                                                  \
+      actx->v_acc = Field(data->v_fun, 1);                                     \
       /* Not a generational global root, because it is hard to imagine         \
          that there will ever be more than at most a few instances             \
          (quite probably only one in most cases). */                           \
-      caml_register_global_root(&agg_ctx->v_acc);                              \
-      agg_ctx->initialized = 1;                                                \
+      caml_register_global_root(&actx->v_acc);                                 \
+      actx->initialized = 1;                                                   \
     }                                                                          \
     v_args = caml_sqlite3_wrap_values(argc, argv);                             \
-    v_res = caml_callback2_exn(GET_FUN, agg_ctx->v_acc, v_args);               \
+    v_res = caml_callback2_exn(GET_FUN, actx->v_acc, v_args);                  \
     if (Is_exception_result(v_res))                                            \
       exception_result(ctx, v_res);                                            \
     else                                                                       \
-      agg_ctx->v_acc = v_res;                                                  \
+      actx->v_acc = v_res;                                                     \
     caml_enter_blocking_section();                                             \
   }
 
 #define MK_USER_FUNCTION_VALUE_FINAL(NAME, GET_FUN, REMOVE_ROOT)               \
   static void caml_sqlite3_user_function_##NAME(sqlite3_context *ctx) {        \
     user_function *data = sqlite3_user_data(ctx);                              \
-    agg_ctx *agg_ctx = sqlite3_aggregate_context(ctx, sizeof(agg_ctx));        \
+    agg_ctx *actx = sqlite3_aggregate_context(ctx, sizeof(agg_ctx));           \
     value v_res;                                                               \
     caml_leave_blocking_section();                                             \
-    if (!agg_ctx->initialized) {                                               \
+    if (!actx->initialized) {                                                  \
       v_res = caml_callback_exn(GET_FUN, Field(data->v_fun, 1));               \
       set_sqlite3_result(ctx, v_res);                                          \
     } else {                                                                   \
-      v_res = caml_callback_exn(GET_FUN, agg_ctx->v_acc);                      \
+      v_res = caml_callback_exn(GET_FUN, actx->v_acc);                         \
       set_sqlite3_result(ctx, v_res);                                          \
       REMOVE_ROOT;                                                             \
     }                                                                          \
@@ -1395,7 +1395,7 @@ MK_USER_FUNCTION_VALUE_FINAL(value, Field(Field(data->v_fun, 4), 0), )
 #endif
 
 MK_USER_FUNCTION_VALUE_FINAL(final, Field(data->v_fun, 5),
-                             caml_remove_global_root(&agg_ctx->v_acc))
+                             caml_remove_global_root(&actx->v_acc))
 
 static inline void unregister_user_function(db_wrap *db_data, value v_name) {
   user_function *prev = NULL, *link = db_data->user_functions;
