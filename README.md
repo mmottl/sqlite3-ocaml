@@ -3,7 +3,7 @@
 ### What is SQLite3-OCaml?
 
 SQLite3-OCaml is an [OCaml](http://www.ocaml.org) library with bindings to the
-[SQLite3](http://www.sqlite.org) client API.  Sqlite3 is a self-contained,
+[SQLite3](http://www.sqlite.org) client API. Sqlite3 is a self-contained,
 serverless, zero-configuration, transactional SQL database engine with
 outstanding performance for many use cases.
 
@@ -12,7 +12,7 @@ the old (version 2) SQLite and its OCaml wrapper `ocaml-sqlite`.
 
 ### Usage
 
-The API in file `src/sqlite3.mli` is fully documented.  It can also be found
+The API in file `src/sqlite3.mli` is fully documented. It can also be found
 [online](http://mmottl.github.io/sqlite3-ocaml/api/sqlite3).
 
 SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
@@ -20,7 +20,7 @@ SQLite3 has its own [online documentation](http://www.sqlite.org/docs.html).
 #### Examples
 
 The `test`-directory in this distribution contains a few simple examples for
-testing various features of this library.  The tests can be run by executing
+testing various features of this library. The tests can be run by executing
 `dune runtest`.
 
 #### Build issues
@@ -40,39 +40,39 @@ Undefined symbols for architecture ...:
      (maybe you meant: _caml_sqlite3_enable_load_extension)
 ```
 
-  * You can check if your library is missing loadable extensions by searching
-    it for the string `OMIT_LOAD_EXTENSION`.
+- You can check if your library is missing loadable extensions by searching
+  it for the string `OMIT_LOAD_EXTENSION`.
 
-  * If you need to change where `pkg-config` will look for the SQLite3
-    library, set the `PKG_CONFIG_PATH` environment variable to the new
-    directory.  This can be automated by setting the `SQLITE3_OCAML_BREWCHECK`
-    environment variable.  This will instruct the build to see if a _brewed_
-    version of SQLite is installed and route `pkg-config` appropriately.
+- If you need to change where `pkg-config` will look for the SQLite3
+  library, set the `PKG_CONFIG_PATH` environment variable to the new
+  directory. This can be automated by setting the `SQLITE3_OCAML_BREWCHECK`
+  environment variable. This will instruct the build to see if a _brewed_
+  version of SQLite is installed and route `pkg-config` appropriately.
 
-  * You can explicitly disable run-time loadable extensions by calling
-    `configure` with the flag `--disable-loadable-extensions` or by setting
-    the environment variable `SQLITE3_DISABLE_LOADABLE_EXTENSIONS` if linking
-    problems persist.
+- You can explicitly disable run-time loadable extensions by calling
+  `configure` with the flag `--disable-loadable-extensions` or by setting
+  the environment variable `SQLITE3_DISABLE_LOADABLE_EXTENSIONS` if linking
+  problems persist.
 
-  * Due to frequent installation issues with loadable extensions on Mac OS X,
-    the default there is to disable them.  You will have to explicitly enable
-    them on that platform.
+- Due to frequent installation issues with loadable extensions on Mac OS X,
+  the default there is to disable them. You will have to explicitly enable
+  them on that platform.
 
 ### Credits
 
-  * Mikhail Fedotov wrote ocaml-sqlite for SQLite version 2.  His bindings
-    served as a reference for this wrapper, but sqlite3 is written completely
-    from scratch since the C interface changed significantly.
+- Mikhail Fedotov wrote ocaml-sqlite for SQLite version 2. His bindings
+  served as a reference for this wrapper, but sqlite3 is written completely
+  from scratch since the C interface changed significantly.
 
-  * Christian Szegedy wrote the initial release for SQLite version 3.
+- Christian Szegedy wrote the initial release for SQLite version 3.
 
-  * Markus Mottl rewrote Christian's bindings for Jane Street Holding, LLC to
-    clean up a few things and to make it perform better in multi-threaded
-    environments.
+- Markus Mottl rewrote Christian's bindings for Jane Street Holding, LLC to
+  clean up a few things and to make it perform better in multi-threaded
+  environments.
 
-  * Enrico Tassi contributed support for user-defined scalar functions.
+- Enrico Tassi contributed support for user-defined scalar functions.
 
-  * Markus W. Weissmann contributed backup functionality.
+- Markus W. Weissmann contributed backup functionality.
 
 ### Contact Information and Contributing
 
