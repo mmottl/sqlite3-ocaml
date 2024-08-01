@@ -526,23 +526,37 @@ module Aggregate = struct
 end
 
 module Backup = struct
-  type t
+  module Raw = struct
+    type t
 
-  external init : dst:db -> dst_name:string -> src:db -> src_name:string -> t
-    = "caml_sqlite3_backup_init"
+    external init : dst:db -> dst_name:string -> src:db -> src_name:string -> t
+      = "caml_sqlite3_backup_init"
 
-  external step : t -> (int[@untagged]) -> Rc.t
-    = "caml_sqlite3_backup_step_bc" "caml_sqlite3_backup_step"
+    external step : t -> (int[@untagged]) -> Rc.t
+      = "caml_sqlite3_backup_step_bc" "caml_sqlite3_backup_step"
 
-  external finish : t -> Rc.t = "caml_sqlite3_backup_finish"
+    external finish : t -> Rc.t = "caml_sqlite3_backup_finish"
 
-  external remaining : t -> (int[@untagged])
-    = "caml_sqlite3_backup_remaining_bc" "caml_sqlite3_backup_remaining"
-  [@@noalloc]
+    external remaining : t -> (int[@untagged])
+      = "caml_sqlite3_backup_remaining_bc" "caml_sqlite3_backup_remaining"
+    [@@noalloc]
 
-  external pagecount : t -> (int[@untagged])
-    = "caml_sqlite3_backup_pagecount_bc" "caml_sqlite3_backup_pagecount"
-  [@@noalloc]
+    external pagecount : t -> (int[@untagged])
+      = "caml_sqlite3_backup_pagecount_bc" "caml_sqlite3_backup_pagecount"
+    [@@noalloc]
+  end
+
+  type t = Raw.t * db * db
+  (* Databases must not be garbage-collected before backup objects (which have
+     references to them) so we bind their lifetime together. *)
+
+  let init ~dst ~dst_name ~src ~src_name =
+    (Raw.init ~dst ~dst_name ~src ~src_name, dst, src)
+
+  let step (b, _, _) i = Raw.step b i
+  let finish (b, _, _) = Raw.finish b
+  let remaining (b, _, _) = Raw.remaining b
+  let pagecount (b, _, _) = Raw.pagecount b
 end
 
 (* Initialisation *)
