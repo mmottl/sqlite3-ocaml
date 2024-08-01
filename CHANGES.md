@@ -1,8 +1,17 @@
-### Pending
+## 5.2.0 (2024-07-31)
 
-- Don't use `-lpthread` and non-MSVC flags with MSVC compiler
+- Support MSVC compiler (Jonah Beckford)
 
-### 5.1.0 (2021-09-22)
+- Add `extended_errcode_int` function (Petter A. Urkedal)
+
+- Fix memory alloc in `caml_sqlite3_backup_init()`
+  (Mark Elvers, Pierre Boutillier, and Benjamin Canou)
+
+- Add Github CI (Yilin Wei)
+
+- Detect pkgconf on Windows/mingw (Mark Elvers, reviewed by Shon Feder)
+
+## 5.1.0 (2021-09-22)
 
 - Added let&-operator for implicit closing of an opened database.
 
