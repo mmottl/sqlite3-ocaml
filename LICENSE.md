@@ -1,17 +1,9 @@
 # The MIT License (MIT)
 
-© 2010- Markus Mottl <markus.mottl@gmail.com>
-
-© 2005 Christian Szegedy <csdontspam871@metamatix.org>
-
+© 2010 Markus Mottl <markus.mottl@gmail.com>
 © 2007 Jane Street Holding, LLC
-250 Vesey Street
-New York, NY 10281
-USA
-Email: <opensource@janestreet.com>
-Author: Markus Mottl <markus.mottl@gmail.com>
-
 © 2007 Enrico Tassi <gareuselesinge@virgilio.it>
+© 2005 Christian Szegedy <csdontspam871@metamatix.org>
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
