@@ -1,117 +1,108 @@
-### 5.1.0 (2021-09-22)
+## 5.1.0 (2021-09-22)
 
-  * Added let&-operator for implicit closing of an opened database.
+- Added let&-operator for implicit closing of an opened database.
 
-    Thanks to Yawar Amin <yawar.amin@gmail.com> for this contribution!
+  Thanks to Yawar Amin <yawar.amin@gmail.com> for this contribution!
 
+## 5.0.3 (2021-03-18)
 
-### 5.0.3 (2021-03-18)
+- Fixed missing GC registration of init values in aggregate functions.
 
-  * Fixed missing GC registration of init values in aggregate functions.
+- Fixed call to final aggregate function when no step function was called.
 
-  * Fixed call to final aggregate function when no step function was called.
+- Fixed incorrect required minimum OCaml version (now 4.12).
 
-  * Fixed incorrect required minimum OCaml version (now 4.12).
+## 5.0.2 (2020-07-30)
 
+- Added missing `dune-configurator` dependency.
 
-### 5.0.2 (2020-07-30)
+- Removed redundant build dependencies.
 
-  * Added missing `dune-configurator` dependency.
+- Use `caml_alloc_initialized_string` wherever possible.
 
-  * Removed redundant build dependencies.
+- Fixed documentation typos and wording.
 
-  * Use `caml_alloc_initialized_string` wherever possible.
+- Added support for const char strings in stubs due to stricter handling
+  in newer OCaml runtimes. This eliminates C-compiler warnings.
 
-  * Fixed documentation typos and wording.
+## 5.0.1 (2019-12-01)
 
-  * Added support for const char strings in stubs due to stricter handling
-    in newer OCaml runtimes.  This eliminates C-compiler warnings.
+- Added missing :with-test declaration in Dune project file.
 
+- Improved portability to older SQLite3 versions.
 
-### 5.0.1 (2019-12-01)
+## 5.0.0 (2019-12-01)
 
-  * Added missing :with-test declaration in Dune project file.
+- Breaking change:
 
-  * Improved portability to older SQLite3 versions.
+  - `Data.to_string` is now `Data.to_string_coerce` to more clearly reflect
+    that non-string data will be converted to strings.
 
+- Added support for SQLite3 window functions.
 
-### 5.0.0 (2019-12-01)
+- Added `Sqlite3.Rc.check` and `Sqlite3.Rc.is_success` for easier return
+  code checking.
 
-  * Breaking change:
+- Added `Sqlite3.prepare_or_reset` for reusing prepared statements in loops.
 
-      * `Data.to_string` is now `Data.to_string_coerce` to more clearly reflect
-        that non-string data will be converted to strings.
+- Added `Sqlite3.iter` and `Sqlite3.fold` for more convenient handling of
+  row data.
 
-  * Added support for SQLite3 window functions.
+- Added more data conversion functions, also for direct access to column data.
 
-  * Added `Sqlite3.Rc.check` and `Sqlite3.Rc.is_success` for easier return
-    code checking.
+- Added more data binding functions.
 
-  * Added `Sqlite3.prepare_or_reset` for reusing prepared statements in loops.
+- Improved closing behavior of database using new SQLite3 API.
 
-  * Added `Sqlite3.iter` and `Sqlite3.fold` for more convenient handling of
-    row data.
+- Improved testing framework using `ppx_inline_test`.
 
-  * Added more data conversion functions, also for direct access to column data.
+- Each test case now has its own database for parallel testing.
 
-  * Added more data binding functions.
+- Switched from `caml_alloc_custom` to `caml_alloc_custom_mem`.
 
-  * Improved closing behavior of database using new SQLite3 API.
+- Switched to OPAM file generation via `dune-project`.
 
-  * Improved testing framework using `ppx_inline_test`.
+- Improved compatibility with older OCaml versions. Thanks to Simon Cruanes
+  for this patch!
 
-  * Each test case now has its own database for parallel testing.
+Thanks to Shawn <shawnw.mobile@gmail.com> and Ted Spence <tspence@fb.com>
+for their work on many of these contributions!
 
-  * Switched from `caml_alloc_custom` to `caml_alloc_custom_mem`.
+## 4.4.1 (2018-10-25)
 
-  * Switched to OPAM file generation via `dune-project`.
+- Switched to dune, dune-release, and OPAM 2.0
 
-  * Improved compatibility with older OCaml versions.  Thanks to Simon Cruanes
-    for this patch!
+## 4.4.0 (2018-04-26)
 
-  Thanks to Shawn <shawnw.mobile@gmail.com> and Ted Spence <tspence@fb.com>
-  for their work on many of these contributions!
+- Support for new open flags:
 
+  - uri - for URI filename interpretation
+  - memory - for in-memory databases
 
-### 4.4.1 (2018-10-25)
+  Thanks to Raman Varabets for this contribution!
 
-  * Switched to dune, dune-release, and OPAM 2.0
+- Fixed warnings and errors in configuration code due to upstream changes.
 
+## 4.3.2 (2017-11-27)
 
-### 4.4.0 (2018-04-26)
+- Added missing -lpthread linking flag to avoid problems with projects
+  that do not link with the OCaml threads library.
 
-  * Support for new open flags:
+## 4.3.1 (2017-11-22)
 
-      * uri - for URI filename interpretation
-      * memory - for in-memory databases
+- Improved finalization of databases and statements for better performance
 
-    Thanks to Raman Varabets for this contribution!
+## 4.3.0 (2017-10-10)
 
-  * Fixed warnings and errors in configuration code due to upstream changes.
+- Improved compatibility with MSVC
 
-### 4.3.2 (2017-11-27)
+- Used untagging and unboxing attributes on external functions
 
-  * Added missing -lpthread linking flag to avoid problems with projects
-    that do not link with the OCaml threads library.
+## 4.2.0 (2017-08-03)
 
+- Switched to jbuilder and topkg
 
-### 4.3.1 (2017-11-22)
+- Added backup functionality
 
-  * Improved finalization of databases and statements for better performance
-
-
-### 4.3.0 (2017-10-10)
-
-  * Improved compatibility with MSVC
-
-  * Used untagging and unboxing attributes on external functions
-
-
-### 4.2.0 (2017-08-03)
-
-  * Switched to jbuilder and topkg
-
-  * Added backup functionality
-
-    Thanks to Markus W. Weissmann <markus.weissmann@in.tum.de> for this
-    contribution!
+  Thanks to Markus W. Weissmann <markus.weissmann@in.tum.de> for this
+  contribution!
