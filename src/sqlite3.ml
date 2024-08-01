@@ -292,6 +292,7 @@ let ( let& ) db f =
 
 external errcode : db -> Rc.t = "caml_sqlite3_errcode"
 external errmsg : db -> string = "caml_sqlite3_errmsg"
+external extended_errcode_int : db -> int = "caml_sqlite3_extended_errcode_int"
 
 external last_insert_rowid : db -> (int64[@unboxed])
   = "caml_sqlite3_last_insert_rowid_bc" "caml_sqlite3_last_insert_rowid"
