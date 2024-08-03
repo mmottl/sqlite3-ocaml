@@ -97,12 +97,17 @@ let () =
         opt_map (C.ocaml_config_var c "target") ~default:"" ~f:(fun target ->
             "--personality=" ^ target)
       in
-      let cflags =
-        let cmd =
-          pkg_export
-          ^ (if is_mingw then " pkgconf " ^ personality else " pkg-config")
-          ^ " --cflags sqlite3"
+      let pkg_config =
+        let pkg_config =
+          match Sys.getenv "PKG_CONFIG" with
+          | s -> s
+          | exception Not_found -> "pkg-config"
         in
+        pkg_export
+        ^ if is_mingw then " pkgconf " ^ personality else " " ^ pkg_config
+      in
+      let cflags =
+        let cmd = pkg_config ^ " --cflags sqlite3" in
         match read_lines_from_cmd ~max_lines:1 cmd with
         | [ cflags ] ->
             let cflags = split_ws cflags in
@@ -114,11 +119,7 @@ let () =
         | _ -> failwith "pkg-config failed to return cflags"
       in
       let libs =
-        let cmd =
-          pkg_export
-          ^ (if is_mingw then " pkgconf " ^ personality else " pkg-config")
-          ^ " --libs sqlite3"
-        in
+        let cmd = pkg_config ^ " --libs sqlite3" in
         match read_lines_from_cmd ~max_lines:1 cmd with
         | [ libs ] -> split_ws libs
         | _ -> failwith "pkg-config failed to return libs"
