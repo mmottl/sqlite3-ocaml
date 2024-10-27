@@ -32,3 +32,4 @@ jobs:
       - run: opam exec -- make
 
       - run: opam exec -- make -C test
+# vim: filetype=yaml
