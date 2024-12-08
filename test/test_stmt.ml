@@ -10,11 +10,11 @@ let column_decltype s i =
 let stepbystep s =
   assert_done
     (iter s ~f:(function r ->
-         Array.iteri
-           (fun i c ->
-             printf "%s column[%d] %s = %s\n%!" (column_decltype s i) i
-               (column_name s i) (Data.to_string_coerce c))
-           r))
+        Array.iteri
+          (fun i c ->
+            printf "%s column[%d] %s = %s\n%!" (column_decltype s i) i
+              (column_name s i) (Data.to_string_coerce c))
+          r))
 
 let stepbystep_wrong s =
   while step s = Rc.ROW do

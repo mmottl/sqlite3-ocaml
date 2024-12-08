@@ -63,7 +63,8 @@ val sqlite_version : unit -> int
 val sqlite_version_info : unit -> string
 (** [sqlite_version_info ()]
     @return
-      the version of the SQLite3 library being used in a human-readable string. *)
+      the version of the SQLite3 library being used in a human-readable string.
+*)
 
 (** {2 Types} *)
 
@@ -235,7 +236,8 @@ module Data : sig
 
   val to_string : t -> string option
   (** [to_string data] converts [data] to [Some string] or [None] if it is not a
-      valid conversion. This method also converts data of type BLOB to a string. *)
+      valid conversion. This method also converts data of type BLOB to a string.
+  *)
 
   val to_int : t -> int option
   (** [to_int data] converts [data] to [Some int] or [None] if it is not a valid
@@ -330,7 +332,8 @@ val ( let& ) : db -> (db -> 'a) -> 'a
     database [db] is safely closed at the end of the scope, even if there is an
     exception somewhere in the scope.
 
-    @raise Fun.Finally_raised if the database could not be closed successfully. *)
+    @raise Fun.Finally_raised if the database could not be closed successfully.
+*)
 
 val enable_load_extension : db -> bool -> bool
 (** [enable_load_extension db onoff] enable/disable the SQLite3 load extension.
