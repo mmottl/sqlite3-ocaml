@@ -1,3 +1,5 @@
+# Changelog
+
 ## 5.2.0 (2024-08-01)
 
 - Support MSVC compiler (Jonah Beckford)
