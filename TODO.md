@@ -9,7 +9,6 @@
 - Add the following wrappers:
 
   - Better SQL Function support (aggregating ones)
-  - Collation support
   - Authorization support
   - Trace/profile support
   - progress handler support
