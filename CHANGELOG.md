@@ -1,140 +1,146 @@
 # Changelog
 
-## 5.2.0 (2024-08-01)
+## [5.2.0] - 2024-08-01
 
-- Support MSVC compiler (Jonah Beckford)
+### Added
 
-- Add `extended_errcode_int` function (Petter A. Urkedal)
+- Support for MSVC compiler. Thanks to Jonah Beckford.
+- `extended_errcode_int` function. Thanks to Petter A. Urkedal.
+- GitHub CI. Thanks to Yilin Wei.
+- `.editorconfig`.
 
-- Fix memory alloc in `caml_sqlite3_backup_init()`
-  (Mark Elvers, Pierre Boutillier, and Benjamin Canou)
+### Fixed
 
-- Add Github CI (Yilin Wei)
+- Memory allocation in `caml_sqlite3_backup_init()`. Thanks to Mark Elvers,
+  Pierre Boutillier, and Benjamin Canou.
+- Shadowing of `agg_ctx` when using `sizeof`.
+- Switch syntax error flagged by cppcheck.
 
-- Detect pkgconf on Windows/mingw (Mark Elvers, reviewed by Shon Feder)
+### Changed
 
-- Fixed shadowing of `agg_ctx` when using `sizeof`.
-
+- Detect pkgconf on Windows/mingw. Thanks to Mark Elvers, reviewed by Shon
+  Feder.
 - Formatted sources using `ocamlformat` and `clang-format`.
-
-- Fixed switch syntax error flagged by cppcheck.
-
-- Added `.editorconfig`.
-
+- Improved API documentation formatting.
+- Enhanced README, license file, copyright notices, and changelog format.
 - Removed superfluous macro conditions.
 
-- Improved API documentation formatting.
+## [5.1.0] - 2021-09-22
 
-- Improved README, license file, copyright notices, and changelog format.
+### Added
 
-## 5.1.0 (2021-09-22)
+- `let&`-operator for implicit closing of an opened database. Thanks to Yawar
+  Amin <yawar.amin@gmail.com>.
 
-- Added let&-operator for implicit closing of an opened database.
+## [5.0.3] - 2021-03-18
 
-  Thanks to Yawar Amin <yawar.amin@gmail.com> for this contribution.
+### Fixed
 
-## 5.0.3 (2021-03-18)
+- Missing GC registration of init values in aggregate functions.
+- Call to final aggregate function when not calling step function.
+- Incorrect required OCaml version (now 4.12).
 
-- Fixed missing GC registration of init values in aggregate functions.
+## [5.0.2] - 2020-07-30
 
-- Fixed call to final aggregate function when not calling step function.
+### Added
 
-- Fixed incorrect required OCaml version (now 4.12).
+- Missing `dune-configurator` dependency.
+- Support for const char strings in stubs due to stricter handling in newer
+  OCaml runtimes, eliminating C-compiler warnings.
 
-## 5.0.2 (2020-07-30)
-
-- Added missing `dune-configurator` dependency.
+### Changed
 
 - Removed redundant build dependencies.
-
 - Use `caml_alloc_initialized_string` wherever possible.
-
 - Fixed documentation typos and wording.
 
-- Added support for const char strings in stubs due to stricter handling
-  in newer OCaml runtimes. This eliminates C-compiler warnings.
+## [5.0.1] - 2019-12-01
 
-## 5.0.1 (2019-12-01)
+### Added
 
-- Added missing :with-test declaration in Dune project file.
+- Missing :with-test declaration in Dune project file.
 
-- Improved portability to older SQLite3 versions.
+### Improved
 
-## 5.0.0 (2019-12-01)
+- Portability to older SQLite3 versions.
 
-- Breaking change:
+## [5.0.0] - 2019-12-01
 
-  - `Data.to_string` is now `Data.to_string_coerce` to reflect
-    that we convert non-string data to strings.
+### Breaking
 
-- Added support for SQLite3 window functions.
+- `Data.to_string` is now `Data.to_string_coerce`.
 
-- Added `Sqlite3.Rc.check` and `Sqlite3.Rc.is_success` for easier return
-  code checking.
+### Added
 
-- Added `Sqlite3.prepare_or_reset` for reusing prepared statements in loops.
+- Support for SQLite3 window functions.
+- `Sqlite3.Rc.check` and `Sqlite3.Rc.is_success` for easier return code
+  checking.
+- `Sqlite3.prepare_or_reset` for reusing prepared statements in loops.
+- `Sqlite3.iter` and `Sqlite3.fold` for more convenient handling of row data.
+- More data conversion and binding functions.
 
-- Added `Sqlite3.iter` and `Sqlite3.fold` for more convenient handling of
-  row data.
+### Improved
 
-- Added more data conversion functions, also for direct access to column data.
-
-- Added more data binding functions.
-
-- Improved closing behavior of database using new SQLite3 API.
-
-- Improved testing framework using `ppx_inline_test`.
-
+- Closing behavior of database using new SQLite3 API.
+- Testing framework using `ppx_inline_test`.
 - Each test case now has its own database for parallel testing.
+- Compatibility with older OCaml versions. Thanks to Simon Cruanes.
+
+### Changed
 
 - Switched from `caml_alloc_custom` to `caml_alloc_custom_mem`.
-
 - Switched to OPAM file generation via `dune-project`.
 
-- Improved compatibility with older OCaml versions. Thanks to Simon Cruanes
-  for this patch.
+Thanks to Shawn <shawnw.mobile@gmail.com> and Ted Spence <tspence@fb.com>.
 
-Thanks to Shawn <shawnw.mobile@gmail.com> and Ted Spence <tspence@fb.com>
-for their work on these contributions.
+## [4.4.1] - 2018-10-25
 
-## 4.4.1 (2018-10-25)
+### Changed
 
-- Switched to dune, dune-release, and OPAM 2.0
+- Switched to dune, dune-release, and OPAM 2.0.
 
-## 4.4.0 (2018-04-26)
+## [4.4.0] - 2018-04-26
 
-- Support for new open flags:
+### Added
 
-  - uri - for URI filename interpretation
-  - memory - for in-memory databases
+- Support for new open flags: `uri` and `memory`. Thanks to Raman Varabets.
 
-  Thanks to Raman Varabets for this contribution.
+### Fixed
 
-- Fixed warnings and errors in configuration code due to upstream changes.
+- Warnings and errors in configuration code due to upstream changes.
 
-## 4.3.2 (2017-11-27)
+## [4.3.2] - 2017-11-27
 
-- Added missing -lpthread linking flag to avoid problems with projects
-  that do not link with the OCaml threads library.
+### Added
 
-## 4.3.1 (2017-11-22)
+- Missing -lpthread linking flag.
 
-- Improved finalization of databases and statements for better performance
+## [4.3.1] - 2017-11-22
 
-## 4.3.0 (2017-10-10)
+### Improved
 
-- Improved compatibility with MSVC
+- Finalization of databases and statements for better performance.
 
-- Used untagging and unboxing attributes on external functions
+## [4.3.0] - 2017-10-10
 
-## 4.2.0 (2017-08-03)
+### Improved
 
-- Switched to jbuilder and topkg
+- Compatibility with MSVC.
 
-- Added backup functionality
+### Changed
 
-  Thanks to Markus W. Weissmann <markus.weissmann@in.tum.de> for this
-  contribution.
+- Used untagging and unboxing attributes on external functions.
+
+## [4.2.0] - 2017-08-03
+
+### Added
+
+- Backup functionality. Thanks to Markus W. Weissmann
+  <markus.weissmann@in.tum.de>.
+
+### Changed
+
+- Switched to jbuilder and topkg.
 
 ## Changes Before Version 4.2.0
 
