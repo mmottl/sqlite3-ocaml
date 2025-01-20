@@ -1,6 +1,10 @@
 # Changelog
 
-## [5.2.1] - 2025-01-20
+## [5.3.0] - 2025-01-20
+
+### Added
+
+- Collation support. Thanks to Gusted.
 
 ### Changed
 
