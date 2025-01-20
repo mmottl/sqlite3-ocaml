@@ -943,6 +943,20 @@ module Aggregate : sig
       @raise SqliteError if an invalid database handle is passed. *)
 end
 
+val create_collation : db -> string -> (string -> string -> int) -> unit
+(** [create_collation db name func] creates a collation with [name] in database
+    handle [db]. [func] is called when the collation is needed, it must return
+    an integer that is negative, zero, or positive if the first string is less
+    than, equal to, or greater than the second, respectively
+
+    @raise SqliteError if an invalid database handle is passed. *)
+
+val delete_collation : db -> string -> unit
+(** [delete_collation db name] deletes collation with name [name] from database
+    handle [db].
+
+    @raise SqliteError if an invalid database handle is passed. *)
+
 module Backup : sig
   type t
   (** Type of a backup between two databases *)

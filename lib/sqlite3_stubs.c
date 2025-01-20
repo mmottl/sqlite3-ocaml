@@ -117,11 +117,17 @@ typedef struct user_function {
   struct user_function *next;
 } user_function;
 
+typedef struct user_collation {
+  value v_fun;
+  struct user_collation *next;
+} user_collation;
+
 typedef struct db_wrap {
   sqlite3 *db;
   int rc;
   int ref_count;
   user_function *user_functions;
+  user_collation *user_collations;
 } db_wrap;
 
 typedef struct stmt_wrap {
@@ -360,6 +366,13 @@ static inline void ref_count_finalize_dbw(db_wrap *dbw) {
       caml_stat_free(link);
     }
     dbw->user_functions = NULL;
+    user_collation *link_c, *next_c;
+    for (link_c = dbw->user_collations; link_c != NULL; link_c = next_c) {
+      caml_remove_generational_global_root(&link_c->v_fun);
+      next_c = link_c->next;
+      caml_stat_free(link);
+    }
+    dbw->user_collations = NULL;
     my_sqlite3_close(dbw->db);
     caml_stat_free(dbw);
   }
@@ -514,6 +527,7 @@ CAMLprim value caml_sqlite3_open(value v_mode, value v_uri, value v_memory,
     dbw->rc = SQLITE_OK;
     dbw->ref_count = 1;
     dbw->user_functions = NULL;
+    dbw->user_collations = NULL;
     Sqlite3_val(v_res) = dbw;
     return v_res;
   }
@@ -1522,6 +1536,86 @@ CAMLprim value caml_sqlite3_delete_function(value v_db, value v_name) {
   if (rc != SQLITE_OK)
     raise_sqlite3_current(dbw->db, "delete_function");
   unregister_user_function(dbw, v_name);
+  return Val_unit;
+}
+
+/* User defined collations */
+
+static inline void unregister_user_collation(db_wrap *db_data, value v_name) {
+  user_collation *prev = NULL, *link = db_data->user_collations;
+  const char *name = String_val(v_name);
+
+  while (link != NULL) {
+    if (strcmp(String_val(Field(link->v_fun, 0)), name) == 0) {
+      if (prev == NULL)
+        db_data->user_collations = link->next;
+      else
+        prev->next = link->next;
+      caml_remove_generational_global_root(&link->v_fun);
+      caml_stat_free(link);
+      break;
+    }
+    prev = link;
+    link = link->next;
+  }
+}
+
+static inline user_collation *
+register_user_collation(db_wrap *db_data, value v_name, value v_fun) {
+  user_collation *link;
+  value v_cell = caml_alloc_small(2, 0);
+  Field(v_cell, 0) = v_name;
+  Field(v_cell, 1) = v_fun;
+
+  /* Assume parameters are already protected */
+  link = caml_stat_alloc(sizeof *link);
+  link->v_fun = v_cell;
+  link->next = db_data->user_collations;
+  caml_register_generational_global_root(&link->v_fun);
+  db_data->user_collations = link;
+  return link;
+}
+
+int caml_sqlite3_user_collation(void *ctx, int nLeft, const void *zLeft,
+                                int nRight, const void *zRight) {
+  user_collation *data = ctx;
+  value v_res, v_left, v_right;
+  int v_return;
+  caml_leave_blocking_section();
+  v_left = caml_alloc_initialized_string(nLeft, zLeft);
+  v_right = caml_alloc_initialized_string(nRight, zRight);
+  v_res = caml_callback2_exn(Field(data->v_fun, 1), v_left, v_right);
+  v_return = Int_val(v_res);
+  caml_enter_blocking_section();
+  return v_return;
+}
+
+CAMLprim value caml_sqlite3_create_collation(value v_db, value v_name,
+                                             value v_fun) {
+  CAMLparam3(v_db, v_name, v_fun);
+  user_collation *param;
+  int rc;
+  db_wrap *dbw = Sqlite3_val(v_db);
+  check_db(dbw, "create_collation");
+  param = register_user_collation(dbw, v_name, v_fun);
+  rc = sqlite3_create_collation(dbw->db, String_val(v_name), SQLITE_UTF8, param,
+                                caml_sqlite3_user_collation);
+  if (rc != SQLITE_OK) {
+    unregister_user_collation(dbw, v_name);
+    raise_sqlite3_current(dbw->db, "create_collation");
+  }
+  CAMLreturn(Val_unit);
+}
+
+CAMLprim value caml_sqlite3_delete_collation(value v_db, value v_name) {
+  int rc;
+  db_wrap *dbw = Sqlite3_val(v_db);
+  check_db(dbw, "delete_collation");
+  rc = sqlite3_create_collation(dbw->db, String_val(v_name), SQLITE_UTF8, NULL,
+                                NULL);
+  if (rc != SQLITE_OK)
+    raise_sqlite3_current(dbw->db, "delete_collation");
+  unregister_user_collation(dbw, v_name);
   return Val_unit;
 }
 

@@ -525,6 +525,14 @@ module Aggregate = struct
       value final
 end
 
+(* Collation registration *)
+
+external create_collation : db -> string -> (string -> string -> int) -> unit
+  = "caml_sqlite3_create_collation"
+
+external delete_collation : db -> string -> unit
+  = "caml_sqlite3_delete_collation"
+
 module Backup = struct
   module Raw = struct
     type t
