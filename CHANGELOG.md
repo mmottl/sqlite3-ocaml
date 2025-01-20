@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.2.1] - 2025-01-20
+
+### Changed
+
+- Builds now respect `$PKG_CONFIG`. Thanks to Antonio Nuno Monteiro.
+
 ## [5.2.0] - 2024-08-01
 
 ### Added
