@@ -1,5 +1,10 @@
 # Changelog
 
+## Pending
+
+- Remove `-O2` compiler flag since optimozation flags owned by
+  and can conflict with `ocamlc -config`.
+
 ## [5.3.0] - 2025-01-20
 
 ### Added
