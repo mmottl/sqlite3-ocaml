@@ -7,8 +7,9 @@
   finding a reference counting bug when handling exceptions.
 - Fixed collation link freeing bug. Thanks to `o3-mini-high` for suggesting the
   fix without even being prompted (minus-shot).
-- Remove `-O2` compiler flag since optimization flags owned by and can conflict
-  with `ocamlc -config`.
+- Removed obsolete compiler flags. OCaml already passes optimization flags, and
+  flags for position-independent code should not be necessary. Thanks to Jonah
+  Beckford for the contribution.
 
 ## [5.3.0] - 2025-01-20
 
