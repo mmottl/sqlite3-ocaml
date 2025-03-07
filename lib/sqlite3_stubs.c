@@ -360,7 +360,7 @@ static inline value safe_copy_header_strings(const char **strs, int len) {
 /* Databases */
 
 static inline void ref_count_finalize_dbw(db_wrap *dbw) {
-  if (--dbw->ref_count == 0) {
+  if (atomic_fetch_sub(&dbw->ref_count, 1) == 1) {
     user_function *link, *next;
     for (link = dbw->user_functions; link != NULL; link = next) {
       caml_remove_generational_global_root(&link->v_fun);
@@ -856,7 +856,6 @@ static inline value prepare_it(db_wrap *dbw, const char *sql, int sql_len,
   int rc;
   stmt_wrap *stmtw = caml_stat_alloc(sizeof(stmt_wrap));
   stmtw->db_wrap = dbw;
-  dbw->ref_count++;
   stmtw->sql = caml_stat_alloc(sql_len + 1);
   memcpy(stmtw->sql, sql, sql_len);
   stmtw->sql[sql_len] = '\0';
@@ -869,19 +868,19 @@ static inline value prepare_it(db_wrap *dbw, const char *sql, int sql_len,
     if (rc != SQLITE_OK)
       raise_sqlite3_current(dbw->db, loc);
     raise_sqlite3_Error("No code compiled from %s", sql);
-  } else {
-#if SQLITE_STMTSTATUS_MEMUSED
-    size_t mem = sizeof(stmt_wrap) + sql_len + 1 +
-                 sqlite3_stmt_status(stmtw->stmt, SQLITE_STMTSTATUS_MEMUSED, 0);
-    value v_stmt =
-        caml_alloc_custom_mem(&stmt_wrap_ops, sizeof(stmt_wrap *), mem);
-#else
-    value v_stmt =
-        caml_alloc_custom(&stmt_wrap_ops, sizeof(stmt_wrap *), 1, 1000);
-#endif
-    Sqlite3_stmtw_val(v_stmt) = stmtw;
-    return v_stmt;
   }
+  atomic_fetch_add(&dbw->ref_count, 1);
+#if SQLITE_STMTSTATUS_MEMUSED
+  size_t mem = sizeof(stmt_wrap) + sql_len + 1 +
+               sqlite3_stmt_status(stmtw->stmt, SQLITE_STMTSTATUS_MEMUSED, 0);
+  value v_stmt =
+      caml_alloc_custom_mem(&stmt_wrap_ops, sizeof(stmt_wrap *), mem);
+#else
+  value v_stmt =
+      caml_alloc_custom(&stmt_wrap_ops, sizeof(stmt_wrap *), 1, 1000);
+#endif
+  Sqlite3_stmtw_val(v_stmt) = stmtw;
+  return v_stmt;
 }
 
 CAMLprim value caml_sqlite3_stmt_finalize(value v_stmt) {
