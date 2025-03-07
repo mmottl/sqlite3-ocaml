@@ -372,7 +372,7 @@ static inline void ref_count_finalize_dbw(db_wrap *dbw) {
     for (link_c = dbw->user_collations; link_c != NULL; link_c = next_c) {
       caml_remove_generational_global_root(&link_c->v_fun);
       next_c = link_c->next;
-      caml_stat_free(link);
+      caml_stat_free(link_c);
     }
     dbw->user_collations = NULL;
     my_sqlite3_close(dbw->db);
