@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <stdatomic.h>
+
 #include <caml/alloc.h>
 #include <caml/callback.h>
 #include <caml/custom.h>
@@ -125,7 +127,7 @@ typedef struct user_collation {
 typedef struct db_wrap {
   sqlite3 *db;
   int rc;
-  int ref_count;
+  _Atomic(int) ref_count;
   user_function *user_functions;
   user_collation *user_collations;
 } db_wrap;
