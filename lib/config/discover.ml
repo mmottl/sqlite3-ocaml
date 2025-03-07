@@ -71,9 +71,8 @@ let split_ws str =
 let add_compiler_args ~is_msvc ~cflags ~libs =
   let module C = Configurator.V1 in
   match is_msvc with
-  | true -> { C.Pkg_config.cflags = cflags @ [ "/O2" ]; libs }
-  | false ->
-      { C.Pkg_config.cflags = cflags @ [ "-O2"; "-fPIC"; "-DPIC" ]; libs }
+  | true -> { C.Pkg_config.cflags; libs }
+  | false -> { C.Pkg_config.cflags = cflags @ [ "-fPIC"; "-DPIC" ]; libs }
 
 let () =
   let module C = Configurator.V1 in
