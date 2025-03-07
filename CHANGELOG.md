@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.3.1] - 2025-03-07
+
+- Made reference counting of database handles atomic for thread-safety. Thanks
+  to Christoph Wintersteiger for the suggestion, and to `o3-mini-high` for
+  finding a reference counting bug when handling exceptions.
+- Fixed collation link freeing bug. Thanks to `o3-mini-high` for suggesting the
+  fix without even being prompted (minus-shot).
+
 ## [5.3.0] - 2025-01-20
 
 ### Added
