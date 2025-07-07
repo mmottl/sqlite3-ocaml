@@ -26,6 +26,7 @@
  (depends
   (ocaml
    (>= 4.12))
+  dune-compiledb
   dune-configurator
   (conf-sqlite3 :build)
   (ppx_inline_test :with-test))

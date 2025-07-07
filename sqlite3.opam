@@ -18,6 +18,7 @@ bug-reports: "https://github.com/mmottl/sqlite3-ocaml/issues"
 depends: [
   "dune" {>= "2.7"}
   "ocaml" {>= "4.12"}
+  "dune-compiledb"
   "dune-configurator"
   "conf-sqlite3" {build}
   "ppx_inline_test" {with-test}
