@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Makefile target to generate `compile_commands.json` for improved LSP support
+  in editors.
+
 ## [5.3.1] - 2025-03-07
 
 - Made reference counting of database handles atomic for thread-safety. Thanks
