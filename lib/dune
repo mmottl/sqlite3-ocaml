@@ -2,9 +2,10 @@
  (public_name sqlite3)
  (foreign_stubs
   (language c)
-  (names sqlite3_stubs)
+  (names sqlite3_stubs carray)
   (flags
    (:standard)
+   (-DSQLITE_CORE) (-I.)
    (:include c_flags.sexp)))
  (c_library_flags
   (:include c_library_flags.sexp)))
