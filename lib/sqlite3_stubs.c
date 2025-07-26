@@ -28,7 +28,6 @@
 #include <string.h>
 
 #include <stdatomic.h>
-#include <inttypes.h>
 
 #include <caml/alloc.h>
 #include <caml/bigarray.h>
