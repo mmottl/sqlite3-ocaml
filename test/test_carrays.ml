@@ -86,6 +86,33 @@ let%test "memory_for_bigarray_is_released_when_finalizing_statement" =
   assert !was_array_collected;
   true
 
+let%test "memory_for_bigarray_is_released_when_statement_is_garbage_collected" =
+  let db = db_open ":memory:" in
+  let was_array_collected =
+    let was_array_collected, stmt =
+      let ba = make_bigarray 10 in
+      let was_array_collected = evaluate_if_collected ba in
+      let stmt = prepare db "SELECT value, 1 FROM carray($ptr)" in
+      assert (Rc.OK = bind_carray stmt 1 (CArray.of_int64_bigarray ba));
+      (was_array_collected, stmt)
+    in
+    (* at first, the bigarray is not collected because it's bound to the
+       statement, and the stmt hasn't been finalized *)
+    Gc.full_major ();
+    assert (not !was_array_collected);
+    (* we just run `column_count` to prevent stmt from being GCed earlier *)
+    ignore (column_count stmt);
+    was_array_collected
+  in
+  (* but once the statement is unreachable the array can get collected (we
+     actually need two major collections - the first one removes the array as a
+     root, the second one leads to the actual GCing of the array. Is there a way
+     to improve this?) *)
+  Gc.full_major ();
+  Gc.full_major ();
+  assert !was_array_collected;
+  true
+
 let%test "rebinding carray makes previously-bound carray collectable" =
   let db = db_open ":memory:" in
   let was_array_collected, stmt =
