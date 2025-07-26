@@ -1034,9 +1034,9 @@ CAMLprim value caml_sqlite3_bind_blob(value v_stmt, intnat pos, value v_str) {
 }
 
 
-static void bind_carray(stmt_wrap* stmtw, intnat pos, value int_array_variant) {
+static void bind_carray(stmt_wrap* stmtw, intnat pos, value array) {
   carray *new_carray = caml_stat_alloc(sizeof(carray));
-  new_carray->the_array = int_array_variant;
+  new_carray->the_array = array;
   caml_register_global_root(&new_carray->the_array);
   new_carray->pos = pos;
   new_carray->next = stmtw->carrays;
@@ -1055,9 +1055,9 @@ CAMLprim value caml_sqlite3_bind_carray(value v_stmt, intnat pos, value int_arra
   range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
 
   // get the actual array
-  value int_array = Field(int_array_variant, 0);
+  value int_array = Field(int_array_variant, 0); // TODO: support other types
 
-  // store the carray variable (TODO: remove the previous bound value)
+  // store the carray variable
   free_stmt_carray_at_pos(stmtw, pos);
   bind_carray(stmtw, pos, int_array);
 
