@@ -876,6 +876,7 @@ static inline void free_stmt_carrays(stmt_wrap *stmtw) {
     caml_stat_free(bound_carrays);
     bound_carrays = next;
   }
+  stmtw->carrays = NULL;
 }
 
 static inline void stmt_wrap_finalize_gc(value v_stmt) {
