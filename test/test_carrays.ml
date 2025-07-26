@@ -86,6 +86,30 @@ let%test "memory_for_bigarray_is_released_when_finalizing_statement" =
   assert !was_array_collected;
   true
 
+let%test
+    "memory_for_bigarray_is_released_when_bindings_are_cleared_from_statement" =
+  let db = db_open ":memory:" in
+  let was_array_collected, stmt =
+    let ba = make_bigarray 10 in
+    let was_array_collected = evaluate_if_collected ba in
+    let stmt = prepare db "SELECT value FROM carray($ptr)" in
+    assert (Rc.OK = bind_carray stmt 1 (CArray.of_int64_bigarray ba));
+    (was_array_collected, stmt)
+  in
+
+  (* at first, the bigarray is not collected because it's bound to the
+     statement *)
+  Gc.full_major ();
+  assert (not !was_array_collected);
+
+  (* but after clearing the bindings *)
+  Rc.check (clear_bindings stmt);
+
+  (* the array can get collected *)
+  Gc.full_major ();
+  assert !was_array_collected;
+  true
+
 let%test "memory_for_bigarray_is_released_when_statement_is_garbage_collected" =
   let db = db_open ":memory:" in
   let was_array_collected =
@@ -179,4 +203,42 @@ let%test "rebinding_clears_only_one_of_the_bigarrays" =
   assert !(List.nth collections 2);
   assert (not !(List.nth collections 1));
 
+  true
+
+let%test "rebinding_any_kind_of_parameter_clears_bigarray" =
+  let db = db_open ":memory:" in
+  let run_test_with_parameter_binding parameter_binding =
+    let was_collected, stmt =
+      let ba = make_bigarray 10 in
+      let was_array_collected = evaluate_if_collected ba in
+      let stmt = prepare db "SELECT value FROM carray($ptr)" in
+      assert (Rc.OK = bind_carray stmt 1 (CArray.of_int64_bigarray ba));
+      (was_array_collected, stmt)
+    in
+    (* at first, no carray gets collected (they are all bound to the
+       statement) *)
+    Gc.full_major ();
+    assert (not !was_collected);
+
+    (* when we rebind parameter 1 *)
+    assert (Rc.OK = parameter_binding stmt);
+
+    (* only that one gets collected *)
+    Gc.full_major ();
+    assert !was_collected
+  in
+  let parameter_bindings =
+    [
+      (fun stmt -> bind stmt 1 (Data.INT 32L));
+      (fun stmt -> bind_text stmt 1 "test");
+      (fun stmt -> bind_bool stmt 1 true);
+      (fun stmt -> bind_int stmt 1 32);
+      (fun stmt -> bind_nativeint stmt 1 32n);
+      (fun stmt -> bind_int32 stmt 1 32l);
+      (fun stmt -> bind_int64 stmt 1 32L);
+      (fun stmt -> bind_double stmt 1 32.);
+      (fun stmt -> bind_blob stmt 1 "blob");
+    ]
+  in
+  List.iter run_test_with_parameter_binding parameter_bindings;
   true
