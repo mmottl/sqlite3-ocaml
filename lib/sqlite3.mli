@@ -279,6 +279,13 @@ module Data : sig
       Useful for debugging. *)
 end
 
+module CArray : sig
+  type t
+
+  val of_int64_bigarray :
+    (Int64.t, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t -> t
+end
+
 (** {2 General database operations} *)
 
 val db_open :
@@ -678,6 +685,15 @@ val bind_double : stmt -> int -> float -> Rc.t
 val bind_blob : stmt -> int -> string -> Rc.t
 (** [bind_blob stmt pos str] binds the string [str] to the parameter at position
     [pos] of the statement [stmt] as a blob.
+
+    @return the return code of this operation.
+
+    @raise RangeError if [pos] is out of range.
+    @raise SqliteError if the statement is invalid. *)
+
+val bind_carray : stmt -> int -> CArray.t -> Rc.t
+(** [bind_carray stmt pos carray] binds the carray [carray] to the parameter at
+    position [pos] of the statement [stmt] as a blob.
 
     @return the return code of this operation.
 

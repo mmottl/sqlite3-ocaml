@@ -28,8 +28,10 @@
 #include <string.h>
 
 #include <stdatomic.h>
+#include <inttypes.h>
 
 #include <caml/alloc.h>
+#include <caml/bigarray.h>
 #include <caml/callback.h>
 #include <caml/custom.h>
 #include <caml/fail.h>
@@ -39,6 +41,7 @@
 #include <caml/version.h>
 
 #include <sqlite3.h>
+#include <carray.h>
 
 #if __GNUC__ >= 3
 #if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__DragonFly) &&  \
@@ -83,6 +86,7 @@
 #include <windows.h>
 typedef DWORD pthread_key_t;
 
+
 static void destroy_user_exception(void *user_exc_);
 
 static int pthread_key_create(pthread_key_t *key, void (*destructor)(void *)) {
@@ -108,6 +112,7 @@ static int pthread_setspecific(pthread_key_t key, void *value) {
 
 /* Utility definitions */
 
+int sqlite3_carray_init(sqlite3* db, char**, const sqlite3_api_routines*);
 static inline value Val_string_option(const char *str) {
   return (str == NULL) ? Val_none : caml_alloc_some(caml_copy_string(str));
 }
@@ -132,12 +137,19 @@ typedef struct db_wrap {
   user_collation *user_collations;
 } db_wrap;
 
+typedef struct carray {
+  value  the_array;
+  intnat pos;
+  struct carray *next;
+} carray;
+
 typedef struct stmt_wrap {
   sqlite3_stmt *stmt;
   char *sql;
   int sql_len;
   char *tail;
   db_wrap *db_wrap;
+  carray *carrays;
 } stmt_wrap;
 
 /* Handling of exceptions in user-defined SQL-functions */
@@ -382,6 +394,7 @@ static inline void ref_count_finalize_dbw(db_wrap *dbw) {
 
 static inline void db_wrap_finalize_gc(value v_dbw) {
   db_wrap *dbw = Sqlite3_val(v_dbw);
+
   if (dbw->db)
     ref_count_finalize_dbw(dbw);
 }
@@ -514,6 +527,8 @@ CAMLprim value caml_sqlite3_open(value v_mode, value v_uri, value v_memory,
         "open returned neither a database nor an error");
   /* "open" succeded */
   {
+    // TODO: check return value
+    sqlite3_carray_init(db, NULL, NULL);
     size_t db_wrap_size = sizeof(db_wrap);
     db_wrap *dbw = caml_stat_alloc(db_wrap_size);
     value v_res;
@@ -834,6 +849,35 @@ CAMLprim value caml_sqlite3_exec_not_null_no_headers(value v_db, value v_cb,
 
 /* Statements */
 
+static inline void free_stmt_carray_at_pos(stmt_wrap *stmtw, intnat pos) {
+  carray *bound_carrays = stmtw->carrays, *prev = NULL;
+  while (bound_carrays != NULL) {
+    carray* next = bound_carrays->next;
+    if (bound_carrays->pos == pos) {
+      if (prev == NULL) {
+	stmtw->carrays = next;
+      } else {
+	prev->next = next;
+      }
+      caml_remove_global_root(&bound_carrays->the_array);
+      caml_stat_free(bound_carrays);
+      break;
+    }
+    prev = bound_carrays;
+    bound_carrays = next;
+  }
+}
+
+static inline void free_stmt_carrays(stmt_wrap *stmtw) {
+  carray* bound_carrays = stmtw->carrays;
+  while (bound_carrays != NULL) {
+    carray* next = bound_carrays->next;
+    caml_remove_global_root(&bound_carrays->the_array);
+    caml_stat_free(bound_carrays);
+    bound_carrays = next;
+  }
+}
+
 static inline void stmt_wrap_finalize_gc(value v_stmt) {
   stmt_wrap *stmtw = Sqlite3_stmtw_val(v_stmt);
   sqlite3_stmt *stmt = stmtw->stmt;
@@ -841,6 +885,8 @@ static inline void stmt_wrap_finalize_gc(value v_stmt) {
     sqlite3_finalize(stmt);
   if (stmtw->sql)
     caml_stat_free(stmtw->sql);
+
+  free_stmt_carrays(stmtw);
   ref_count_finalize_dbw(stmtw->db_wrap);
   caml_stat_free(stmtw);
 }
@@ -860,6 +906,7 @@ static inline value prepare_it(db_wrap *dbw, const char *sql, int sql_len,
   memcpy(stmtw->sql, sql, sql_len);
   stmtw->sql[sql_len] = '\0';
   stmtw->sql_len = sql_len;
+  stmtw->carrays = NULL;
   rc = my_sqlite3_prepare(dbw->db, stmtw->sql, sql_len, &(stmtw->stmt),
                           (const char **)&(stmtw->tail));
   if (rc != SQLITE_OK || !stmtw->stmt) {
@@ -886,6 +933,7 @@ static inline value prepare_it(db_wrap *dbw, const char *sql, int sql_len,
 CAMLprim value caml_sqlite3_stmt_finalize(value v_stmt) {
   stmt_wrap *stmtw = safe_get_stmtw("finalize", v_stmt);
   int rc = sqlite3_finalize(stmtw->stmt);
+  free_stmt_carrays(stmtw);
   stmtw->stmt = NULL;
   return Val_rc(rc);
 }
@@ -980,6 +1028,41 @@ CAMLprim value caml_sqlite3_bind_blob(value v_stmt, intnat pos, value v_str) {
   range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
   return Val_rc(sqlite3_bind_blob(stmt, pos, String_val(v_str),
                                   caml_string_length(v_str), SQLITE_TRANSIENT));
+}
+
+
+static void bind_carray(stmt_wrap* stmtw, intnat pos, value int_array_variant) {
+  carray *new_carray = caml_stat_alloc(sizeof(carray));
+  new_carray->the_array = int_array_variant;
+  caml_register_global_root(&new_carray->the_array);
+  new_carray->pos = pos;
+  new_carray->next = stmtw->carrays;
+  stmtw->carrays = new_carray;
+  return;
+}
+
+CAMLprim value caml_sqlite3_bind_carray(value v_stmt, intnat pos, value int_array_variant) {
+  CAMLparam2(v_stmt, int_array_variant);
+
+  // get the statement
+  stmt_wrap *stmtw = safe_get_stmtw("bind_blob", v_stmt);
+
+  // check the pos 
+  sqlite3_stmt *stmt = stmtw->stmt;
+  range_check(pos - 1, sqlite3_bind_parameter_count(stmt));
+
+  // get the actual array
+  value int_array = Field(int_array_variant, 0);
+
+  // store the carray variable (TODO: remove the previous bound value)
+  free_stmt_carray_at_pos(stmtw, pos);
+  bind_carray(stmtw, pos, int_array);
+
+  int array_size = Caml_ba_array_val(int_array)->dim[0];
+  int64_t* integers = Caml_ba_data_val(int_array);
+
+  CAMLreturn(Val_rc(sqlite3_carray_bind(stmt, pos, integers,
+					array_size, CARRAY_INT64, NULL)));
 }
 
 CAMLprim value caml_sqlite3_bind_blob_bc(value v_stmt, value v_pos,

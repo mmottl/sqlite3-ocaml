@@ -232,6 +232,15 @@ module Data = struct
     | TEXT t | BLOB t -> t
 end
 
+module CArray = struct
+  type int64_c_array =
+    (Int64.t, Bigarray.int64_elt, Bigarray.c_layout) Bigarray.Array1.t
+
+  type t = Int64 of int64_c_array
+
+  let of_int64_bigarray int64_c_array = Int64 int64_c_array
+end
+
 type header = string
 type headers = header array
 type row = string option array
@@ -386,6 +395,9 @@ external bind_parameter_index : stmt -> string -> (int[@untagged])
 
 external bind_blob : stmt -> (int[@untagged]) -> string -> Rc.t
   = "caml_sqlite3_bind_blob_bc" "caml_sqlite3_bind_blob"
+
+external bind_carray : stmt -> (int[@untagged]) -> CArray.t -> Rc.t
+  = "caml_sqlite3_bind_blob_bc" "caml_sqlite3_bind_carray"
 
 external bind_double : stmt -> (int[@untagged]) -> (float[@unboxed]) -> Rc.t
   = "caml_sqlite3_bind_double_bc" "caml_sqlite3_bind_double"
