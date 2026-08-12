@@ -71,6 +71,70 @@ let run_prepare_finalize_during_exec_callback () =
   (match !worker_failure with Some msg -> failwith msg | None -> ());
   assert (db_close db)
 
+let run_finalize_remains_rooted () =
+  let db = db_open ~mutex:`FULL ":memory:" in
+  assert_ok (exec db "CREATE TABLE t (x INTEGER)");
+  assert_ok (exec db "INSERT INTO t VALUES (1)");
+
+  let stmt_slot = ref (Some (prepare db "SELECT 42")) in
+  let mutex = Mutex.create () in
+  let callback_entered = Condition.create () in
+  let callback_release = Condition.create () in
+  let finalize_started = Condition.create () in
+  let in_callback = ref false in
+  let may_return = ref false in
+  let is_finalizing = ref false in
+
+  let exec_thread =
+    Thread.create
+      (fun () ->
+        assert_ok
+          (exec db
+             ~cb:(fun _row _headers ->
+               with_lock mutex (fun () ->
+                   in_callback := true;
+                   Condition.broadcast callback_entered;
+                   while not !may_return do
+                     Condition.wait callback_release mutex
+                   done))
+             "SELECT x FROM t"))
+      ()
+  in
+
+  with_lock mutex (fun () ->
+      while not !in_callback do
+        Condition.wait callback_entered mutex
+      done);
+
+  let finalize_thread =
+    Thread.create
+      (fun () ->
+        match !stmt_slot with
+        | None -> assert false
+        | Some stmt ->
+            stmt_slot := None;
+            with_lock mutex (fun () ->
+                is_finalizing := true;
+                Condition.broadcast finalize_started);
+            assert_ok (finalize stmt))
+      ()
+  in
+
+  with_lock mutex (fun () ->
+      while not !is_finalizing do
+        Condition.wait finalize_started mutex
+      done);
+  Thread.delay 0.05;
+  Gc.minor ();
+
+  with_lock mutex (fun () ->
+      may_return := true;
+      Condition.broadcast callback_release);
+
+  Thread.join exec_thread;
+  Thread.join finalize_thread;
+  assert (db_close db)
+
 let wait_for_child pid timeout_s =
   let deadline = Unix.gettimeofday () +. timeout_s in
   let rec loop () =
@@ -98,6 +162,17 @@ let%test_unit "test_threading_exec_prepare_finalize" =
   | 0 -> (
       try
         run_prepare_finalize_during_exec_callback ();
+        exit 0
+      with exn ->
+        prerr_endline (Printexc.to_string exn);
+        exit 1)
+  | pid -> wait_for_child pid 3.0
+
+let%test_unit "test_threading_finalize_remains_rooted" =
+  match Unix.fork () with
+  | 0 -> (
+      try
+        run_finalize_remains_rooted ();
         exit 0
       with exn ->
         prerr_endline (Printexc.to_string exn);
