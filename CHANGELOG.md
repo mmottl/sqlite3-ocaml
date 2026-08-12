@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.4.2] - 2026-08-12
+
+### Fixed
+
+- Fixed OCaml GC rooting across runtime-released SQLite calls, preventing
+  statement and database wrappers from being finalized while their explicit C
+  primitives are blocked inside SQLite.
+
 ## [5.4.1] - 2026-04-16
 
 ### Added
